@@ -1,6 +1,8 @@
 //Express server setup
 const express = require("express");
 const app = express();
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 //socket.io setup
 const http = require('http').createServer(app);

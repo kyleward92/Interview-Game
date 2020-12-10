@@ -62,9 +62,9 @@ $(".addJobBtn").on('click', event => {
     });
 });
 // adding phrases
-function addPhrase(content) {
-    $.post("/api/jobs", content);
-    console.log("phrase added:" + content)
+function addPhrase(phrase) {
+    $.post("/api/phrases", phrase.content);
+    console.log("phrase added:" + phrase.content)
 }
 $(".addPhraseBtn").on('click', event => {
     event.preventDefault();
