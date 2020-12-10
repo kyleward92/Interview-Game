@@ -6,14 +6,18 @@ const app = express();
 const http = require('http').createServer(app);
 const io = require("socket.io")(http);
 
+var db = require("./models");
+
 const path = require('path');
 
 //default front-end folder
-app.use(express.static('Assets'));
+app.use(express.static('public'));
 
 const PORT = 8080;
 
 let roomNum = '9999';
+
+require('./routes/api-routes')(app);
 
 //serve html on / request
 app.get('/', (req, res) => {
@@ -58,6 +62,10 @@ io.on('connection', (socket) => {
 });
 
 
-http.listen(PORT, () => {
-    console.log("Listening on port 8080");
-});
+
+db.sequelize.sync({ force: true }).then(function() {
+    http.listen(PORT, () => {
+        console.log("Listening on port 8080");
+    });
+  });
+  

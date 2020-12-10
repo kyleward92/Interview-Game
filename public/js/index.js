@@ -1,3 +1,4 @@
+
 $(() => {
 
     //create socket connection from front end
@@ -7,7 +8,7 @@ $(() => {
     $(".submitBtn").on('click', event => {
         event.preventDefault();
 
-        
+
         //make sure socket connection exists
         if (socket) {
             const message = $('.messageInput');
@@ -29,6 +30,7 @@ $(() => {
     })
 
 
+
     socket.on('roomInfo', (roomNum) => {
         $(".roomDisp").text(`Room Number: ${roomNum}`);
         currentRoom = roomNum;
@@ -42,5 +44,35 @@ $(() => {
 
 })
 
+// setting job and phrase input
+var jobInput = $('.jobInput');
+var phraseInput = $('.phraseInput');
+
+// adding jobs
+function addJob(job) {
+    $.post("/api/jobs", job.title);
+    console.log("job added:" + job.title)
+}
+$(".addJobBtn").on('click', event => {
+    event.preventDefault();
+    addJob({
+        title: jobInput
+            .val()
+            .trim()
+    });
+});
+// adding phrases
+function addPhrase(content) {
+    $.post("/api/jobs", content);
+    console.log("phrase added:" + content)
+}
+$(".addPhraseBtn").on('click', event => {
+    event.preventDefault();
+    addPhrase({
+        content: phraseInput
+            .val()
+            .trim()
+    });
+});
 
 

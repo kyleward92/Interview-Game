@@ -11,6 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "socket.io": "^3.0.3"
+    "socket.io": "^3.0.3",
+    "mysql2": "^1.6.4",
+    "sequelize": "^4.41.2"
   }
 }
