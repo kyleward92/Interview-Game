@@ -7,17 +7,6 @@ const Timer = require("tiny-timer");
 const gameData = { phase: "setup" }
 
 
-//Player Data stubs
-//TODO call player info from userDB
-//TODO author Player model
-
-//Player class will have name (from account), SCORE, flags for interviwer and hotseat(next to be interviewer)
-const one = { name: "Player One", interviewer: true };
-const two = { name: "Player Two", };
-const three = { name: "Player Three", hotseat: true };
-
-const playersArray = [one, two, three]
-
 //TODO make module export
 // module.exports = (RoomId, Players) => {
 
@@ -38,7 +27,7 @@ timer.on('statusChanged', (status) =>
 //================
 
 //function to handle all game timers
-setTimer = () => {
+mainLoop = () => {
 
     timer.on('tick', (ms) => console.log('tick', ms))
     //TODO change 'done' behavior to round behavior functions
@@ -92,7 +81,28 @@ setTimer = () => {
     }
 }
 
-setTimer();
+mainLoop()
+
+
+setupPhase = () => {
+    //Initial game data values
+
+    //TODO CRUD for retrieving players
+    //TODO author Player model
+
+    //Player class will have name (from account), SCORE, flags for interviwer and hotseat(next to be interviewer)
+    const one = { name: "Player One", interviewer: true };
+    const two = { name: "Player Two", };
+    const three = { name: "Player Three", hotseat: true };
+
+    const playersArray = [one, two, three]
+
+    //TODO CRUD actions to populate jobCards and resumeCards.  
+    //TODO allow players to input resumeCards
+    const jobCards = [{ text: "JOBCARD ONE - FIREMAN" }, { text: "JOBCARD TWO - BARTENDER" }];
+    const resumeCards = [{ text: "I have no teeth" }, { text: "Big backyard" }, { text: "Banjo champion" }, { text: "Experience with cheese" },]
+}
+
 
 //promptInputResumes()
     //Allow players to seed the resume card deck with 5 unique answers
