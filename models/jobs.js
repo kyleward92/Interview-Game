@@ -1,7 +1,7 @@
 module.exports = function(sequelize, DataTypes) {
-    var job = sequelize.define("jobs", {
+    var jobs = sequelize.define("jobs", {
       title: DataTypes.STRING
     });
-    return job;
+    return jobs;
   };
   
