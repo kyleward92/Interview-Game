@@ -1,14 +1,24 @@
+const e = require("express");
+const { check } = require("prettier");
+
 $(() => {
 
     // setting job and phrase input
-    var jobInput = $('.jobInput');
-    var phraseInput = $('.phraseInput');
+    const jobInput = $('.jobInput');
+    const phraseInput = $('.phraseInput');
+    const chatDiv = $('.chat');
+    const submissionsDiv = $('.submissions');
+    const currentCardDiv = $('.currentCard');
+    const jobCardDiv = $('.jobCard');
+    const cardsDiv = $('.cards');
+
 
     //create socket connection from front end
     const socket = io();
     let currentRoom = '';
     let currentPhase = 1;
 
+    checkPhase();
     $(".submitBtn").on('click', event => {
         event.preventDefault();
 
@@ -72,7 +82,8 @@ $(() => {
     //when next phase event is received, update the on screen indicator
     socket.on('nextPhase', data => {
         currentPhase = data.newPhase;
-        $('.phaseDisp').text(`Current Phase: ${currentPhase}`);
+        $('.phaseDisp').text(`Current Phase: ${currentPhase}`)
+        checkPhase();
     })
 
     //When event card clicked is received, display the card data in the current card slot
@@ -112,9 +123,40 @@ $(() => {
                 .trim()
         });
     });
-
-
 })
+
+const checkPhase = () => {
+    if (currentPhase == 1) {
+        phaseOne();
+    } else if(currentPhase == 2) {
+        phaseTwo();
+    } else if(currentPhase == 3) {
+        phaseThree();
+    } else {
+        console.log('Phases are broken');
+    }
+}
+
+const phaseOne = () => {
+    submissionsDiv.show();
+    cardsDiv.hide();
+    currentCardDiv.hide();
+    jobCardDiv.hide();
+}
+
+const phaseTwo = () => {
+    submissionsDiv.hide();
+    cardsDiv.show();
+    currentCardDiv.show();
+    jobCardDiv.show();
+}
+
+const phaseThree = () => {
+    submissionsDiv.hide();
+    cardsDiv.hide();
+    currentCardDiv.hide();
+    jobCardDiv.show();
+}
 
 
 

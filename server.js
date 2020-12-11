@@ -5,9 +5,11 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+
 //socket.io setup
 const http = require('http').createServer(app);
 const io = require("socket.io")(http);
+
 
 var db = require("./models");
 
@@ -93,3 +95,8 @@ const nextPhase = (currentPhase) => {
 
     return newPhase;
 };
+
+const NumClientsInRoom = (room) => {
+    var clients = io.nsps['/'].adapter.rooms[room];
+    return Object.keys(clients).length;
+  }
