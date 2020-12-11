@@ -1,5 +1,5 @@
 {
-  "name": "1-Passport-Example",
+  "name": "interview-game",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -22,7 +22,7 @@
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "sequelize": "^5.8.6",
-    "socket.io": "^1.0.0",
+    "socket.io": "^3.0.4",
     "tiny-timer": "^1.5.1"
   },
   "devDependencies": {
