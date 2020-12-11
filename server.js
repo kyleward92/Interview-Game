@@ -10,7 +10,6 @@ app.use(express.json());
 const http = require('http').createServer(app);
 const io = require("socket.io")(http);
 
-
 var db = require("./models");
 
 const path = require('path');
@@ -39,19 +38,13 @@ app.get('/join/:roomNumber', (req, res) => {
     roomNum = req.params.roomNumber;
 });
 
-//*************
-//socket events 
-//*************
-
-require('./routes/socket-events');
-
+require('./routes/socket-events')(io);
 
 db.sequelize.sync({ force: true }).then(function () {
     http.listen(PORT, () => {
         console.log("Listening on port 8080");
     });
 });
-
 
 // Handles changing the phase
 const nextPhase = (currentPhase) => {
