@@ -1,8 +1,17 @@
+const e = require("express");
+const { check } = require("prettier");
+
 $(() => {
 
     // setting job and phrase input
-    var jobInput = $('.jobInput');
-    var phraseInput = $('.phraseInput');
+    const jobInput = $('.jobInput');
+    const phraseInput = $('.phraseInput');
+    const chatDiv = $('.chat');
+    const submissionsDiv = $('.submissions');
+    const currentCardDiv = $('.currentCard');
+    const jobCardDiv = $('.jobCard');
+    const cardsDiv = $('.cards');
+
 
     //create socket connection from front end
     const socket = io();
@@ -72,7 +81,7 @@ $(() => {
     //when next phase event is received, update the on screen indicator
     socket.on('nextPhase', data => {
         currentPhase = data.newPhase;
-        $('.phaseDisp').text(`Current Phase: ${currentPhase}`);
+        $('.phaseDisp').text(`Current Phase: ${currentPhase}`)
     })
 
     //When event card clicked is received, display the card data in the current card slot
@@ -112,9 +121,8 @@ $(() => {
                 .trim()
         });
     });
-
-
 })
+
 
 
 
