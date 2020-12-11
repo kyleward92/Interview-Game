@@ -86,7 +86,7 @@ $(() => {
 
     // adding jobs
     function addJob(job) {
-        $.post("/api/jobs", job.title);
+        $.post("/api/jobs", job);
         console.log("job added:" + job.title)
     }
 
@@ -101,7 +101,7 @@ $(() => {
 
     // adding phrases
     function addPhrase(phrase) {
-        $.post("/api/phrases", phrase.content);
+        $.post("/api/phrases", phrase);
         console.log("phrase added:" + phrase.content)
     }
     $(".addPhraseBtn").on('click', event => {
