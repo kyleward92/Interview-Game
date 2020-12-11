@@ -1,4 +1,5 @@
 //Express server setup
+const { Console } = require("console");
 const express = require("express");
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -15,7 +16,7 @@ const path = require('path');
 //default front-end folder
 app.use(express.static('public'));
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 let roomNum = '9999';
 
@@ -31,18 +32,17 @@ app.get('/host', (req, res) => {
     roomNum = Math.floor(Math.random() * 9999).toString();
 });
 
-app.get('/join/:roomNumber', (req,res) => {
+app.get('/join/:roomNumber', (req, res) => {
     res.sendFile(path.join(__dirname, './public/html/index.html'));
-    console.log('Params Val: ', req.params.roomNumber);
     roomNum = req.params.roomNumber;
-    console.log('Room Number: ', roomNum);
 });
 
-
+//*************
 //socket events 
-//When socket from front-end connects
+//*************
+
 io.on('connection', (socket) => {
-    
+
     socket.join(roomNum);
     console.log(`a user connected to room ${roomNum}`);
 
@@ -61,13 +61,35 @@ io.on('connection', (socket) => {
 
     });
 
+    socket.on('nextPhase', data => {
+        const newPhase = nextPhase(parseInt(data.phase));
+        console.log('Phase Advanced');
+        io.to(data.room).emit('nextPhase', { newPhase: newPhase });
+    })
+
+    socket.on('cardClicked', cardData => {
+        console.log('Card Clicked: ', cardData.text);
+        io.to(cardData.room).emit('cardClicked', cardData);
+    })
+
 });
 
 
-
-db.sequelize.sync({ force: true }).then(function() {
+db.sequelize.sync({ force: true }).then(function () {
     http.listen(PORT, () => {
         console.log("Listening on port 8080");
     });
-  });
-  
+});
+
+
+// Handles changing the phase
+const nextPhase = (currentPhase) => {
+    let newPhase;
+    if (currentPhase === 3) {
+        newPhase = 1;
+    } else {
+        newPhase = currentPhase + 1;
+    }
+
+    return newPhase;
+}
