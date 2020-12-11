@@ -12,8 +12,6 @@ const io = require("socket.io")(http);
 
 var db = require("./models");
 
-const path = require('path');
-
 //default front-end folder
 app.use(express.static('public'));
 
@@ -22,21 +20,6 @@ const PORT = process.env.PORT || 8080;
 let roomNum = '9999';
 
 require('./routes/api-routes')(app);
-
-//serve html on / request
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, './public/html/landing.html'));
-});
-
-app.get('/host', (req, res) => {
-    res.sendFile(path.join(__dirname, './public/html/index.html'));
-    roomNum = Math.floor(Math.random() * 9999).toString();
-});
-
-app.get('/join/:roomNumber', (req, res) => {
-    res.sendFile(path.join(__dirname, './public/html/index.html'));
-    roomNum = req.params.roomNumber;
-});
 
 require('./routes/socket-events')(io);
 
