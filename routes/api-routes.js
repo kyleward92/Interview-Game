@@ -17,6 +17,10 @@ module.exports = function (app) {
     roomNum = req.params.roomNumber;
   });
 
+  app.get('/how-to-play', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/html/howto_play.html'))
+  })
+
   // make a job card 
   app.post("/api/jobs", function (req, res) {
     db.jobs.create(req.body).then(function (dbJob) {
