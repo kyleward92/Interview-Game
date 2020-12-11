@@ -65,12 +65,12 @@ io.on('connection', (socket) => {
         const newPhase = nextPhase(parseInt(data.phase));
         console.log('Phase Advanced');
         io.to(data.room).emit('nextPhase', { newPhase: newPhase });
-    })
+    });
 
     socket.on('cardClicked', cardData => {
         console.log('Card Clicked: ', cardData.text);
         io.to(cardData.room).emit('cardClicked', cardData);
-    })
+    });
 
 });
 
@@ -92,4 +92,4 @@ const nextPhase = (currentPhase) => {
     }
 
     return newPhase;
-}
+};
