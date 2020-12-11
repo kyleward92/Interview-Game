@@ -6,6 +6,9 @@ module.exports = (io) => {
 
         io.to(roomNum).emit('roomInfo', roomNum);
 
+        //this line is used to test the phase change events
+        // io.to(roomNum).emit('employmentPhase', roomNum);
+
         //when socket disconnects
         socket.on('disconnect', () => {
             console.log("User Disconnected");
@@ -16,7 +19,6 @@ module.exports = (io) => {
             console.log(`${msg.author}: ${msg.message}`);
             //send the message received from one user to all other users
             io.to(msg.room).emit('chat', msg);
-
         });
 
         socket.on('nextPhase', data => {

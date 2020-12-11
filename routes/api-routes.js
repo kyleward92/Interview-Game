@@ -18,7 +18,7 @@ module.exports = function (app) {
   });
 
   app.get('/how-to-play', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/html/howto_play.html'))
+    res.sendFile(path.join(__dirname, '../public/html/howto_play.html'));
   })
 
   // make a job card 
