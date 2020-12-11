@@ -1,11 +1,15 @@
+//CURRENT BUGS
+// *issue with timers triggering incorrect phase (likely won't be an issue on move to event.emit paradigm)
+// *resume cards are not drawing properly
+
+
 //Timer
 const Timer = require("tiny-timer");
-
+const app = require("./app.js")
 
 //gameData will be used to signal status of a state machine governing game state.
 //Possible states "setup/init", (rounds) "draw", "interview", "employment".  
 const gameData = { phase: "setup" }
-const players = {}
 
 
 //TODO make module export
@@ -14,7 +18,7 @@ const players = {}
 //Timer Setup code
 const timer = new Timer();
 
-
+timer.on('tick', (ms) => console.log('tick', ms))
 timer.on('statusChanged', (status) =>
     console.log('status:', status,))
 
@@ -27,52 +31,52 @@ timer.on('statusChanged', (status) =>
 //================
 
 //function to handle all game timers
-mainLoop = () => {
+// mainLoop = () => {
 
-    timer.on('tick', (ms) => console.log('tick', ms))
-    //TODO change 'done' behavior to round behavior functions
-    switch (gameData.phase) {
-        case "setup":
-            setupPhase();
-            break;
-        //////////////////////////THESE CASE STATEMENTS MIGHT BE UNNECESSARY ONCE WE BEGIN USING EMIT?
-        //     case "draw":
-        //         timer.on('done', () => {
-        //             console.log('done!', gameData.players),
-        //                 gameData.phase = "interview",
-        //                 console.log(gameData.phase)
-        //         })
 
-        //         timer.start(5000)
+//     //TODO change 'done' behavior to round behavior functions
+//     switch (gameData.phase) {
+//         case "setup":
+//             setupPhase();
+//             break;
+//////////////////////////THESE CASE STATEMENTS MIGHT BE UNNECESSARY ONCE WE BEGIN USING EMIT?
+//     case "draw":
+//         timer.on('done', () => {
+//             console.log('done!', gameData.players),
+//                 gameData.phase = "interview",
+//                 console.log(gameData.phase)
+//         })
 
-        //         break;
+//         timer.start(5000)
 
-        //     case "interview":
-        //         timer.on('done', () => {
-        //             console.log('done!', gameData.players),
-        //                 gameData.phase = "employment",
-        //                 console.log(gameData.phase)
-        //         })
+//         break;
 
-        //         timer.start(5000)
-        //         console.log(gameData.phase)
-        //         break;
+//     case "interview":
+//         timer.on('done', () => {
+//             console.log('done!', gameData.players),
+//                 gameData.phase = "employment", 
+//                 console.log(gameData.phase)
+//         })
 
-        //     case "employment":
-        //         timer.on('done', () => {
-        //             console.log('done!', gameData.players),
-        //                 gameData.phase = "draw",
-        //                 console.log(gameData.phase)
-        //         })
+//         timer.start(5000)
+//         console.log(gameData.phase)
+//         break;
 
-        //         timer.start(5000)
-        //         console.log(gameData.phase)
-        //         break;
+//     case "employment":
+//         timer.on('done', () => {
+//             console.log('done!', gameData.players),
+//                 gameData.phase = "draw",
+//                 console.log(gameData.phase)
+//         })
 
-        default:
-            break;
-    }
-}
+//         timer.start(5000)
+//         console.log(gameData.phase)
+//         break;
+
+//         default:
+//             break;
+//     }
+// }
 
 
 setupPhase = () => {
@@ -110,18 +114,17 @@ setupPhase = () => {
 
     //Timer to next Phase
     timer.on('done', () => {
+        timer.status
 
         console.table('============SETUP done!');
         console.log(players);
 
         gameData.phase = "draw";
-        drawPhase();
-
-        console.log(gameData.phase)
+        return drawPhase();
     })
 
 
-    timer.start(5000)
+    return timer.start(5000)
 
 }
 
@@ -141,13 +144,24 @@ drawPhase = () => {
 
     //Deal 5 resume cards to hotseat
     //TODO  deal 5 cards instead of 1
-    players.drawnResumeCards = resumeCards.splice(pickRandom(resumeCards), 1);
+    let drawnResumeCards = [];
+    console.log(resumeCards);
+
+    for (let i = 0; i < 5, i++;) {
+        console.log("LOOP COUNTER======================================================================")
+        let drawnCard = resumeCards.splice(pickRandom(resumeCards), 1);
+        drawnResumeCards.push(drawnCard)
+    };
+
+    console.log(drawnResumeCards);
+    players.drawnResumeCards = drawnResumeCards;
 
     console.table(players)
     console.table(gameData)
 
     gameData.phase = "interview";
-    interviewPhase();
+    return interviewPhase();
+
 
 }
 
@@ -166,9 +180,8 @@ interviewPhase = () => {
         console.table(players.drawnResumeCards);
 
         gameData.phase = "employment";
-        employmentPhase();
-
-        console.log(gameData.phase)
+        timer.status
+        return employmentPhase();
     })
 
     console.log("SIXTY SECOND TIMER HERE");
@@ -192,4 +205,4 @@ interviewPhase = () => {
 
 
 
-mainLoop()
+setupPhase();
