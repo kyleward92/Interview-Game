@@ -10,8 +10,8 @@ module.exports = (io) => {
 
         io.to(roomNum).emit('roomInfo', roomNum);
 
-        //for debugging, return all users in namespace
-        console.log(io.sockets);
+        //for debugging, return all users in room
+        io.to(roomNum).emit('roomPoll', roomNum);
 
 
         //this line is used to test the phase change events
@@ -38,6 +38,13 @@ module.exports = (io) => {
         socket.on('cardClicked', cardData => {
             console.log('Card Clicked: ', cardData.text);
             io.to(cardData.room).emit('cardClicked', cardData);
+        });
+
+        //Return info about the room and connected sockets
+        socket.on('roomPoll', roomNum => {
+            console.log("ROOMPOLL");
+            let data = io.in(roomNum).allSockets();
+            console.table(data);
         });
 
 
