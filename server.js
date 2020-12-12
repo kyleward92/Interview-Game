@@ -23,6 +23,8 @@ require('./routes/api-routes')(app);
 
 require('./routes/socket-events')(io);
 
+require('./config/app.js');
+
 db.sequelize.sync({ force: true }).then(function () {
     http.listen(PORT, () => {
         console.log("Listening on port 8080");
@@ -33,4 +35,4 @@ db.sequelize.sync({ force: true }).then(function () {
 const NumClientsInRoom = (room) => {
     var clients = io.nsps['/'].adapter.rooms[room];
     return Object.keys(clients).length;
-  };
+};

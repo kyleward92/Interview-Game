@@ -5,6 +5,7 @@ module.exports = (io) => {
         console.log(`a user connected to room ${roomNum}`);
 
         io.to(roomNum).emit('roomInfo', roomNum);
+        io.emit('initPlayers', roomNum);
 
         //this line is used to test the phase change events
         // io.to(roomNum).emit('employmentPhase', roomNum);
@@ -31,6 +32,7 @@ module.exports = (io) => {
             console.log('Card Clicked: ', cardData.text);
             io.to(cardData.room).emit('cardClicked', cardData);
         });
+
 
     });
 }
