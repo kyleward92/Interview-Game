@@ -115,9 +115,6 @@ $(() => {
     });
 
 
-
-
-
     // adding jobs
     function addJob(job) {
         $.post("/api/jobs", job);
