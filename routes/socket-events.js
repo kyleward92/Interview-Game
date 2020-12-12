@@ -1,11 +1,18 @@
+const app = require("../config/app");
+
 module.exports = (io) => {
-    io.on('connection', (socket) => {
+    io.on('connection', async (socket) => {
 
         socket.join(roomNum);
-        console.log(`a user connected to room ${roomNum}`);
+        const userId = await socket.id;
+        console.log(`a user ${userId} connected to room ${roomNum}`);
+
 
         io.to(roomNum).emit('roomInfo', roomNum);
-        io.emit('initPlayers', roomNum);
+
+        //for debugging, return all users in namespace
+        console.log(io.sockets);
+
 
         //this line is used to test the phase change events
         // io.to(roomNum).emit('employmentPhase', roomNum);

@@ -6,6 +6,8 @@ module.exports = {
         io = socketIo;
         gameSocket = socket;
 
+        const gameData = new GameData(currentRoom, setup, 0, jobDeck, resumeDeck)
+
         //Server Events
         gameSocket.on('serverCreateGame', serverCreateGame);
         gameSocket.on('initPlayers', initPlayers);
@@ -25,7 +27,7 @@ module.exports = {
 
     //Called when room is full.  Creates player objects for gameLogic.
     initPlayers: (room) => {
-        console.log("INIT PLAYERS FUNCTION");
+        console.log("INITPLAYERS FUNCTION");
 
         var clients = io.nsps['/'].adapter.rooms[room];
         Object.keys(clients);
@@ -37,10 +39,6 @@ module.exports = {
         });
 
     }
-
-    // initGame = (players, data) => {
-    // players
-    // }
 
 
 }
