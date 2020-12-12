@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style> 
+    <style>
         .messages {
             border: 15px;
         }
@@ -17,34 +17,41 @@
     <h1 class="roomDisp">Room Number: </h1>
     <h2 class="phaseDisp">Current Phase: 1</h2>
 
-    <button class="phaseBtn">Next Phase</button>
 
     <br><br>
 
-    <input class="messageInput" type="text">
+    <div class="chat">
+        <input class="messageInput" type="text">
 
-    <button class="submitBtn" type="submit">Submit</button>
+        <button class="submitBtn" type="submit">Submit</button>
 
-    <br><br>
+        <br><br>
 
-    <p>Display Name:</p>
-    <input class="authorInput" type="text">
+        <p>Display Name:</p>
+        <input class="authorInput" type="text">
+    </div>
 
-    <br><br>
-
-    <input class="jobInput" type="text">
-
-    <button class="addJobBtn" type="submit">Add job</button>
 
     <br><br>
 
-    <input class="phraseInput" type="text">
+    <div class="submissions">
+        <input class="jobInput" type="text">
 
-    <button class="addPhraseBtn" type="submit">Add phrase</button>
+        <button class="addJobBtn" type="submit">Add job</button>
 
-    <br><br>
+        <br><br>
+
+        <input class="phraseInput" type="text">
+
+        <button class="addPhraseBtn" type="submit">Add phrase</button>
+
+        <br><br>
+    </div>
+
 
     <div class="currentCard"></div>
+
+    <div class="jobCard"></div>
 
     <div class="cards">
         <button class="card" value="Mega Dog">Mega Dog</button>

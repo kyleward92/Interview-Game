@@ -1,8 +1,14 @@
 $(() => {
 
     // setting job and phrase input
-    var jobInput = $('.jobInput');
-    var phraseInput = $('.phraseInput');
+    const jobInput = $('.jobInput');
+    const phraseInput = $('.phraseInput');
+    const chatDiv = $('.chat');
+    const submissionsDiv = $('.submissions');
+    const currentCardDiv = $('.currentCard');
+    const jobCardDiv = $('.jobCard');
+    const cardsDiv = $('.cards');
+
 
     //create socket connection from front end
     const socket = io();
@@ -62,23 +68,47 @@ $(() => {
     socket.on('roomInfo', (roomNum) => {
         $(".roomDisp").text(`Room Number: ${roomNum}`);
         currentRoom = roomNum;
-    })
+    });
 
     //when a message is received from the server, print to screen
     socket.on('chat', msg => {
         $('.messages').append($('<li>').text(`${msg.author}: ${msg.message}`))
-    })
+    });
 
     //when next phase event is received, update the on screen indicator
     socket.on('nextPhase', data => {
         currentPhase = data.newPhase;
-        $('.phaseDisp').text(`Current Phase: ${currentPhase}`);
-    })
+        $('.phaseDisp').text(`Current Phase: ${currentPhase}`)
+    });
 
     //When event card clicked is received, display the card data in the current card slot
     socket.on('cardClicked', cardData => {
         $('.currentCard').html(`<p>${cardData.text}</p>`);
-    })
+    });
+
+    //event listener for handling the setup phase
+    socket.on('setupPhase', data => {
+        console.log('Submission phase started');
+        submissionPhase();
+    });
+
+    //event listener for handling the draw phase
+    socket.on('drawPhase', data => {
+        console.log('Deal phase started');
+        dealPhase();
+    });
+
+    //event listener for handling the interview phase
+    socket.on('interviewPhase', data => {
+        console.log('Interview phase started');
+        interviewPhase();
+    });
+
+    //event listener for handling the employment phase
+    socket.on('employmentPhase', data => {
+        console.log('Employment phase started');
+        employmentPhase();
+    });
 
 
 
@@ -114,7 +144,37 @@ $(() => {
     });
 
 
+    const submissionPhase = () => {
+        submissionsDiv.show();
+        currentCardDiv.hide();
+        jobCardDiv.hide();
+        cardsDiv.hide();
+    }
+
+    const dealPhase = () => {
+        submissionsDiv.hide();
+        currentCardDiv.hide();
+        jobCardDiv.show();
+        cardsDiv.show();
+    }
+
+    const interviewPhase = () => {
+        submissionsDiv.hide();
+        currentCardDiv.show();
+        jobCardDiv.show();
+        cardsDiv.show();
+    }
+
+    const employmentPhase = () => {
+        submissionsDiv.hide();
+        currentCardDiv.hide();
+        jobCardDiv.show();
+        cardsDiv.hide();
+    }
 })
+
+
+
 
 
 
