@@ -143,6 +143,16 @@ $(() => {
         });
     });
 
+    // add premade deck
+    function addPremadeDeck() {
+        $.post("/api/premadePhrases");
+        console.log("at least the clicking works")
+    }
+    $(".addPremadeDeck").on('click', event => {
+        event.preventDefault();
+        addPremadeDeck();
+    });
+
 
     const submissionPhase = () => {
         submissionsDiv.show();

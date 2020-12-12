@@ -1,5 +1,6 @@
 const db = require("../models");
 const path = require('path');
+const data = require('../data');
 
 module.exports = function (app) {
   //serve html on / request
@@ -35,4 +36,9 @@ module.exports = function (app) {
     });
   });
 
+// upload premade deck (test)
+// app.post("api/premadePhrases"), function(req,res){
+//   db.premadePhrases.bulkCreate(data);
+//   console.log("premadedeck uploaded")
+// }
 };
