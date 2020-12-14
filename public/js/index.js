@@ -8,6 +8,9 @@ $(() => {
     const currentCardDiv = $('.currentCard');
     const jobCardDiv = $('.jobCard');
     const cardsDiv = $('.cards');
+    const nextJobBtn = $('.nextJob');
+    var index = 0
+    var jobDeck =[]
 
 
     //create socket connection from front end
@@ -112,8 +115,6 @@ $(() => {
 
 
 
-
-
     // adding jobs
     function addJob(job) {
         $.post("/api/jobs", job);
@@ -146,33 +147,32 @@ $(() => {
     // show a premade job
     async function getJobs() {
         let deck = await $.get("/api/premadeJobs", (data) => {});
-
-        var index = 0;
         var jobDeck = [];
         // console.log(deck)
         for(i=0;i<deck.length;i++){
             jobDeck.push(deck[i].title);
         }
         shuffle(jobDeck);
-        // $(".jobDisplay").text(deck[index]);
-        // if(index < 19){
-        //     $(".jobDisplay").text(deck[index]);
-        // } else {
-        //     $(".jobDisplay").text("thats all the jobs");
-        // }
-        // index++;
-
-
-
+        index = 0
         return jobDeck;
     }
+
     $(".showAjob").on('click', async event => {
         event.preventDefault();
         jobDeck = await getJobs();
-        console.log(jobDeck)
-        $(".jobDisplay").text(jobDeck[0]);
+        nextJobBtn.show();
+        $(".jobDisplay").text("Shuffled. Click next Job to begin");
 
     });
+    
+    nextJobBtn.on('click', async event =>{
+        if(index < 19){
+            $(".jobDisplay").text(jobDeck[index]);
+        } else {
+            $(".jobDisplay").text("thats all the jobs, hit shuffle to restart");
+        }
+        index++;
+    })
 
     // Fisher Yates Algorithm for shuffling 
     function shuffle(a) {
