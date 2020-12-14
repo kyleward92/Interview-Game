@@ -36,4 +36,17 @@ module.exports = function (app) {
     });
   });
 
+  // get all premadeJob cards
+  app.get("/api/premadeJobs", function (req, res) {
+    db.premadeJobs.findAll({}).then(function (dbPreJob) {
+      res.json(dbPreJob);
+    })
+  })
+
+  // get all premadePhrase cards
+  app.get("/api/premadePhrases", function (req, res) {
+    db.premadePhrases.findAll({}).then(function (dbPrePhrases) {
+      res.json(dbPrePhrases)
+    })
+  })
 };

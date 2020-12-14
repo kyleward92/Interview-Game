@@ -8,6 +8,12 @@ $(() => {
     const currentCardDiv = $('.currentCard');
     const jobCardDiv = $('.jobCard');
     const cardsDiv = $('.cards');
+    const nextJobBtn = $('.nextJob');
+    const populateButtons = $('.populateButtons');
+    var jobIndex = 0
+    var jobDeck = []
+    var phraseIndex = 0
+    var phraseDeck = []
 
 
     //create socket connection from front end
@@ -157,6 +163,98 @@ $(() => {
                 .trim()
         });
     });
+
+    // *********************************************************************************************************
+    // -----------------Manipulating Premade Decks-----------
+    // *********************************************************************************************************
+    // get all the jobs and shuffle them 
+    async function getJobs() {
+        let deck = await $.get("/api/premadeJobs", (data) => { });
+        var jobDeck = [];
+        for (i = 0; i < deck.length; i++) {
+            jobDeck.push(deck[i].title);
+        }
+        shuffle(jobDeck);
+        jobIndex = 0
+        return jobDeck;
+    }
+    // define the job deck, show the next job function, prompt user
+    $(".showAjob").on('click', async event => {
+        event.preventDefault();
+        jobDeck = await getJobs();
+        nextJobBtn.show();
+        $(".jobDisplay").text("Shuffled. Click next Job to begin");
+    });
+    // Show the next job until we run out of jobs
+    nextJobBtn.on('click', async event => {
+        if (jobIndex < 19) {
+            $(".jobDisplay").text(jobDeck[jobIndex]);
+        } else {
+            $(".jobDisplay").text("thats all the jobs, hit shuffle to restart");
+        }
+        jobIndex++;
+    })
+
+    // Fisher Yates Algorithm for shuffling 
+    function shuffle(a) {
+        var j, x, i;
+        for (i = a.length - 1; i > 0; i--) {
+            j = Math.floor(Math.random() * (i + 1));
+            x = a[i];
+            a[i] = a[j];
+            a[j] = x;
+        }
+    }
+
+
+    // get the premade Phrase deck shuffled
+    async function getPhrases() {
+        let deck = await $.get("/api/premadePhrases", (data) => { });
+        var phraseDeck = [];
+        for (i = 0; i < deck.length; i++) {
+            phraseDeck.push(deck[i].content);
+        }
+        shuffle(phraseDeck);
+        phraseIndex = 0
+        return phraseDeck;
+    }
+
+    //  on click get all phrases shuffled and show populate button
+    $(".consolePhrases").on('click', async event => {
+        event.preventDefault();
+        phraseDeck = await getPhrases();
+        populateButtons.show();
+        console.log(phraseDeck)
+    });
+
+    // populate buttons with 5 new cards, reenable buttons
+    populateButtons.on('click', async event => {
+        console.log(phraseIndex)
+        var cardIndex = 0
+        if (phraseIndex < 100) {
+            for (i = phraseIndex; i < phraseIndex + 5; i++) {
+                
+                var cardArray =$(".card").toArray();
+                console.log(cardArray)
+                
+                cardArray[cardIndex].value = phraseDeck[i]
+                cardArray[cardIndex].textContent = phraseDeck[i]
+                cardArray[cardIndex].disabled = false;
+                
+                cardIndex++;
+            }
+            phraseIndex = phraseIndex + 5
+        } else {
+            phraseIndex = 0;
+        }
+    })
+
+
+
+    // *********************************************************************************************************
+    // ---------Phases-----------
+    // *********************************************************************************************************
+
 
     const submissionPhase = () => {
         submissionsDiv.show();

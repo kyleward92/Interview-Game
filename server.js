@@ -35,7 +35,7 @@ require('./routes/api-routes')(app);
 
 require('./routes/socket-events')(io, games);
 
-db.sequelize.sync({ force: true }).then(function () {
+db.sequelize.sync({ force: false }).then(function () {
     http.listen(PORT, () => {
         console.log("Listening on port 8080");
     });
