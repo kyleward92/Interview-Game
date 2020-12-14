@@ -13,7 +13,6 @@ $(() => {
     //create socket connection from front end
     const socket = io();
     let currentRoom = '';
-    let currentPhase = 1;
 
     $(".submitBtn").on('click', event => {
         event.preventDefault();
@@ -62,6 +61,21 @@ $(() => {
 
         socket.emit('cardClicked', cardData);
     });
+
+    $(".startBtn").on('click', event => {
+        event.preventDefault();
+
+        const gameData = {
+            room: currentRoom
+        }
+        
+        socket.emit('drawPhase', gameData);
+    })
+
+
+
+
+
 
 
     //display room number when received from the server
