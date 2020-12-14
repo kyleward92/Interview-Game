@@ -9,11 +9,8 @@ $(() => {
     const jobCardDiv = $('.jobCard');
     const cardsDiv = $('.cards');
     const nextJobBtn = $('.nextJob');
-    const populateButtons = $('.populateButtons');
-    var jobIndex = 0
-    var jobDeck = []
-    var phraseIndex = 0
-    var phraseDeck = []
+    var index = 0
+    var jobDeck =[]
 
 
     //create socket connection from front end
@@ -149,6 +146,63 @@ $(() => {
                 .trim()
         });
     });
+
+    // show a premade job
+    async function getJobs() {
+        let deck = await $.get("/api/premadeJobs", (data) => {});
+        var jobDeck = [];
+        // console.log(deck)
+        for(i=0;i<deck.length;i++){
+            jobDeck.push(deck[i].title);
+        }
+        shuffle(jobDeck);
+        index = 0
+        return jobDeck;
+    }
+
+    $(".showAjob").on('click', async event => {
+        event.preventDefault();
+        jobDeck = await getJobs();
+        nextJobBtn.show();
+        $(".jobDisplay").text("Shuffled. Click next Job to begin");
+
+    });
+    
+    nextJobBtn.on('click', async event =>{
+        if(index < 19){
+            $(".jobDisplay").text(jobDeck[index]);
+        } else {
+            $(".jobDisplay").text("thats all the jobs, hit shuffle to restart");
+        }
+        index++;
+    })
+
+    // Fisher Yates Algorithm for shuffling 
+    function shuffle(a) {
+        var j, x, i;
+        for (i = a.length - 1; i > 0; i--) {
+            j = Math.floor(Math.random() * (i + 1));
+            x = a[i];
+            a[i] = a[j];
+            a[j] = x;
+        }
+    }
+      // get the premade deck shuffled
+      function getDeck() {
+        $.get("/api/premadePhrases", function(data){   
+            var deck = [];
+            for(i=0;i<data.length;i++){
+                deck.push(data[i].content)
+            }
+            shuffle(deck);
+            console.log(deck)
+        });
+    }
+    $(".consolePhrases").on('click', event => {
+        event.preventDefault();
+        getDeck();
+    });
+
 
     const submissionPhase = () => {
         submissionsDiv.show();
