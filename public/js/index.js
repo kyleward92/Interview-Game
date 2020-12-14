@@ -144,28 +144,56 @@ $(() => {
     });
 
     // show a premade job
-    function showJob() {
+    function getJobs() {
         $.get("/api/premadeJobs", (data) => {
-            $(".jobDisplay").text(data.title);
+            var index = 0
+            var deck = [];
+            console.log(data)
+            for(i=0;i<data.length;i++){
+                deck.push(data[i].title)
+            }
+            shuffle(deck);
+            // $(".jobDisplay").text(deck[index]);
+            // if(index < 19){
+            //     $(".jobDisplay").text(deck[index]);
+            // } else {
+            //     $(".jobDisplay").text("thats all the jobs");
+            // }
+            // index++;
         });
     }
     $(".showAjob").on('click', event => {
         event.preventDefault();
-        showJob();
+        jobDeck = getJobs();
+        console.log(jobDeck)
+        $(".jobDisplay").text(jobDeck[0]);
+
     });
 
-      // console.log a premade deck
-      function showDeck() {
+    // Fisher Yates Algorithm for shuffling 
+    function shuffle(a) {
+        var j, x, i;
+        for (i = a.length - 1; i > 0; i--) {
+            j = Math.floor(Math.random() * (i + 1));
+            x = a[i];
+            a[i] = a[j];
+            a[j] = x;
+        }
+    }
+      // get the premade deck shuffled
+      function getDeck() {
         $.get("/api/premadePhrases", function(data){   
+            var deck = [];
             for(i=0;i<data.length;i++){
-                console.log(data[i].content)
+                deck.push(data[i].content)
             }
-            
+            shuffle(deck);
+            console.log(deck)
         });
     }
     $(".consolePhrases").on('click', event => {
         event.preventDefault();
-        showDeck();
+        getDeck();
     });
 
 

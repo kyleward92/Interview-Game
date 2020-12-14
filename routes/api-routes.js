@@ -35,9 +35,9 @@ module.exports = function (app) {
     });
   });
 
-  // get a premadeJob card
+  // get all premadeJob cards
   app.get("/api/premadeJobs", function (req, res) {
-    db.premadeJobs.findOne({}).then(function (dbPreJob) {
+    db.premadeJobs.findAll({}).then(function (dbPreJob) {
       res.json(dbPreJob);
     })
   })
