@@ -10,6 +10,9 @@ $(() => {
     const cardsDiv = $('.cards');
     const nextJobBtn = $('.nextJob');
     const populateButtons = $('.populateButtons');
+    const startBtn = $('.startBtn');
+
+
     var jobIndex = 0
     var jobDeck = []
     var phraseIndex = 0
@@ -257,6 +260,7 @@ $(() => {
 
 
     const submissionPhase = () => {
+        startBtn.hide();
         submissionsDiv.show();
         currentCardDiv.hide();
         jobCardDiv.hide();
@@ -264,6 +268,7 @@ $(() => {
     }
 
     const dealPhase = () => {
+        startBtn.hide();
         submissionsDiv.hide();
         currentCardDiv.hide();
         jobCardDiv.show();
@@ -271,6 +276,7 @@ $(() => {
     }
 
     const interviewPhase = () => {
+        startBtn.hide();
         submissionsDiv.hide();
         currentCardDiv.show();
         jobCardDiv.show();
@@ -278,6 +284,7 @@ $(() => {
     }
 
     const employmentPhase = () => {
+        startBtn.hide();
         submissionsDiv.hide();
         currentCardDiv.hide();
         jobCardDiv.show();

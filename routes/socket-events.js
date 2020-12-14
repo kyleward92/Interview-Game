@@ -8,6 +8,7 @@ module.exports = (io, games) => {
         socket.join(roomNum);
 
         updateGame(socket);
+        console.log(games);
 
         console.log(`a user connected to room ${roomNum}`);
 
