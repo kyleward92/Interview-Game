@@ -35,17 +35,17 @@ module.exports = function (app) {
     });
   });
 
-// get a premadeJob card
-app.get("/api/premadejobs", function (req, res){
-db.premadejob.findOne({}).then(function(dbPreJob) {
-  res.json(dbPreJob)
-})
-})
-
-// get all premadePhrase cards
-app.get("/api/premadephrases", function (req, res){
-  db.premadephrase.findAll({}).then(function(dbPrePhrases) {
-    res.json(dbPrePhrases)
+  // get a premadeJob card
+  app.get("/api/premadeJobs", function (req, res) {
+    db.premadeJobs.findOne({}).then(function (dbPreJob) {
+      res.json(dbPreJob);
+    })
   })
-})
+
+  // get all premadePhrase cards
+  app.get("/api/premadephrases", function (req, res) {
+    db.premadephrase.findAll({}).then(function (dbPrePhrases) {
+      res.json(dbPrePhrases)
+    })
+  })
 };

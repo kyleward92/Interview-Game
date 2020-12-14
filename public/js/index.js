@@ -145,8 +145,8 @@ $(() => {
 
     // show a premade job
     function showJob() {
-        $.get("/api/premadejobs", function(data){
-            $(".jobDisplay").text(data)
+        $.get("/api/premadeJobs", (data) => {
+            $(".jobDisplay").text();
         });
     }
     $(".showAjob").on('click', event => {

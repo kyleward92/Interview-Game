@@ -1,10 +1,10 @@
 module.exports = function(sequelize, DataTypes) {
-    var premadejob = sequelize.define("premadejobs", {
+    var premadeJobs = sequelize.define("premadeJobs", {
       title: {
         type: DataTypes.STRING,
         unique: true
       }
     });
-    return premadejob;
+    return premadeJobs;
   };
   
