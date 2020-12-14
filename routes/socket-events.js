@@ -15,23 +15,7 @@ module.exports = (io, games) => {
 
         socket.join(roomNum);
 
-        const newPlayer = { socketId: socket.id};
-
-        if (!checkIfRoomExists(roomNum)) {
-            games.push(
-                {
-                    room: roomNum,
-                    players: [newPlayer]
-                }
-            );
-        } else {
-            const index = games.findIndex(game => game.room == roomNum);
-            const newPlayer = {socketId: socket.id};
-            games[index].players.push(newPlayer);
-        }
-
-        console.log('game', games[1]);
-
+        updateGame(socket);
 
         console.log(`a user connected to room ${roomNum}`);
 
@@ -88,4 +72,21 @@ module.exports = (io, games) => {
 
         });
     });
+
+    const updateGame = (socket) => {
+        const newPlayer = { socketId: socket.id};
+
+        if (!checkIfRoomExists(roomNum)) {
+            games.push(
+                {
+                    room: roomNum,
+                    players: [newPlayer]
+                }
+            );
+        } else {
+            const index = games.findIndex(game => game.room == roomNum);
+            const newPlayer = {socketId: socket.id};
+            games[index].players.push(newPlayer);
+        }
+    }
 }
