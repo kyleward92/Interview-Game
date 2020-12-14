@@ -144,27 +144,31 @@ $(() => {
     });
 
     // show a premade job
-    function getJobs() {
-        $.get("/api/premadeJobs", (data) => {
-            var index = 0
-            var deck = [];
-            console.log(data)
-            for(i=0;i<data.length;i++){
-                deck.push(data[i].title)
-            }
-            shuffle(deck);
-            // $(".jobDisplay").text(deck[index]);
-            // if(index < 19){
-            //     $(".jobDisplay").text(deck[index]);
-            // } else {
-            //     $(".jobDisplay").text("thats all the jobs");
-            // }
-            // index++;
-        });
+    async function getJobs() {
+        let deck = await $.get("/api/premadeJobs", (data) => {});
+
+        var index = 0;
+        var jobDeck = [];
+        // console.log(deck)
+        for(i=0;i<deck.length;i++){
+            jobDeck.push(deck[i].title);
+        }
+        shuffle(jobDeck);
+        // $(".jobDisplay").text(deck[index]);
+        // if(index < 19){
+        //     $(".jobDisplay").text(deck[index]);
+        // } else {
+        //     $(".jobDisplay").text("thats all the jobs");
+        // }
+        // index++;
+
+
+
+        return jobDeck;
     }
-    $(".showAjob").on('click', event => {
+    $(".showAjob").on('click', async event => {
         event.preventDefault();
-        jobDeck = getJobs();
+        jobDeck = await getJobs();
         console.log(jobDeck)
         $(".jobDisplay").text(jobDeck[0]);
 
