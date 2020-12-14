@@ -1,14 +1,6 @@
 module.exports = (io, games) => {
 
-    const checkIfRoomExists = (room) => {
-        let roomExists = false;
-        games.forEach(game => {
-            if(game.room == room) {
-                roomExists = true;
-            }
-        })
-        return(roomExists);
-    }
+   
 
 
     io.on('connection', (socket) => {
@@ -73,8 +65,18 @@ module.exports = (io, games) => {
         });
     });
 
+    const checkIfRoomExists = (room) => {
+        let roomExists = false;
+        games.forEach(game => {
+            if(game.room == room) {
+                roomExists = true;
+            }
+        })
+        return(roomExists);
+    }
+
     const updateGame = (socket) => {
-        const newPlayer = { socketId: socket.id};
+        const newPlayer = {socketId: socket.id};
 
         if (!checkIfRoomExists(roomNum)) {
             games.push(
@@ -85,7 +87,6 @@ module.exports = (io, games) => {
             );
         } else {
             const index = games.findIndex(game => game.room == roomNum);
-            const newPlayer = {socketId: socket.id};
             games[index].players.push(newPlayer);
         }
     }

@@ -11,7 +11,6 @@ const games = [
         room: '9999',
         players: [
             {
-                playerName: "dingus",
                 socketId: "gfds8d6fg9ddfs"
             }
         ]
