@@ -5,7 +5,6 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 const PORT = process.env.PORT || 8080;
-const data = require('./data');
 
 
 //socket.io setup
@@ -24,7 +23,7 @@ require('./routes/api-routes')(app);
 
 require('./routes/socket-events')(io);
 
-db.sequelize.sync({ force: true }).then(function () {
+db.sequelize.sync({ force: false }).then(function () {
     http.listen(PORT, () => {
         console.log("Listening on port 8080");
     });

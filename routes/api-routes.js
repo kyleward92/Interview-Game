@@ -1,6 +1,5 @@
 const db = require("../models");
 const path = require('path');
-const data = require('../data');
 
 module.exports = function (app) {
   //serve html on / request
@@ -36,9 +35,17 @@ module.exports = function (app) {
     });
   });
 
-// upload premade deck (test)
-// app.post("api/premadePhrases"), function(req,res){
-//   db.premadePhrases.bulkCreate(data);
-//   console.log("premadedeck uploaded")
-// }
+// get a premadeJob card
+app.get("/api/premadejobs", function (req, res){
+db.premadejob.findOne({}).then(function(dbPreJob) {
+  res.json(dbPreJob)
+})
+})
+
+// get all premadePhrase cards
+app.get("/api/premadephrases", function (req, res){
+  db.premadephrase.findAll({}).then(function(dbPrePhrases) {
+    res.json(dbPrePhrases)
+  })
+})
 };

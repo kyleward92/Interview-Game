@@ -143,14 +143,26 @@ $(() => {
         });
     });
 
-    // add premade deck
-    function addPremadeDeck() {
-        $.post("/api/premadePhrases");
-        console.log("at least the clicking works")
+    // show a premade job
+    function showJob() {
+        $.get("/api/premadejobs", function(data){
+            $(".jobDisplay").text(data)
+        });
     }
-    $(".addPremadeDeck").on('click', event => {
+    $(".showAjob").on('click', event => {
         event.preventDefault();
-        addPremadeDeck();
+        showJob();
+    });
+
+      // console.log a premade deck
+      function showDeck() {
+        $.get("/api/premadephrases", function(data){
+            console.log(data);
+        });
+    }
+    $(".consolePhrases").on('click', event => {
+        event.preventDefault();
+        showDeck();
     });
 
 
