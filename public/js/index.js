@@ -146,7 +146,7 @@ $(() => {
     // show a premade job
     function showJob() {
         $.get("/api/premadeJobs", (data) => {
-            $(".jobDisplay").text();
+            $(".jobDisplay").text(data.title);
         });
     }
     $(".showAjob").on('click', event => {
@@ -156,8 +156,11 @@ $(() => {
 
       // console.log a premade deck
       function showDeck() {
-        $.get("/api/premadephrases", function(data){
-            console.log(data);
+        $.get("/api/premadePhrases", function(data){   
+            for(i=0;i<data.length;i++){
+                console.log(data[i].content)
+            }
+            
         });
     }
     $(".consolePhrases").on('click', event => {

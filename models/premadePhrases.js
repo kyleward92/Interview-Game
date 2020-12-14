@@ -1,9 +1,9 @@
 module.exports = function(sequelize, DataTypes) {
-    var premadephrase = sequelize.define("premadephrases", {
+    var premadePhrases = sequelize.define("premadePhrases", {
       content: {
       type: DataTypes.STRING,
       unique: true
     }});
-    return premadephrase;
+    return premadePhrases;
   };
   

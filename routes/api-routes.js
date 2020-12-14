@@ -43,8 +43,8 @@ module.exports = function (app) {
   })
 
   // get all premadePhrase cards
-  app.get("/api/premadephrases", function (req, res) {
-    db.premadephrase.findAll({}).then(function (dbPrePhrases) {
+  app.get("/api/premadePhrases", function (req, res) {
+    db.premadePhrases.findAll({}).then(function (dbPrePhrases) {
       res.json(dbPrePhrases)
     })
   })
