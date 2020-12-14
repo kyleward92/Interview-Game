@@ -9,14 +9,17 @@ $(() => {
     const jobCardDiv = $('.jobCard');
     const cardsDiv = $('.cards');
     const nextJobBtn = $('.nextJob');
-    var index = 0
+    const populateButtons = $('.populateButtons');
+    const startBtn = $('.startBtn');
+
+
+    var jobIndex = 0
     var jobDeck = []
 
 
     //create socket connection from front end
     const socket = io();
     let currentRoom = '';
-    let currentPhase = 1;
 
     $(".submitBtn").on('click', event => {
         event.preventDefault();
@@ -65,6 +68,21 @@ $(() => {
 
         socket.emit('cardClicked', cardData);
     });
+
+    $(".startBtn").on('click', event => {
+        event.preventDefault();
+
+        const gameData = {
+            room: currentRoom
+        }
+        
+        socket.emit('drawPhase', gameData);
+    })
+
+
+
+
+
 
 
     //display room number when received from the server
@@ -146,7 +164,8 @@ $(() => {
                 .trim()
         });
     });
-// *********************************************************************************************************
+
+    // *********************************************************************************************************
     // -----------------Manipulating Premade Decks-----------
     // *********************************************************************************************************
     // get all the jobs and shuffle them 
@@ -232,7 +251,14 @@ $(() => {
     })
 
 
+
+    // *********************************************************************************************************
+    // ---------Phases-----------
+    // *********************************************************************************************************
+
+
     const submissionPhase = () => {
+        startBtn.hide();
         submissionsDiv.show();
         currentCardDiv.hide();
         jobCardDiv.hide();
@@ -240,6 +266,7 @@ $(() => {
     }
 
     const dealPhase = () => {
+        startBtn.hide();
         submissionsDiv.hide();
         currentCardDiv.hide();
         jobCardDiv.show();
@@ -247,6 +274,7 @@ $(() => {
     }
 
     const interviewPhase = () => {
+        startBtn.hide();
         submissionsDiv.hide();
         currentCardDiv.show();
         jobCardDiv.show();
@@ -254,12 +282,13 @@ $(() => {
     }
 
     const employmentPhase = () => {
+        startBtn.hide();
         submissionsDiv.hide();
         currentCardDiv.hide();
         jobCardDiv.show();
         cardsDiv.hide();
     }
-})
+});
 
 
 

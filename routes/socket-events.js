@@ -1,13 +1,18 @@
-module.exports = (io) => {
+module.exports = (io, games) => {
+
+   
+
+
     io.on('connection', (socket) => {
 
         socket.join(roomNum);
+
+        updateGame(socket);
+        console.log(games);
+
         console.log(`a user connected to room ${roomNum}`);
 
         io.to(roomNum).emit('roomInfo', roomNum);
-
-        //this line is used to test the phase change events
-        // io.to(roomNum).emit('employmentPhase', roomNum);
 
         //when socket disconnects
         socket.on('disconnect', () => {
@@ -35,30 +40,55 @@ module.exports = (io) => {
         //event listener for handling the setup phase
         socket.on('setupPhase', roomNum => {
             console.log(`Submission phase sent to room ${roomNum.room}`);
-            io.to(roomNum.room).emit('setupPhase', data);
-            
+            io.to(roomNum.room).emit('setupPhase');
+
         });
 
         //event listener for handling the draw phase
         socket.on('drawPhase', roomNum => {
             console.log(`Deal phase sent to room ${roomNum.room}`);
-            io.to(roomNum.room).emit('darwPhase', data);
-            
+            io.to(roomNum.room).emit('drawPhase');
+
         });
 
         //event listener for handling the interview phase
         socket.on('interviewPhase', roomNum => {
             console.log(`Interview phase sent to room ${roomNum.room}`);
-            io.to(roomNum.room).emit('interviewPhase', data);
-            
+            io.to(roomNum.room).emit('interviewPhase');
+
         });
 
         //event listener for handling the employment phase
         socket.on('employmentPhase', roomNum => {
             console.log(`Employment phase sent to room ${roomNum.room}`);
-            io.to(roomNum.room).emit('emloymentPhase', data);
-            
-        });
+            io.to(roomNum.room).emit('emloymentPhase');
 
+        });
     });
+
+    const checkIfRoomExists = (room) => {
+        let roomExists = false;
+        games.forEach(game => {
+            if(game.room == room) {
+                roomExists = true;
+            }
+        })
+        return(roomExists);
+    }
+
+    const updateGame = (socket) => {
+        const newPlayer = {socketId: socket.id};
+
+        if (!checkIfRoomExists(roomNum)) {
+            games.push(
+                {
+                    room: roomNum,
+                    players: [newPlayer]
+                }
+            );
+        } else {
+            const index = games.findIndex(game => game.room == roomNum);
+            games[index].players.push(newPlayer);
+        }
+    }
 }
