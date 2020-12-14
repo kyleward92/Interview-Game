@@ -14,25 +14,23 @@ module.exports = (io, games) => {
     io.on('connection', (socket) => {
 
         socket.join(roomNum);
+
+        const newPlayer = { socketId: socket.id};
+
         if (!checkIfRoomExists(roomNum)) {
             games.push(
                 {
                     room: roomNum,
-                    players: [
-                        {
-                            socketId: socket.id,
-                        }
-                    ]
+                    players: [newPlayer]
                 }
-            )
+            );
         } else {
             const index = games.findIndex(game => game.room == roomNum);
-            games[index].players.push(
-                {
-                    socketId: socket.id
-                }
-            )
+            const newPlayer = {socketId: socket.id};
+            games[index].players.push(newPlayer);
         }
+
+        console.log('game', games[1]);
 
 
         console.log(`a user connected to room ${roomNum}`);

@@ -185,7 +185,7 @@ $(() => {
         jobCardDiv.show();
         cardsDiv.hide();
     }
-})
+});
 
 
 
