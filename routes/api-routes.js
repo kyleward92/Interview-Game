@@ -13,6 +13,7 @@ module.exports = function (app) {
   });
 
   app.get('/join/:roomNumber', (req, res) => {
+    console.log('joining');
     res.sendFile(path.join(__dirname, '../public/html/index.html'));
     roomNum = req.params.roomNumber;
   });
