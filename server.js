@@ -6,6 +6,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 const PORT = process.env.PORT || 8080;
 
+const cardsPerPlayer = 5;
+
 const games = [
     {
         room: '9999',
@@ -32,7 +34,7 @@ let roomNum = '9999';
 
 require('./routes/api-routes')(app);
 
-require('./routes/socket-events')(io, games);
+require('./routes/socket-events')(io, games, cardsPerPlayer);
 
 db.sequelize.sync({ force: false }).then(function () {
     http.listen(PORT, () => {

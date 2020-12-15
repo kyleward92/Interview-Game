@@ -11,12 +11,14 @@ $(() => {
     const nextJobBtn = $('.nextJob');
     const populateButtons = $('.populateButtons');
     const startBtn = $('.startBtn');
+    const cardArray = $(".card").toArray();
+    let isInterviewer = false;
 
 
-    var jobIndex = 0
-    var jobDeck = []
-    var phraseIndex = 0
-    var phraseDeck = []
+    var jobIndex = 0;
+    var jobDeck = [];
+    var phraseIndex = 0;
+    var phraseDeck = [];
 
 
     //create socket connection from front end
@@ -77,7 +79,7 @@ $(() => {
         const gameData = {
             room: currentRoom
         }
-        
+
         socket.emit('drawPhase', gameData);
     })
 
@@ -106,9 +108,20 @@ $(() => {
 
     //When event card clicked is received, display the card data in the current card slot
     socket.on('cardClicked', cardData => {
+        console.log('card Received');
         $('.currentCard').html(`<p>${cardData.text}</p>`);
     });
 
+    socket.on('cardPack', cardPack => {
+
+        for (i = 0; i < cardPack.length; i++) {
+            console.log(i);
+
+            cardArray[i].value = cardPack[i]
+            cardArray[i].textContent = cardPack[i]
+            cardArray[i].disabled = false;
+        }
+    })
 
     //********************
     //Phase event listners
@@ -136,6 +149,11 @@ $(() => {
         console.log('Employment phase started');
         employmentPhase();
     });
+
+    socket.on('toggleInterviewer', data => {
+        console.log('toggled interviewer status');
+        isInterviewer = !isInterviewer;
+    })
 
 
     // adding jobs
@@ -236,14 +254,14 @@ $(() => {
         var cardIndex = 0
         if (phraseIndex < 100) {
             for (i = phraseIndex; i < phraseIndex + 5; i++) {
-                
-                var cardArray =$(".card").toArray();
+
+                var cardArray = $(".card").toArray();
                 console.log(cardArray)
-                
+
                 cardArray[cardIndex].value = phraseDeck[i]
                 cardArray[cardIndex].textContent = phraseDeck[i]
                 cardArray[cardIndex].disabled = false;
-                
+
                 cardIndex++;
             }
             phraseIndex = phraseIndex + 5
@@ -268,27 +286,53 @@ $(() => {
     }
 
     const dealPhase = () => {
-        startBtn.hide();
-        submissionsDiv.hide();
-        currentCardDiv.hide();
-        jobCardDiv.show();
-        cardsDiv.show();
+        if (isInterviewer) {
+            startBtn.hide();
+            submissionsDiv.hide();
+            currentCardDiv.hide();
+            jobCardDiv.show();
+            cardsDiv.hide();
+        } else {
+            startBtn.hide();
+            submissionsDiv.hide();
+            currentCardDiv.hide();
+            jobCardDiv.show();
+            cardsDiv.show();
+        }
+
     }
 
     const interviewPhase = () => {
-        startBtn.hide();
-        submissionsDiv.hide();
-        currentCardDiv.show();
-        jobCardDiv.show();
-        cardsDiv.show();
+        if (isInterviewer) {
+            startBtn.hide();
+            submissionsDiv.hide();
+            currentCardDiv.hide();
+            jobCardDiv.show();
+            cardsDiv.hide();
+        } else {
+            startBtn.hide();
+            submissionsDiv.hide();
+            currentCardDiv.show();
+            jobCardDiv.show();
+            cardsDiv.show();
+        }
     }
 
     const employmentPhase = () => {
-        startBtn.hide();
-        submissionsDiv.hide();
-        currentCardDiv.hide();
-        jobCardDiv.show();
-        cardsDiv.hide();
+
+        if (isInterviewer) {
+            startBtn.hide();
+            submissionsDiv.hide();
+            currentCardDiv.hide();
+            jobCardDiv.show();
+            cardsDiv.hide();
+        } else {
+            startBtn.hide();
+            submissionsDiv.hide();
+            currentCardDiv.hide();
+            jobCardDiv.show();
+            cardsDiv.hide();
+        }
     }
 });
 

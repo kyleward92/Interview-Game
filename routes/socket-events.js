@@ -1,7 +1,6 @@
-module.exports = (io, games) => {
+const db = require("../models");
 
-   
-
+module.exports = (io, games, cardsPerPlayer) => {
 
     io.on('connection', (socket) => {
 
@@ -48,7 +47,8 @@ module.exports = (io, games) => {
         socket.on('drawPhase', roomNum => {
             console.log(`Deal phase sent to room ${roomNum.room}`);
             io.to(roomNum.room).emit('drawPhase');
-
+            dealCards(roomNum);
+            io.to(roomNum.room).emit('interviewPhase');
         });
 
         //event listener for handling the interview phase
@@ -69,17 +69,20 @@ module.exports = (io, games) => {
     const checkIfRoomExists = (room) => {
         let roomExists = false;
         games.forEach(game => {
-            if(game.room == room) {
+            if (game.room == room) {
                 roomExists = true;
             }
-        })
-        return(roomExists);
-    }
+        });
+        return (roomExists);
+    };
 
     const updateGame = (socket) => {
-        const newPlayer = {socketId: socket.id};
+
 
         if (!checkIfRoomExists(roomNum)) {
+            const newPlayer = { socketId: socket.id, interviewer: true };
+            io.to(newPlayer.socketId).emit('toggleInterviewer');
+            
             games.push(
                 {
                     room: roomNum,
@@ -87,8 +90,51 @@ module.exports = (io, games) => {
                 }
             );
         } else {
+            const newPlayer = { socketId: socket.id, interviewer: false };
             const index = games.findIndex(game => game.room == roomNum);
             games[index].players.push(newPlayer);
+        };
+    };
+
+    const dealCards = async (roomNum) => {
+        const roomIndex = games.findIndex(game => game.room == roomNum.room);
+        const players = games[roomIndex].players;
+
+        const cardsNeeded = (players.length - 1) * cardsPerPlayer;
+
+        let phrases = await getPhraseCards();
+
+        players.forEach(player => {
+            if (!player.interviewer) {
+                const cardPack = phrases.slice(0, cardsPerPlayer);
+                phrases = phrases.slice(cardsPerPlayer);
+                console.log(cardPack);
+                io.to(player.socketId).emit('cardPack', cardPack);
+            }
+        })
+
+    };
+
+    const getPhraseCards = async () => {
+        const phraseCardsRaw = await db.premadePhrases.findAll({});
+
+        var phraseDeck = [];
+        for (i = 0; i < phraseCardsRaw.length; i++) {
+            phraseDeck.push(phraseCardsRaw[i].content);
+        }
+        shuffle(phraseDeck);
+        phraseIndex = 0
+        return phraseDeck;
+    }
+
+    const shuffle = (a) => {
+        var j, x, i;
+        for (i = a.length - 1; i > 0; i--) {
+            j = Math.floor(Math.random() * (i + 1));
+            x = a[i];
+            a[i] = a[j];
+            a[j] = x;
         }
     }
-}
+
+};
