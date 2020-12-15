@@ -121,6 +121,11 @@ $(() => {
             cardArray[i].textContent = cardPack[i]
             cardArray[i].disabled = false;
         }
+    });
+
+    socket.on('dealJobCard', cardPack => {
+        console.log(cardPack);
+        $(".jobDisplay").text(cardPack);
     })
 
     //********************
@@ -289,9 +294,11 @@ $(() => {
         if (isInterviewer) {
             startBtn.hide();
             submissionsDiv.hide();
-            currentCardDiv.hide();
+            currentCardDiv.show();
             jobCardDiv.show();
             cardsDiv.hide();
+
+            socket.emit('drawJobCard', currentRoom);
         } else {
             startBtn.hide();
             submissionsDiv.hide();

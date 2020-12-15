@@ -47,7 +47,8 @@ module.exports = (io, games, cardsPerPlayer) => {
         socket.on('drawPhase', roomNum => {
             console.log(`Deal phase sent to room ${roomNum.room}`);
             io.to(roomNum.room).emit('drawPhase');
-            dealCards(roomNum);
+            dealPhraseCards(roomNum);
+            dealJobCard(roomNum);
             io.to(roomNum.room).emit('interviewPhase');
         });
 
@@ -64,6 +65,10 @@ module.exports = (io, games, cardsPerPlayer) => {
             io.to(roomNum.room).emit('emloymentPhase');
 
         });
+
+        socket.on('drawJobCard', room => {
+
+        })
     });
 
     const checkIfRoomExists = (room) => {
@@ -78,11 +83,10 @@ module.exports = (io, games, cardsPerPlayer) => {
 
     const updateGame = (socket) => {
 
-
         if (!checkIfRoomExists(roomNum)) {
             const newPlayer = { socketId: socket.id, interviewer: true };
             io.to(newPlayer.socketId).emit('toggleInterviewer');
-            
+
             games.push(
                 {
                     room: roomNum,
@@ -96,7 +100,7 @@ module.exports = (io, games, cardsPerPlayer) => {
         };
     };
 
-    const dealCards = async (roomNum) => {
+    const dealPhraseCards = async (roomNum) => {
         const roomIndex = games.findIndex(game => game.room == roomNum.room);
         const players = games[roomIndex].players;
 
@@ -123,9 +127,8 @@ module.exports = (io, games, cardsPerPlayer) => {
             phraseDeck.push(phraseCardsRaw[i].content);
         }
         shuffle(phraseDeck);
-        phraseIndex = 0
         return phraseDeck;
-    }
+    };
 
     const shuffle = (a) => {
         var j, x, i;
@@ -135,6 +138,26 @@ module.exports = (io, games, cardsPerPlayer) => {
             a[i] = a[j];
             a[j] = x;
         }
-    }
+    };
+
+    const getJobCards = async () => {
+        const jobCardsRaw = await db.premadeJobs.findAll({});
+
+        console.log(jobCardsRaw);
+        let jobsDeck = [];
+        for (i = 0; i < jobCardsRaw.length; i++) {
+            jobsDeck.push(jobCardsRaw[i].title);
+        };
+        shuffle(jobsDeck);
+        return(jobsDeck);
+    };
+
+    const dealJobCard = async (roomNum) => {
+        let jobs = await getJobCards();
+        const cardPack = jobs[0];
+        jobs = jobs.slice(1);
+
+        io.to(roomNum.room).emit('dealJobCard', cardPack);
+    };
 
 };
