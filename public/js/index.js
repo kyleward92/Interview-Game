@@ -16,16 +16,11 @@ $(() => {
     let isInterviewer = false;
     let isNameSent = false;
 
-<<<<<<< HEAD
-    var jobIndex = 0
-    var jobDeck = []
-=======
 
     var jobIndex = 0;
     var jobDeck = [];
     var phraseIndex = 0;
     var phraseDeck = [];
->>>>>>> 34a630762a0c88a3744e839f551d685363e4da44
 
 
     //create socket connection from front end
