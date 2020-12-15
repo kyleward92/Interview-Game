@@ -86,6 +86,10 @@ $(() => {
         $('.currentCard').html(`<p>${cardData.text}</p>`);
     });
 
+
+    //********************
+    //Phase event listners
+    //********************
     //event listener for handling the setup phase
     socket.on('setupPhase', data => {
         console.log('Submission phase started');
@@ -109,9 +113,6 @@ $(() => {
         console.log('Employment phase started');
         employmentPhase();
     });
-
-
-
 
 
     // adding jobs
@@ -142,7 +143,6 @@ $(() => {
                 .trim()
         });
     });
-
 
     const submissionPhase = () => {
         submissionsDiv.show();
