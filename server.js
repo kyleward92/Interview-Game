@@ -11,6 +11,9 @@ const PORT = process.env.PORT || 8080;
 const http = require('http').createServer(app);
 const io = require("socket.io")(http);
 
+const redis = require('socket.io-redis');
+io.adapter(redis({ host: 'localhost', port: 6379 }));
+
 var db = require("./models");
 
 let roomNum = 9999;
