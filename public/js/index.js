@@ -345,6 +345,7 @@ $(() => {
             for (i = 0; i < cardArray.length; i++) {
 
                 cardArray[i].value = '';
+                cardArray[i].textContent = '';
                 cardArray[i].disabled = true;
 
                 if(players[i]) {
