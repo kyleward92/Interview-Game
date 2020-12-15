@@ -27,7 +27,6 @@ module.exports = (io, games, cardsPerPlayer) => {
 
         socket.on('nextPhase', data => {
             const newPhase = nextPhase(parseInt(data.phase));
-            console.log('Phase Advanced');
             io.to(data.room).emit('nextPhase', { newPhase: newPhase });
         });
 
@@ -50,6 +49,7 @@ module.exports = (io, games, cardsPerPlayer) => {
             dealPhraseCards(roomNum);
             dealJobCard(roomNum);
             io.to(roomNum.room).emit('interviewPhase');
+            console.log(`Interview phase sent to room ${roomNum.room}`);
         });
 
         //event listener for handling the interview phase
@@ -61,13 +61,17 @@ module.exports = (io, games, cardsPerPlayer) => {
 
         //event listener for handling the employment phase
         socket.on('employmentPhase', roomNum => {
-            console.log(`Employment phase sent to room ${roomNum.room}`);
-            io.to(roomNum.room).emit('emloymentPhase');
+            console.log(`Employment phase sent to room ${roomNum}`);
+
+            io.to(roomNum).emit('employmentPhase', games[games.findIndex(game => game.room == roomNum)].players);
 
         });
 
-        socket.on('drawJobCard', room => {
-
+        socket.on('nameAssignment', data => {
+            const gameIndex = games.findIndex(game => game.room == data.room);
+            const playerIndex = games[gameIndex].players.findIndex(player => player.socketId == socket.id);
+            games[gameIndex].players[playerIndex].name = data.name;
+            console.log(games[gameIndex].players);
         })
     });
 
@@ -84,7 +88,7 @@ module.exports = (io, games, cardsPerPlayer) => {
     const updateGame = (socket) => {
 
         if (!checkIfRoomExists(roomNum)) {
-            const newPlayer = { socketId: socket.id, interviewer: true };
+            const newPlayer = { socketId: socket.id, name: '', interviewer: true };
             io.to(newPlayer.socketId).emit('toggleInterviewer');
 
             games.push(
@@ -94,7 +98,7 @@ module.exports = (io, games, cardsPerPlayer) => {
                 }
             );
         } else {
-            const newPlayer = { socketId: socket.id, interviewer: false };
+            const newPlayer = { socketId: socket.id, name: '',  interviewer: false };
             const index = games.findIndex(game => game.room == roomNum);
             games[index].players.push(newPlayer);
         };
@@ -112,7 +116,6 @@ module.exports = (io, games, cardsPerPlayer) => {
             if (!player.interviewer) {
                 const cardPack = phrases.slice(0, cardsPerPlayer);
                 phrases = phrases.slice(cardsPerPlayer);
-                console.log(cardPack);
                 io.to(player.socketId).emit('cardPack', cardPack);
             }
         })
@@ -143,7 +146,6 @@ module.exports = (io, games, cardsPerPlayer) => {
     const getJobCards = async () => {
         const jobCardsRaw = await db.premadeJobs.findAll({});
 
-        console.log(jobCardsRaw);
         let jobsDeck = [];
         for (i = 0; i < jobCardsRaw.length; i++) {
             jobsDeck.push(jobCardsRaw[i].title);

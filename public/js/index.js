@@ -12,7 +12,9 @@ $(() => {
     const populateButtons = $('.populateButtons');
     const startBtn = $('.startBtn');
     const cardArray = $(".card").toArray();
+
     let isInterviewer = false;
+    let isNameSent = false;
 
 
     var jobIndex = 0;
@@ -23,7 +25,9 @@ $(() => {
 
     //create socket connection from front end
     const socket = io();
+    
     let currentRoom = '';
+
 
     $(".submitBtn").on('click', event => {
         event.preventDefault();
@@ -93,6 +97,12 @@ $(() => {
     socket.on('roomInfo', (roomNum) => {
         $(".roomDisp").text(`Room Number: ${roomNum}`);
         currentRoom = roomNum;
+        if(!isNameSent) {
+            socket.emit('nameAssignment', {name: localStorage.getItem("userName"), room: currentRoom});
+            isNameSent = true;
+        }
+        
+
     });
 
     //when a message is received from the server, print to screen
@@ -108,15 +118,13 @@ $(() => {
 
     //When event card clicked is received, display the card data in the current card slot
     socket.on('cardClicked', cardData => {
-        console.log('card Received');
+
         $('.currentCard').html(`<p>${cardData.text}</p>`);
     });
 
     socket.on('cardPack', cardPack => {
 
         for (i = 0; i < cardPack.length; i++) {
-            console.log(i);
-
             cardArray[i].value = cardPack[i]
             cardArray[i].textContent = cardPack[i]
             cardArray[i].disabled = false;
@@ -124,7 +132,7 @@ $(() => {
     });
 
     socket.on('dealJobCard', cardPack => {
-        console.log(cardPack);
+
         $(".jobDisplay").text(cardPack);
     })
 
@@ -152,7 +160,7 @@ $(() => {
     //event listener for handling the employment phase
     socket.on('employmentPhase', data => {
         console.log('Employment phase started');
-        employmentPhase();
+        employmentPhase(data);
     });
 
     socket.on('toggleInterviewer', data => {
@@ -250,18 +258,17 @@ $(() => {
         event.preventDefault();
         phraseDeck = await getPhrases();
         populateButtons.show();
-        console.log(phraseDeck)
+
     });
 
     // populate buttons with 5 new cards, reenable buttons
     populateButtons.on('click', async event => {
-        console.log(phraseIndex)
+
         var cardIndex = 0
         if (phraseIndex < 100) {
             for (i = phraseIndex; i < phraseIndex + 5; i++) {
 
                 var cardArray = $(".card").toArray();
-                console.log(cardArray)
 
                 cardArray[cardIndex].value = phraseDeck[i]
                 cardArray[cardIndex].textContent = phraseDeck[i]
@@ -313,7 +320,7 @@ $(() => {
         if (isInterviewer) {
             startBtn.hide();
             submissionsDiv.hide();
-            currentCardDiv.hide();
+            currentCardDiv.show();
             jobCardDiv.show();
             cardsDiv.hide();
         } else {
@@ -325,22 +332,42 @@ $(() => {
         }
     }
 
-    const employmentPhase = () => {
+    $('.employment').on('click', event => {
+        event.preventDefault();
+        socket.emit('employmentPhase', currentRoom);
+    })
 
+
+    const employmentPhase = (players) => {
+        console.log(players);
         if (isInterviewer) {
+
+            for (i = 0; i < cardArray.length; i++) {
+
+                cardArray[i].value = '';
+                cardArray[i].disabled = true;
+
+                if(players[i]) {
+                    cardArray[i].value = players[i].name;
+                    cardArray[i].textContent = players[i].name;
+                    cardArray[i].disabled = false;
+                }
+            }
+
             startBtn.hide();
             submissionsDiv.hide();
-            currentCardDiv.hide();
+            currentCardDiv.show();
             jobCardDiv.show();
-            cardsDiv.hide();
+            cardsDiv.show();
         } else {
             startBtn.hide();
             submissionsDiv.hide();
-            currentCardDiv.hide();
+            currentCardDiv.show();
             jobCardDiv.show();
             cardsDiv.hide();
         }
     }
+
 });
 
 
