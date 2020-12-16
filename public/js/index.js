@@ -199,6 +199,7 @@ $(() => {
                 .trim(),
             roomNum: currentRoom
         });
+        jobInput.val('');
     });
 
 
@@ -215,6 +216,7 @@ $(() => {
                 .trim(),
             roomNum: currentRoom
         });
+        phraseInput.val('');
     });
 
 
