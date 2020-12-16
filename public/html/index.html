@@ -16,6 +16,7 @@
 
     <h1 class="roomDisp">Room Number: </h1>
     <h2 class="phaseDisp">Current Phase: 1</h2>
+    <button class="employment">employment</button>
 
 
     <br><br>
@@ -27,9 +28,9 @@
 
         <br><br>
 
-        <p>Display Name:</p>
-        <input class="authorInput" type="text">
     </div>
+
+    <button class="startBtn">Start Game</button>
 
 
     <br><br>
@@ -44,14 +45,29 @@
         <input class="phraseInput" type="text">
 
         <button class="addPhraseBtn" type="submit">Add phrase</button>
+        
+        <br><br>
+
+        <button class="showAjob" type="submit">Shuffle Deck</button>
+        <button class="nextJob" style = "display: none" type="submit">Next Job</button>
+        
 
         <br><br>
+
+        <button class="consolePhrases" type="submit">Shuffle and console Log all the premade phrases</button>
+        <button class="populateButtons" style = "display: none" type="submit">get 5 new cards</button>
+
+        <br><br>
+
+        <div class="newCards"></div>
     </div>
 
 
     <div class="currentCard"></div>
 
-    <div class="jobCard"></div>
+    <div class="jobCard">
+        <h1 class= "jobDisplay"></h1>
+    </div>
 
     <div class="cards">
         <button class="card" value="Mega Dog">Mega Dog</button>
