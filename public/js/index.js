@@ -25,7 +25,7 @@ $(() => {
 
     //create socket connection from front end
     const socket = io();
-    
+
     let currentRoom = '';
 
 
@@ -97,11 +97,11 @@ $(() => {
     socket.on('roomInfo', (roomNum) => {
         $(".roomDisp").text(`Room Number: ${roomNum}`);
         currentRoom = roomNum;
-        if(!isNameSent) {
-            socket.emit('nameAssignment', {name: localStorage.getItem("userName"), room: currentRoom});
+        if (!isNameSent) {
+            socket.emit('nameAssignment', { name: localStorage.getItem("userName"), room: currentRoom });
             isNameSent = true;
         }
-        
+
 
     });
 
@@ -166,13 +166,13 @@ $(() => {
     socket.on('toggleInterviewer', data => {
         console.log('toggled interviewer status');
         isInterviewer = !isInterviewer;
-    })
+    });
 
 
     // adding jobs
     function addJob(job) {
         $.post("/api/jobs", job);
-        console.log("job added:" + job.title)
+        console.log(`job added to room ${currentRoom}:` + job.title)
     }
 
     $(".addJobBtn").on('click', event => {
@@ -180,21 +180,24 @@ $(() => {
         addJob({
             title: jobInput
                 .val()
-                .trim()
+                .trim(),
+            roomNum: currentRoom
         });
     });
+
 
     // adding phrases
     function addPhrase(phrase) {
         $.post("/api/phrases", phrase);
-        console.log("phrase added:" + phrase.content)
+        console.log(`phrase added to room ${currentRoom}:` + phrase.content)
     }
     $(".addPhraseBtn").on('click', event => {
         event.preventDefault();
         addPhrase({
             content: phraseInput
                 .val()
-                .trim()
+                .trim(),
+            roomNum: currentRoom
         });
     });
 
@@ -238,7 +241,7 @@ $(() => {
             a[i] = a[j];
             a[j] = x;
         }
-    }
+    };
 
 
     // get the premade Phrase deck shuffled
@@ -348,7 +351,7 @@ $(() => {
                 cardArray[i].textContent = '';
                 cardArray[i].disabled = true;
 
-                if(players[i]) {
+                if (players[i]) {
                     cardArray[i].value = players[i].name;
                     cardArray[i].textContent = players[i].name;
                     cardArray[i].disabled = false;
@@ -367,8 +370,7 @@ $(() => {
             jobCardDiv.show();
             cardsDiv.hide();
         }
-    }
-
+    };
 });
 
 

@@ -42,6 +42,12 @@ module.exports = (io, games, cardsPerPlayer) => {
 
         });
 
+        //Listener for adding cards to the Phrase Deck for the game
+        // socket.on('addJobToDeck', data => {
+
+
+        // })
+
         //event listener for handling the draw phase
         socket.on('drawPhase', roomNum => {
             console.log(`Deal phase sent to room ${roomNum.room}`);
