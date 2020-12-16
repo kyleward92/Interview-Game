@@ -34,24 +34,47 @@
             <div class="col-sm">
               <h4 class="jobCard">Job Name: Lawyer</h4>
             </div>
+            <div class="col-sm">
+                <h4 class="authorName">Display Name: Brian</h4>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
 
-
-
     <div class="gameStarterDiv row d-flex justify-content-center text-center">
-      <div class="col-3  pt-4">
-        <div class="card mb-3">
-          <h5 class="phaseDisp card-header">Current Phase: 1</h5>
-          <div class="card-body">
-            <h5 class=" card-title"></h5>
-            <a href="#" class="startBtn btn btn-primary d-flex justify-content-center">Start Game</a>
-          </div>
+    
+        <div class="col-2  pt-4">
+            <div class="card mb-3">
+                <h5 class="phaseDisp card-header">Your Points</h5>
+                <div class="card-body">
+                  <h5 class=" card-title">5</h5>
+                </div>
+            </div>
+            
         </div>
-      </div>
+        
+        <div class="col-3  pt-4">
+            <div class="card mb-3">
+                <h5 class="phaseDisp card-header">Current Phase: 1</h5>
+                <div class="card-body">
+                  <h5 class=" card-title"></h5>
+                  <a href="#" class="startBtn btn btn-primary d-flex justify-content-center">Start</a>
+                </div>
+            </div>
+    
+        </div>
+    
+        <div class="col-2  pt-4">
+            <div class="card mb-3">
+                <h5 class="phaseDisp card-header">Current Player</h5>
+                <div class="card-body">
+                  <h5 class=" card-title">Brendon</h5>
+                </div>
+            </div>
+            
+        </div>
     </div>
 
     <div class="row">
@@ -151,25 +174,34 @@
       <!-- **** end left side of screen *** -->
 
       <!-- start right side of screen -->
-      <div class="col-5 left-side offset-1">
-
+      <div class="col-5 right-side">
 
         <!-- chat feature!!!! -->
-        <div class="chat mt-3">
-          <input class="messageInput" type="text">
+        <div class="chat col-12 mt-3 mb-3">
 
-          <button class="submitBtn" type="submit">Submit</button>
-
-          <br><br>
-
-          <ul class="messages">
-
-          </ul>
-
-          <!-- dynamically updated -->
-          <p>Display Name:</p>
-          <input class="authorInput" type="text">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3>Game Chat</h3>
+                </div>
+        
+                <ul class="messages mt-3">
+                    <!-- messages appear here -->
+                    <p>Brian: test message</p>
+                </ul>      
+        
+                <div class="card-footer">
+                    
+                        <div class="input-group mt-3 mb-3">
+                            <input type="text" class="messageInput form-control"  aria-label="Recipient's username" aria-describedby="button-addon2">
+                            <button class="submitBtn btn btn-outline-secondary" type="button" id="button-addon2">Send</button>
+                          </div>
+                        
+                </div>
+            
+            </div>
+        
         </div>
+        
       </div>
       <!-- end right side of screen -->
 
