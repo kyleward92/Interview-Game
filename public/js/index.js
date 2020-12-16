@@ -1,6 +1,11 @@
 $(() => {
 
-    // setting job and phrase input
+
+    // *********************************************************************************************************
+    // -------------Variable Declarations-------------
+    // *********************************************************************************************************
+
+    // References to HTML elements
     const jobInput = $('.jobInput');
     const phraseInput = $('.phraseInput');
     const chatDiv = $('.chat');
@@ -13,26 +18,23 @@ $(() => {
     const startBtn = $('.startBtn');
     const cardArray = $(".card").toArray();
 
+    //is the client the current interviewer
     let isInterviewer = false;
+
+    //has this client's name already been sent
     let isNameSent = false;
 
-
-    var jobIndex = 0;
-    var jobDeck = [];
-    var phraseIndex = 0;
-    var phraseDeck = [];
-
-
-    //create socket connection from front end
-    const socket = io();
-    
+    // the room number that this client is connected to
     let currentRoom = '';
 
+    // *********************************************************************************************************
+    // -------------JS event Listeners-------------
+    // *********************************************************************************************************
 
     $(".submitBtn").on('click', event => {
         event.preventDefault();
 
-        //make sure socket connection exists
+        // event
         if (socket) {
             const message = $('.messageInput');
             const author = $('.authorInput');
@@ -50,6 +52,7 @@ $(() => {
             }
         }
     })
+
 
     //handles emission of event when the phase button is clicked
     $(".phaseBtn").on('click', event => {
@@ -89,19 +92,23 @@ $(() => {
 
 
 
+    // *********************************************************************************************************
+    // -------------Socket event setup and listners-------------
+    // *********************************************************************************************************
 
-
+    //create socket connection from front end
+    const socket = io();
 
 
     //display room number when received from the server
     socket.on('roomInfo', (roomNum) => {
         $(".roomDisp").text(`Room Number: ${roomNum}`);
         currentRoom = roomNum;
-        if(!isNameSent) {
-            socket.emit('nameAssignment', {name: localStorage.getItem("userName"), room: currentRoom});
+        if (!isNameSent) {
+            socket.emit('nameAssignment', { name: localStorage.getItem("userName"), room: currentRoom });
             isNameSent = true;
         }
-        
+
 
     });
 
@@ -132,13 +139,13 @@ $(() => {
     });
 
     socket.on('dealJobCard', cardPack => {
-
         $(".jobDisplay").text(cardPack);
     })
 
-    //********************
-    //Phase event listners
-    //********************
+    // *********************************************************************************************************
+    // -------------Phase event listners-------------
+    // *********************************************************************************************************
+
     //event listener for handling the setup phase
     socket.on('setupPhase', data => {
         console.log('Submission phase started');
@@ -167,6 +174,11 @@ $(() => {
         console.log('toggled interviewer status');
         isInterviewer = !isInterviewer;
     })
+
+
+    // *********************************************************************************************************
+    // ---------Submission Functions-----------
+    // *********************************************************************************************************
 
 
     // adding jobs
@@ -198,94 +210,11 @@ $(() => {
         });
     });
 
-    // *********************************************************************************************************
-    // -----------------Manipulating Premade Decks-----------
-    // *********************************************************************************************************
-    // get all the jobs and shuffle them 
-    async function getJobs() {
-        let deck = await $.get("/api/premadeJobs", (data) => { });
-        var jobDeck = [];
-        for (i = 0; i < deck.length; i++) {
-            jobDeck.push(deck[i].title);
-        }
-        shuffle(jobDeck);
-        jobIndex = 0
-        return jobDeck;
-    }
-    // define the job deck, show the next job function, prompt user
-    $(".showAjob").on('click', async event => {
-        event.preventDefault();
-        jobDeck = await getJobs();
-        nextJobBtn.show();
-        $(".jobDisplay").text("Shuffled. Click next Job to begin");
-    });
-    // Show the next job until we run out of jobs
-    nextJobBtn.on('click', async event => {
-        if (jobIndex < 19) {
-            $(".jobDisplay").text(jobDeck[jobIndex]);
-        } else {
-            $(".jobDisplay").text("thats all the jobs, hit shuffle to restart");
-        }
-        jobIndex++;
-    })
-
-    // Fisher Yates Algorithm for shuffling 
-    function shuffle(a) {
-        var j, x, i;
-        for (i = a.length - 1; i > 0; i--) {
-            j = Math.floor(Math.random() * (i + 1));
-            x = a[i];
-            a[i] = a[j];
-            a[j] = x;
-        }
-    }
-
-
-    // get the premade Phrase deck shuffled
-    async function getPhrases() {
-        let deck = await $.get("/api/premadePhrases", (data) => { });
-        var phraseDeck = [];
-        for (i = 0; i < deck.length; i++) {
-            phraseDeck.push(deck[i].content);
-        }
-        shuffle(phraseDeck);
-        phraseIndex = 0
-        return phraseDeck;
-    }
-
-    //  on click get all phrases shuffled and show populate button
-    $(".consolePhrases").on('click', async event => {
-        event.preventDefault();
-        phraseDeck = await getPhrases();
-        populateButtons.show();
-
-    });
-
-    // populate buttons with 5 new cards, reenable buttons
-    populateButtons.on('click', async event => {
-
-        var cardIndex = 0
-        if (phraseIndex < 100) {
-            for (i = phraseIndex; i < phraseIndex + 5; i++) {
-
-                var cardArray = $(".card").toArray();
-
-                cardArray[cardIndex].value = phraseDeck[i]
-                cardArray[cardIndex].textContent = phraseDeck[i]
-                cardArray[cardIndex].disabled = false;
-
-                cardIndex++;
-            }
-            phraseIndex = phraseIndex + 5
-        } else {
-            phraseIndex = 0;
-        }
-    })
 
 
 
     // *********************************************************************************************************
-    // ---------Phases-----------
+    // ---------Phase Functions-----------
     // *********************************************************************************************************
 
 
@@ -348,9 +277,9 @@ $(() => {
                 cardArray[i].textContent = '';
                 cardArray[i].disabled = true;
 
-                if(players[i]) {
-                    cardArray[i].value = players[i].name;
-                    cardArray[i].textContent = players[i].name;
+                if (players[i + 1]) {
+                    cardArray[i].value = players[i + 1].name;
+                    cardArray[i].textContent = players[i + 1].name;
                     cardArray[i].disabled = false;
                 }
             }
