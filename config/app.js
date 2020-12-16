@@ -2,7 +2,7 @@ const gameData = {
   phase: "setup",
   roundNumber: 1,
   jobDeck: [],
-  resumeDeck: [],
+  resumeDeck: []
 };
 
 class Player {

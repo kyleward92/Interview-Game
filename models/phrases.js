@@ -1,12 +1,12 @@
-// // might need to require socket?
+// might need to require socket?
 
-// // Creating jobs and phrases
-// module.exports = function(sequelize, DataTypes) {
-//   const phrase = sequelize.define("phrases", {
-//     content: {
-//       type: DataTypes.STRING,
-//       unique: true
-//     }
-//   });
-//   return phrase;
-// };
+// Creating jobs and phrases
+module.exports = function(sequelize, DataTypes) {
+  const phrase = sequelize.define("phrases", {
+    content: {
+      type: DataTypes.STRING,
+      unique: true
+    }
+  });
+  return phrase;
+};

@@ -16,8 +16,8 @@ const gameData = { phase: "setup" };
 //Timer Setup code
 const timer = new Timer();
 
-timer.on("tick", (ms) => console.log("tick", ms));
-timer.on("statusChanged", (status) => console.log("status:", status));
+timer.on("tick", ms => console.log("tick", ms));
+timer.on("statusChanged", status => console.log("status:", status));
 
 // timer.start(5000) // run for 5 seconds
 
@@ -93,7 +93,7 @@ setupPhase = () => {
   //TODO allow players to input resumeCards
   gameData.jobCards = [
     { text: "JOBCARD 1 - FIREMAN" },
-    { text: "JOBCARD 2 - BARTENDER" },
+    { text: "JOBCARD 2 - BARTENDER" }
   ];
   gameData.resumeCards = [
     { text: "RESUME 1" },
@@ -105,7 +105,7 @@ setupPhase = () => {
     { text: "RESUME 7" },
     { text: "RESUME 8" },
     { text: "RESUME 9" },
-    { text: "RESUME 10" },
+    { text: "RESUME 10" }
   ];
 
   //Timer to next Phase
@@ -158,7 +158,7 @@ drawPhase = () => {
   return interviewPhase();
 };
 
-pickRandom = (array) => {
+pickRandom = array => {
   const num = Math.floor(Math.random() * array.length);
   return num;
 };
