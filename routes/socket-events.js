@@ -134,17 +134,14 @@ module.exports = (io, games, cardsPerPlayer) => {
     const getPhraseCards = async (roomNum) => {
         const submittedPhraseCards = await db.phrases.findAll(
             {
-                where: {
-                    roomNum: roomNum
-                }
+                where: { roomNum: roomNum }, raw: true, attributes: [`content`]
             });
-
 
         const phraseCardsRaw = await db.premadePhrases.findAll({});
 
         var phraseDeck = [];
 
-        //first load all user submissions
+        //first populate using user submissions
         for (i = 0; i < submittedPhraseCards.length; i++) {
             phraseDeck.push(submittedPhraseCards[i].content);
         }
@@ -169,12 +166,23 @@ module.exports = (io, games, cardsPerPlayer) => {
     };
 
     const getJobCards = async () => {
+        const submittedJobCards = await db.jobs.findAll(
+            {
+                where: { roomNum: roomNum }, raw: true, attributes: [`title`]
+            });
+
         const jobCardsRaw = await db.premadeJobs.findAll({});
 
         let jobsDeck = [];
-        for (i = 0; i < jobCardsRaw.length; i++) {
+
+        for (i = 0; i < submittedJobCards.length; i++) {
+            jobsDeck.push(submittedJobCards[i].title);
+        };
+
+        for (i = jobsDeck.length; i < 20; i++) {
             jobsDeck.push(jobCardsRaw[i].title);
         };
+
         shuffle(jobsDeck);
         return (jobsDeck);
     };

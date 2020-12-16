@@ -109,7 +109,6 @@ $(() => {
             isNameSent = true;
         }
 
-
     });
 
     //when a message is received from the server, print to screen
