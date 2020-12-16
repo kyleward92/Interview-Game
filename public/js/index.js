@@ -1,7 +1,7 @@
 $(() => {
 
 
-    
+
     // *********************************************************************************************************
     // -------------Variable Declarations-------------
     // *********************************************************************************************************
@@ -14,10 +14,9 @@ $(() => {
     const currentCardDiv = $('.currentCard');
     const jobCardDiv = $('.jobCard');
     const cardsDiv = $('.cards');
-    const nextJobBtn = $('.nextJob');
-    const populateButtons = $('.populateButtons');
     const startBtn = $('.startBtn');
-    const cardArray = $(".card").toArray();
+    const startDiv = $(".gameStarterDiv");
+    const cardArray = $(".phraseCard").toArray();
 
     //is the client the current interviewer
     let isInterviewer = false;
@@ -68,7 +67,7 @@ $(() => {
     });
 
     //Sends card data to the server when clicked
-    $(".card").on('click', event => {
+    $(".phraseCard").on('click', event => {
         event.preventDefault();
 
         const cardData = {
@@ -110,7 +109,6 @@ $(() => {
             isNameSent = true;
         }
 
-
     });
 
     //when a message is received from the server, print to screen
@@ -127,7 +125,7 @@ $(() => {
     //When event card clicked is received, display the card data in the current card slot
     socket.on('cardClicked', cardData => {
 
-        $('.currentCard').html(`<p>${cardData.text}</p>`);
+        $('.currentCardDisplay').text(cardData.text);
     });
 
     socket.on('cardPack', cardPack => {
@@ -140,7 +138,12 @@ $(() => {
     });
 
     socket.on('dealJobCard', cardPack => {
-        $(".jobDisplay").text(cardPack);
+        $(".jobCard").text(`Job Name: ${cardPack}`);
+    })
+
+    socket.on('toggleInterviewer', data => {
+        console.log('toggled interviewer status');
+        isInterviewer = !isInterviewer;
     })
 
     // *********************************************************************************************************
@@ -174,7 +177,7 @@ $(() => {
     socket.on('toggleInterviewer', data => {
         console.log('toggled interviewer status');
         isInterviewer = !isInterviewer;
-    })
+    });
 
 
     // *********************************************************************************************************
@@ -185,7 +188,7 @@ $(() => {
     // adding jobs
     function addJob(job) {
         $.post("/api/jobs", job);
-        console.log("job added:" + job.title)
+        console.log(`job added to room ${currentRoom}:` + job.title)
     }
 
     $(".addJobBtn").on('click', event => {
@@ -193,21 +196,24 @@ $(() => {
         addJob({
             title: jobInput
                 .val()
-                .trim()
+                .trim(),
+            roomNum: currentRoom
         });
     });
+
 
     // adding phrases
     function addPhrase(phrase) {
         $.post("/api/phrases", phrase);
-        console.log("phrase added:" + phrase.content)
+        console.log(`phrase added to room ${currentRoom}:` + phrase.content)
     }
     $(".addPhraseBtn").on('click', event => {
         event.preventDefault();
         addPhrase({
             content: phraseInput
                 .val()
-                .trim()
+                .trim(),
+            roomNum: currentRoom
         });
     });
 
@@ -225,6 +231,7 @@ $(() => {
         currentCardDiv.hide();
         jobCardDiv.hide();
         cardsDiv.hide();
+        startDiv.hide();
     }
 
     const dealPhase = () => {
@@ -234,14 +241,16 @@ $(() => {
             currentCardDiv.show();
             jobCardDiv.show();
             cardsDiv.hide();
+            startDiv.hide();
 
             socket.emit('drawJobCard', currentRoom);
         } else {
             startBtn.hide();
             submissionsDiv.hide();
-            currentCardDiv.hide();
+            currentCardDiv.show();
             jobCardDiv.show();
             cardsDiv.show();
+            startDiv.hide();
         }
 
     }
@@ -253,12 +262,14 @@ $(() => {
             currentCardDiv.show();
             jobCardDiv.show();
             cardsDiv.hide();
+            startDiv.hide();
         } else {
             startBtn.hide();
             submissionsDiv.hide();
             currentCardDiv.show();
             jobCardDiv.show();
             cardsDiv.show();
+            startDiv.hide();
         }
     }
 
@@ -290,15 +301,16 @@ $(() => {
             currentCardDiv.show();
             jobCardDiv.show();
             cardsDiv.show();
+            startDiv.hide();
         } else {
             startBtn.hide();
             submissionsDiv.hide();
             currentCardDiv.show();
             jobCardDiv.show();
             cardsDiv.hide();
+            startDiv.hide();
         }
-    }
-
+    };
 });
 
 

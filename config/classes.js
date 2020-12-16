@@ -7,7 +7,6 @@ class GameData {
         resumeDeck;
     }
 }
-
 class Player {
     constructor(name, gameId, socketId) {
         name;

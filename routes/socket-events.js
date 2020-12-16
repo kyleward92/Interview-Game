@@ -42,6 +42,12 @@ module.exports = (io, games, cardsPerPlayer) => {
 
         });
 
+        //Listener for adding cards to the Phrase Deck for the game
+        // socket.on('addJobToDeck', data => {
+
+
+        // })
+
         //event listener for handling the draw phase
         socket.on('drawPhase', roomNum => {
             console.log(`Deal phase sent to room ${roomNum.room}`);
@@ -99,7 +105,7 @@ module.exports = (io, games, cardsPerPlayer) => {
             );
 
         } else {
-            const newPlayer = { socketId: socket.id, name: '',  interviewer: false };
+            const newPlayer = { socketId: socket.id, name: '', interviewer: false };
             const index = games.findIndex(game => game.room == roomNum);
             games[index].players.push(newPlayer);
         };
@@ -112,7 +118,7 @@ module.exports = (io, games, cardsPerPlayer) => {
 
         const cardsNeeded = (players.length - 1) * cardsPerPlayer;
 
-        let phrases = await getPhraseCards();
+        let phrases = await getPhraseCards(roomNum.room);
 
         players.forEach(player => {
             if (!player.interviewer) {
@@ -124,13 +130,27 @@ module.exports = (io, games, cardsPerPlayer) => {
 
     };
 
-    const getPhraseCards = async () => {
+
+    const getPhraseCards = async (roomNum) => {
+        const submittedPhraseCards = await db.phrases.findAll(
+            {
+                where: { roomNum: roomNum }, raw: true, attributes: [`content`]
+            });
+
         const phraseCardsRaw = await db.premadePhrases.findAll({});
 
         var phraseDeck = [];
-        for (i = 0; i < phraseCardsRaw.length; i++) {
+
+        //first populate using user submissions
+        for (i = 0; i < submittedPhraseCards.length; i++) {
+            phraseDeck.push(submittedPhraseCards[i].content);
+        }
+
+        //Then fill remaining slots (of 100) with premade content
+        for (i = phraseDeck.length; i < 100; i++) {
             phraseDeck.push(phraseCardsRaw[i].content);
         }
+
         shuffle(phraseDeck);
         return phraseDeck;
     };
@@ -146,14 +166,25 @@ module.exports = (io, games, cardsPerPlayer) => {
     };
 
     const getJobCards = async () => {
+        const submittedJobCards = await db.jobs.findAll(
+            {
+                where: { roomNum: roomNum }, raw: true, attributes: [`title`]
+            });
+
         const jobCardsRaw = await db.premadeJobs.findAll({});
 
         let jobsDeck = [];
-        for (i = 0; i < jobCardsRaw.length; i++) {
+
+        for (i = 0; i < submittedJobCards.length; i++) {
+            jobsDeck.push(submittedJobCards[i].title);
+        };
+
+        for (i = jobsDeck.length; i < 20; i++) {
             jobsDeck.push(jobCardsRaw[i].title);
         };
+
         shuffle(jobsDeck);
-        return(jobsDeck);
+        return (jobsDeck);
     };
 
     const dealJobCard = async (roomNum) => {
