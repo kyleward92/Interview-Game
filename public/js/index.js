@@ -1,7 +1,7 @@
 $(() => {
 
 
-    
+
     // *********************************************************************************************************
     // -------------Variable Declarations-------------
     // *********************************************************************************************************
@@ -109,7 +109,6 @@ $(() => {
             isNameSent = true;
         }
 
-
     });
 
     //when a message is received from the server, print to screen
@@ -175,6 +174,10 @@ $(() => {
         employmentPhase(data);
     });
 
+    socket.on('toggleInterviewer', data => {
+        console.log('toggled interviewer status');
+        isInterviewer = !isInterviewer;
+    });
 
 
     // *********************************************************************************************************
@@ -185,7 +188,7 @@ $(() => {
     // adding jobs
     function addJob(job) {
         $.post("/api/jobs", job);
-        console.log("job added:" + job.title)
+        console.log(`job added to room ${currentRoom}:` + job.title)
     }
 
     $(".addJobBtn").on('click', event => {
@@ -193,21 +196,24 @@ $(() => {
         addJob({
             title: jobInput
                 .val()
-                .trim()
+                .trim(),
+            roomNum: currentRoom
         });
     });
+
 
     // adding phrases
     function addPhrase(phrase) {
         $.post("/api/phrases", phrase);
-        console.log("phrase added:" + phrase.content)
+        console.log(`phrase added to room ${currentRoom}:` + phrase.content)
     }
     $(".addPhraseBtn").on('click', event => {
         event.preventDefault();
         addPhrase({
             content: phraseInput
                 .val()
-                .trim()
+                .trim(),
+            roomNum: currentRoom
         });
     });
 
@@ -304,8 +310,7 @@ $(() => {
             cardsDiv.hide();
             startDiv.hide();
         }
-    }
-
+    };
 });
 
 

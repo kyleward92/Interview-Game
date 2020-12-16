@@ -28,11 +28,10 @@ const io = require("socket.io")(http);
 
 var db = require("./models");
 
+let roomNum = 9999;
 
 //default front-end folder
 app.use(express.static('public'));
-
-let roomNum = '9999';
 
 require('./routes/api-routes')(app);
 
