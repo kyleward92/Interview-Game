@@ -1,7 +1,4 @@
 $(() => {
-
-
-
     // *********************************************************************************************************
     // -------------Variable Declarations-------------
     // *********************************************************************************************************
@@ -12,11 +9,12 @@ $(() => {
     const chatDiv = $('.chat');
     const submissionsDiv = $('.submissions');
     const currentCardDiv = $('.currentCard');
-    const jobCardDiv = $('.jobCard');
+    const jobCard = $('.jobCard');
     const cardsDiv = $('.cards');
     const startBtn = $('.startBtn');
     const startDiv = $(".gameStarterDiv");
     const cardArray = $(".phraseCard").toArray();
+    const displayName = $('.displayName');
 
     //is the client the current interviewer
     let isInterviewer = false;
@@ -26,6 +24,9 @@ $(() => {
 
     // the room number that this client is connected to
     let currentRoom = '';
+
+    // Name of the current user
+    let userName = '';
 
     // *********************************************************************************************************
     // -------------JS event Listeners-------------
@@ -41,7 +42,7 @@ $(() => {
 
             if (message.val().length > 0) {
                 const msg = {
-                    author: author.val(),
+                    author: userName,
                     message: message.val(),
                     room: currentRoom
                 }
@@ -148,13 +149,9 @@ $(() => {
     });
 
     socket.on('dealJobCard', cardPack => {
-        $(".jobCard").text(`Job Name: ${cardPack}`);
+        jobCard.text(`Job Name: ${cardPack}`);
     })
 
-    socket.on('toggleInterviewer', data => {
-        console.log('toggled interviewer status');
-        isInterviewer = !isInterviewer;
-    })
 
     // *********************************************************************************************************
     // -------------Phase event listners-------------
@@ -238,29 +235,26 @@ $(() => {
 
 
     const submissionPhase = () => {
-        startBtn.hide();
+        startBtn.disabled = true;
         submissionsDiv.show();
         currentCardDiv.hide();
-        jobCardDiv.hide();
         cardsDiv.hide();
         startDiv.hide();
     }
 
     const dealPhase = () => {
         if (isInterviewer) {
-            startBtn.hide();
+            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
-            jobCardDiv.show();
             cardsDiv.hide();
             startDiv.hide();
 
             socket.emit('drawJobCard', currentRoom);
         } else {
-            startBtn.hide();
+            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
-            jobCardDiv.show();
             cardsDiv.show();
             startDiv.hide();
         }
@@ -269,17 +263,15 @@ $(() => {
 
     const interviewPhase = () => {
         if (isInterviewer) {
-            startBtn.hide();
+            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
-            jobCardDiv.show();
             cardsDiv.hide();
             startDiv.hide();
         } else {
-            startBtn.hide();
+            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
-            jobCardDiv.show();
             cardsDiv.show();
             startDiv.hide();
         }
@@ -308,21 +300,28 @@ $(() => {
                 }
             }
 
-            startBtn.hide();
+            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
-            jobCardDiv.show();
             cardsDiv.show();
             startDiv.hide();
         } else {
-            startBtn.hide();
+            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
-            jobCardDiv.show();
             cardsDiv.hide();
             startDiv.hide();
         }
     };
+
+
+
+    const setDisplayName = () => {
+        userName = localStorage.getItem('userName') || 'Anonymous';
+        displayName.text(`Display Name: ${userName}`);
+    };
+
+    setDisplayName();
 });
 
 
