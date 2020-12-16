@@ -104,7 +104,9 @@ $(() => {
     socket.on("connect_error", () => {
         setTimeout(() => {
             socket.connect();
-        }, 1000);
+        }, 1000).then(
+            socket.emit('reconnect')
+        );
     });
 
 

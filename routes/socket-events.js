@@ -4,6 +4,7 @@ module.exports = (io, games, cardsPerPlayer) => {
 
     io.on('connection', (socket) => {
 
+        //When user hits index.html
         socket.on('newUser', () => {
             socket.join(roomNum);
 
@@ -19,6 +20,10 @@ module.exports = (io, games, cardsPerPlayer) => {
         socket.on('disconnect', () => {
             console.log("User Disconnected");
         });
+
+        socket.on('reconnect', () => {
+            console.log(`User ${socket.id} reconnecting...`);
+        })
 
         //listen for custom event 'chat' from front end socket
         socket.on('chat', (msg) => {
@@ -43,12 +48,6 @@ module.exports = (io, games, cardsPerPlayer) => {
             io.to(roomNum.room).emit('setupPhase');
 
         });
-
-        //Listener for adding cards to the Phrase Deck for the game
-        // socket.on('addJobToDeck', data => {
-
-
-        // })
 
         //event listener for handling the draw phase
         socket.on('drawPhase', roomNum => {
@@ -81,6 +80,7 @@ module.exports = (io, games, cardsPerPlayer) => {
             games[gameIndex].players[playerIndex].name = data.name;
             console.log(games[gameIndex].players);
         })
+
     });
 
     const checkIfRoomExists = (room) => {
