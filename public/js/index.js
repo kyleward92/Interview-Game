@@ -98,6 +98,14 @@ $(() => {
 
     //create socket connection from front end
     const socket = io();
+    socket.emit('newUser');
+
+    //Testing reconnect fix.
+    socket.on("connect_error", () => {
+        setTimeout(() => {
+            socket.connect();
+        }, 1000);
+    });
 
 
     //display room number when received from the server

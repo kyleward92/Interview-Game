@@ -4,14 +4,16 @@ module.exports = (io, games, cardsPerPlayer) => {
 
     io.on('connection', (socket) => {
 
-        socket.join(roomNum);
+        socket.on('newUser', () => {
+            socket.join(roomNum);
 
-        updateGame(socket);
-        console.log(games);
+            updateGame(socket);
+            console.log(games);
 
-        console.log(`a user connected to room ${roomNum}`);
+            console.log(`a user connected to room ${roomNum}`);
 
-        io.to(roomNum).emit('roomInfo', roomNum);
+            io.to(roomNum).emit('roomInfo', roomNum);
+        });
 
         //when socket disconnects
         socket.on('disconnect', () => {
