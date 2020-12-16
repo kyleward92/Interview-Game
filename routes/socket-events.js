@@ -103,11 +103,13 @@ module.exports = (io, games, cardsPerPlayer) => {
                     players: [newPlayer]
                 }
             );
+
         } else {
             const newPlayer = { socketId: socket.id, name: '', interviewer: false };
             const index = games.findIndex(game => game.room == roomNum);
             games[index].players.push(newPlayer);
         };
+
     };
 
     const dealPhraseCards = async (roomNum) => {

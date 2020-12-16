@@ -11,6 +11,15 @@ body {
     height: 900px;
     
 }
+
+.playbg_image {
+    background-image: url("https://eventage.net/wp-content/uploads/2018/06/Question-Mark-Background-01.jpg");
+    background-repeat: repeat-y;
+    background-size: contain;
+    background-position: center;
+    height: auto;
+    opacity: 0.8
+}
     
 .jumbotron, footer {
     background-color:rgb(51, 50, 50);
@@ -18,6 +27,14 @@ body {
     opacity: 0.85;    
 }
     
+.jumbotron h4 {
+    color: rgb(252, 252, 33);
+    border-style: solid;
+    border-color: white;
+    border-width: .5px;
+    padding: 5px;
+
+}
     
 nav {
     background-color: grey;
@@ -32,3 +49,13 @@ nav a {
 .card {
     opacity: 0.825;
 }
+
+.phaseDisp {
+    font-weight: bolder;
+}
+
+/* CHAT FEATURE */
+.messages {
+    height: 350px;
+    overflow: auto;
+  }
