@@ -116,7 +116,7 @@ module.exports = (io, games, cardsPerPlayer) => {
 
         const cardsNeeded = (players.length - 1) * cardsPerPlayer;
 
-        let phrases = await getPhraseCards();
+        let phrases = await getPhraseCards(roomNum.room);
 
         players.forEach(player => {
             if (!player.interviewer) {
@@ -129,13 +129,29 @@ module.exports = (io, games, cardsPerPlayer) => {
     };
 
 
-    const getPhraseCards = async () => {
+    const getPhraseCards = async (roomNum) => {
+        const submittedPhraseCards = await db.phrases.findAll(
+            {
+                where: {
+                    roomNum: roomNum
+                }
+            });
+
+
         const phraseCardsRaw = await db.premadePhrases.findAll({});
 
         var phraseDeck = [];
-        for (i = 0; i < phraseCardsRaw.length; i++) {
+
+        //first load all user submissions
+        for (i = 0; i < submittedPhraseCards.length; i++) {
+            phraseDeck.push(submittedPhraseCards[i].content);
+        }
+
+        //Then fill remaining slots (of 100) with premade content
+        for (i = phraseDeck.length; i < 100; i++) {
             phraseDeck.push(phraseCardsRaw[i].content);
         }
+
         shuffle(phraseDeck);
         return phraseDeck;
     };
