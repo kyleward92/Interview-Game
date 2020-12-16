@@ -3,7 +3,9 @@
 // Creating jobs and phrases 
 module.exports = function(sequelize, DataTypes) {
   var phrase = sequelize.define("phrases", {
-    content: DataTypes.STRING
-  });
+    content: {
+      type: DataTypes.STRING,
+      unique: true
+  }});
   return phrase;
 };

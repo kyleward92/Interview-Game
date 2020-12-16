@@ -6,6 +6,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 const PORT = process.env.PORT || 8080;
 
+const cardsPerPlayer = 5;
+
+const games = [
+    {
+        room: '9999',
+        players: [
+            {
+                socketId: "gfds8d6fg9ddfs"
+            }
+        ]
+    }
+
+];
 
 //socket.io setup
 const http = require('http').createServer(app);
@@ -21,16 +34,12 @@ let roomNum = '9999';
 
 require('./routes/api-routes')(app);
 
-require('./routes/socket-events')(io);
+require('./routes/socket-events')(io, games, cardsPerPlayer);
 
-db.sequelize.sync({ force: true }).then(function () {
+db.sequelize.sync({ force: false }).then(function () {
     http.listen(PORT, () => {
         console.log("Listening on port 8080");
     });
 });
 
 
-const NumClientsInRoom = (room) => {
-    var clients = io.nsps['/'].adapter.rooms[room];
-    return Object.keys(clients).length;
-  };
