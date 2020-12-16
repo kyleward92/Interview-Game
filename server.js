@@ -13,7 +13,9 @@ const games = [
         room: '9999',
         players: [
             {
-                socketId: "gfds8d6fg9ddfs"
+                name: 'sample',
+                socketId: "gfds8d6fg9ddfs",
+                interviewer: true
             }
         ]
     }
