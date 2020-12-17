@@ -13,11 +13,13 @@ $(() => {
     const cardsDiv = $('.cards');
     const startBtn = $('.startBtn');
     const startDiv = $(".gameStarterDiv");
+    const currentPlayerEl = $('.currentPlayer');
     const cardArray = $(".phraseCard").toArray();
     const displayName = $('.displayName');
 
     //is the client the current interviewer
     let isInterviewer = false;
+    let isInterviewee = false;
 
     //has this client's name already been sent
     let isNameSent = false;
@@ -79,6 +81,8 @@ $(() => {
         event.target.disabled = true;
 
         socket.emit('cardClicked', cardData);
+
+        socket.emit('updateInterviewee', currentRoom);
     });
 
     $(".startBtn").on('click', event => {
@@ -127,11 +131,6 @@ $(() => {
         $('.messages').append($('<li>').text(`${msg.author}: ${msg.message}`))
     });
 
-    //when next phase event is received, update the on screen indicator
-    socket.on('nextPhase', data => {
-        currentPhase = data.newPhase;
-        $('.phaseDisp').text(`Current Phase: ${currentPhase}`)
-    });
 
     //When event card clicked is received, display the card data in the current card slot
     socket.on('cardClicked', cardData => {
@@ -181,6 +180,22 @@ $(() => {
         employmentPhase(data);
     });
 
+    // *********************************************************************************************************
+    // ---------Misc Socket Events-----------
+    // *********************************************************************************************************
+
+    socket.on('setCurrentPlayer', data => {
+        currentPlayerEl.text(data.name);
+        if (data.name == userName) {
+            isInterviewee = true;
+        } else {
+            isInterviewee = false;
+        }
+
+        console.log(isInterviewee);
+    })
+
+
     socket.on('toggleInterviewer', data => {
         console.log('toggled interviewer status');
         isInterviewer = !isInterviewer;
@@ -227,24 +242,19 @@ $(() => {
     });
 
 
-
-
     // *********************************************************************************************************
     // ---------Phase Functions-----------
     // *********************************************************************************************************
 
 
     const submissionPhase = () => {
-        startBtn.disabled = true;
-        submissionsDiv.show();
+        submissionsDiv.hide();
         currentCardDiv.hide();
         cardsDiv.hide();
-        startDiv.hide();
     }
 
     const dealPhase = () => {
         if (isInterviewer) {
-            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.hide();
@@ -252,7 +262,6 @@ $(() => {
 
             socket.emit('drawJobCard', currentRoom);
         } else {
-            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.show();
@@ -262,14 +271,15 @@ $(() => {
     }
 
     const interviewPhase = () => {
-        if (isInterviewer) {
-            startBtn.disabled = true;
+
+        $('.currentCardDisplay').text('');
+
+        if (isInterviewer || !isInterviewee) {
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.hide();
             startDiv.hide();
         } else {
-            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.show();
@@ -299,14 +309,11 @@ $(() => {
                     cardArray[i].disabled = false;
                 }
             }
-
-            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.show();
             startDiv.hide();
         } else {
-            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.hide();
