@@ -19,6 +19,7 @@ $(() => {
 
     //is the client the current interviewer
     let isInterviewer = false;
+    let isInterviewee = false;
 
     //has this client's name already been sent
     let isNameSent = false;
@@ -177,12 +178,19 @@ $(() => {
         employmentPhase(data);
     });
 
-// *********************************************************************************************************
+    // *********************************************************************************************************
     // ---------Misc Socket Events-----------
     // *********************************************************************************************************
 
     socket.on('setCurrentPlayer', data => {
         currentPlayerEl.text(data.name);
+        if (data.name == userName) {
+            isInterviewee = true;
+        } else {
+            isInterviewee = false;
+        }
+
+        console.log(isInterviewee);
     })
 
 
@@ -263,7 +271,7 @@ $(() => {
     }
 
     const interviewPhase = () => {
-        if (isInterviewer) {
+        if (isInterviewer || !isInterviewee) {
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.hide();
@@ -298,7 +306,6 @@ $(() => {
                     cardArray[i].disabled = false;
                 }
             }
-
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.show();

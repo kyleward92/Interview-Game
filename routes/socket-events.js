@@ -11,7 +11,7 @@ module.exports = (io, games, cardsPerPlayer) => {
             socket.join(roomNum);
 
             updateGame(socket);
-            console.log(games);
+
 
             console.log(`a user connected to room ${roomNum}`);
 
@@ -56,8 +56,8 @@ module.exports = (io, games, cardsPerPlayer) => {
             console.log(`Deal phase sent to room ${roomNum.room}`);
 
             io.to(roomNum.room).emit('drawPhase');
-            io.to(roomNum.room).emit('setCurrentPlayer', games[getGameIndex(roomNum.room)].players[1]);
 
+            changeInterviewee(roomNum.room);
             dealPhraseCards(roomNum);
             dealJobCard(roomNum);
 
@@ -84,7 +84,6 @@ module.exports = (io, games, cardsPerPlayer) => {
             const gameIndex = getGameIndex(data.room);
             const playerIndex = games[gameIndex].players.findIndex(player => player.socketId == socket.id);
             games[gameIndex].players[playerIndex].name = data.name;
-            console.log(games[gameIndex].players);
         })
 
     });
@@ -102,7 +101,14 @@ module.exports = (io, games, cardsPerPlayer) => {
     const updateGame = (socket) => {
 
         if (!checkIfRoomExists(roomNum)) {
-            const newPlayer = { socketId: socket.id, name: '', interviewer: true };
+            const newPlayer =
+            {
+                socketId: socket.id,
+                name: '',
+                interviewer: true,
+                interviewee: false,
+                hasInterviewed: false
+            };
             io.to(newPlayer.socketId).emit('toggleInterviewer');
 
             games.push(
@@ -113,7 +119,14 @@ module.exports = (io, games, cardsPerPlayer) => {
             );
 
         } else {
-            const newPlayer = { socketId: socket.id, name: '', interviewer: false };
+            const newPlayer =
+            {
+                socketId: socket.id,
+                name: '',
+                interviewer: false,
+                interviewee: false,
+                hasInterviewed: false
+            };
             const index = getGameIndex(roomNum);
             games[index].players.push(newPlayer);
         };
@@ -204,5 +217,26 @@ module.exports = (io, games, cardsPerPlayer) => {
     const getGameIndex = (roomNum) => {
         return games.findIndex(game => game.room == roomNum);
     };
+
+    const changeInterviewee = (roomNum) => {
+        const game = games[getGameIndex(roomNum)];
+        const newIntervieweeIndex = chooseNextInterviewee(roomNum);
+        const newInterviewee = game.players[newIntervieweeIndex];
+
+
+        game.players.forEach(player => {
+            player.interviewee = false;
+        })
+
+        newInterviewee.interviewee = true;
+        newInterviewee.hasInterviewed = true;
+        io.to(roomNum).emit('setCurrentPlayer', newInterviewee);
+    }
+
+    const chooseNextInterviewee = (roomNum) => {
+        const game = games[getGameIndex(roomNum)];
+        const availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
+        return Math.floor(Math.random() * availablePlayers.length);
+    }
 
 };
