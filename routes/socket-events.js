@@ -4,6 +4,8 @@ module.exports = (io, games, cardsPerPlayer) => {
 
     io.on('connection', (socket) => {
 
+        io.to(socket.id).emit('setupPhase');
+
         //When user hits index.html
         socket.on('newUser', () => {
             socket.join(roomNum);
@@ -52,10 +54,15 @@ module.exports = (io, games, cardsPerPlayer) => {
         //event listener for handling the draw phase
         socket.on('drawPhase', roomNum => {
             console.log(`Deal phase sent to room ${roomNum.room}`);
+
             io.to(roomNum.room).emit('drawPhase');
+            io.to(roomNum.room).emit('setCurrentPlayer', games[getGameIndex(roomNum.room)].players[1]);
+
             dealPhraseCards(roomNum);
             dealJobCard(roomNum);
+
             io.to(roomNum.room).emit('interviewPhase');
+
             console.log(`Interview phase sent to room ${roomNum.room}`);
         });
 
@@ -63,19 +70,18 @@ module.exports = (io, games, cardsPerPlayer) => {
         socket.on('interviewPhase', roomNum => {
             console.log(`Interview phase sent to room ${roomNum.room}`);
             io.to(roomNum.room).emit('interviewPhase');
-
         });
 
         //event listener for handling the employment phase
         socket.on('employmentPhase', roomNum => {
             console.log(`Employment phase sent to room ${roomNum}`);
 
-            io.to(roomNum).emit('employmentPhase', games[games.findIndex(game => game.room == roomNum)].players);
+            io.to(roomNum).emit('employmentPhase', games[getGameIndex(roomNum)].players);
 
         });
 
         socket.on('nameAssignment', data => {
-            const gameIndex = games.findIndex(game => game.room == data.room);
+            const gameIndex = getGameIndex(data.room);
             const playerIndex = games[gameIndex].players.findIndex(player => player.socketId == socket.id);
             games[gameIndex].players[playerIndex].name = data.name;
             console.log(games[gameIndex].players);
@@ -108,17 +114,15 @@ module.exports = (io, games, cardsPerPlayer) => {
 
         } else {
             const newPlayer = { socketId: socket.id, name: '', interviewer: false };
-            const index = games.findIndex(game => game.room == roomNum);
+            const index = getGameIndex(roomNum);
             games[index].players.push(newPlayer);
         };
 
     };
 
     const dealPhraseCards = async (roomNum) => {
-        const roomIndex = games.findIndex(game => game.room == roomNum.room);
+        const roomIndex = getGameIndex(roomNum.room);
         const players = games[roomIndex].players;
-
-        const cardsNeeded = (players.length - 1) * cardsPerPlayer;
 
         let phrases = await getPhraseCards(roomNum.room);
 
@@ -195,6 +199,10 @@ module.exports = (io, games, cardsPerPlayer) => {
         jobs = jobs.slice(1);
 
         io.to(roomNum.room).emit('dealJobCard', cardPack);
+    };
+
+    const getGameIndex = (roomNum) => {
+        return games.findIndex(game => game.room == roomNum);
     };
 
 };

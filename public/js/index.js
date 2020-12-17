@@ -13,6 +13,7 @@ $(() => {
     const cardsDiv = $('.cards');
     const startBtn = $('.startBtn');
     const startDiv = $(".gameStarterDiv");
+    const currentPlayerEl = $('.currentPlayer');
     const cardArray = $(".phraseCard").toArray();
     const displayName = $('.displayName');
 
@@ -127,11 +128,6 @@ $(() => {
         $('.messages').append($('<li>').text(`${msg.author}: ${msg.message}`))
     });
 
-    //when next phase event is received, update the on screen indicator
-    socket.on('nextPhase', data => {
-        currentPhase = data.newPhase;
-        $('.phaseDisp').text(`Current Phase: ${currentPhase}`)
-    });
 
     //When event card clicked is received, display the card data in the current card slot
     socket.on('cardClicked', cardData => {
@@ -180,6 +176,15 @@ $(() => {
         console.log('Employment phase started');
         employmentPhase(data);
     });
+
+// *********************************************************************************************************
+    // ---------Misc Socket Events-----------
+    // *********************************************************************************************************
+
+    socket.on('setCurrentPlayer', data => {
+        currentPlayerEl.text(data.name);
+    })
+
 
     socket.on('toggleInterviewer', data => {
         console.log('toggled interviewer status');
@@ -235,16 +240,13 @@ $(() => {
 
 
     const submissionPhase = () => {
-        startBtn.disabled = true;
-        submissionsDiv.show();
+        submissionsDiv.hide();
         currentCardDiv.hide();
         cardsDiv.hide();
-        startDiv.hide();
     }
 
     const dealPhase = () => {
         if (isInterviewer) {
-            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.hide();
@@ -252,7 +254,6 @@ $(() => {
 
             socket.emit('drawJobCard', currentRoom);
         } else {
-            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.show();
@@ -263,13 +264,11 @@ $(() => {
 
     const interviewPhase = () => {
         if (isInterviewer) {
-            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.hide();
             startDiv.hide();
         } else {
-            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.show();
@@ -300,13 +299,11 @@ $(() => {
                 }
             }
 
-            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.show();
             startDiv.hide();
         } else {
-            startBtn.disabled = true;
             submissionsDiv.hide();
             currentCardDiv.show();
             cardsDiv.hide();
