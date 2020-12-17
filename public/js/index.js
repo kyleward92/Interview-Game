@@ -81,6 +81,8 @@ $(() => {
         event.target.disabled = true;
 
         socket.emit('cardClicked', cardData);
+
+        socket.emit('updateInterviewee', currentRoom);
     });
 
     $(".startBtn").on('click', event => {
@@ -240,8 +242,6 @@ $(() => {
     });
 
 
-
-
     // *********************************************************************************************************
     // ---------Phase Functions-----------
     // *********************************************************************************************************
@@ -271,6 +271,9 @@ $(() => {
     }
 
     const interviewPhase = () => {
+
+        $('.currentCardDisplay').text('');
+
         if (isInterviewer || !isInterviewee) {
             submissionsDiv.hide();
             currentCardDiv.show();

@@ -25,7 +25,7 @@ module.exports = (io, games, cardsPerPlayer) => {
 
         socket.on('reconnect', () => {
             console.log(`User ${socket.id} reconnecting...`);
-        })
+        });
 
         //listen for custom event 'chat' from front end socket
         socket.on('chat', (msg) => {
@@ -84,8 +84,13 @@ module.exports = (io, games, cardsPerPlayer) => {
             const gameIndex = getGameIndex(data.room);
             const playerIndex = games[gameIndex].players.findIndex(player => player.socketId == socket.id);
             games[gameIndex].players[playerIndex].name = data.name;
-        })
+        });
 
+        socket.on('updateInterviewee', roomNum => {
+            console.log('Updating Interviewee')
+            changeInterviewee(roomNum);
+            io.to(roomNum).emit('interviewPhase');
+        });
     });
 
     const checkIfRoomExists = (room) => {
@@ -144,8 +149,8 @@ module.exports = (io, games, cardsPerPlayer) => {
                 const cardPack = phrases.slice(0, cardsPerPlayer);
                 phrases = phrases.slice(cardsPerPlayer);
                 io.to(player.socketId).emit('cardPack', cardPack);
-            }
-        })
+            };
+        });
 
     };
 
@@ -158,17 +163,17 @@ module.exports = (io, games, cardsPerPlayer) => {
 
         const phraseCardsRaw = await db.premadePhrases.findAll({});
 
-        var phraseDeck = [];
+        let phraseDeck = [];
 
         //first populate using user submissions
         for (i = 0; i < submittedPhraseCards.length; i++) {
             phraseDeck.push(submittedPhraseCards[i].content);
-        }
+        };
 
         //Then fill remaining slots (of 100) with premade content
         for (i = phraseDeck.length; i < 100; i++) {
             phraseDeck.push(phraseCardsRaw[i].content);
-        }
+        };
 
         shuffle(phraseDeck);
         return phraseDeck;
@@ -181,7 +186,7 @@ module.exports = (io, games, cardsPerPlayer) => {
             x = a[i];
             a[i] = a[j];
             a[j] = x;
-        }
+        };
     };
 
     const getJobCards = async () => {
@@ -226,17 +231,20 @@ module.exports = (io, games, cardsPerPlayer) => {
 
         game.players.forEach(player => {
             player.interviewee = false;
-        })
+        });
 
         newInterviewee.interviewee = true;
         newInterviewee.hasInterviewed = true;
         io.to(roomNum).emit('setCurrentPlayer', newInterviewee);
-    }
+    };
 
     const chooseNextInterviewee = (roomNum) => {
         const game = games[getGameIndex(roomNum)];
         const availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
-        return Math.floor(Math.random() * availablePlayers.length);
-    }
+        const newIntervieweeRaw = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+
+        // Index of the chosen player in the original game object
+        return game.players.findIndex(player => player.socketId == newIntervieweeRaw.socketId);
+    };
 
 };
