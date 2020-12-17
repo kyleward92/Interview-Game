@@ -15,7 +15,9 @@ const games = [
             {
                 name: 'sample',
                 socketId: "gfds8d6fg9ddfs",
-                interviewer: true
+                interviewer: true,
+                interviewee: false,
+                hasInterviewed: false
             }
         ]
     }
