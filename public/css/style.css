@@ -53,3 +53,9 @@ nav a {
 .phaseDisp {
     font-weight: bolder;
 }
+
+/* CHAT FEATURE */
+.messages {
+    height: 350px;
+    overflow: auto;
+  }

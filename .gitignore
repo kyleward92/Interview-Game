@@ -3,3 +3,5 @@ node_modules
 .env
 package-lock
 config\config.json
+config\config.json
+config/config.json
