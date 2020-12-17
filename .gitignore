@@ -4,3 +4,4 @@ node_modules
 package-lock
 config\config.json
 config\config.json
+config/config.json
