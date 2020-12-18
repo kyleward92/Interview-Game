@@ -10,6 +10,7 @@ $(() => {
   });
 
   $(".joinBtn").on("click", () => {
+    console.log("clicked");
     if (roomInput.val().length > 0 && authorInput.val().length > 0) {
       const roomNum = roomInput.val().trim();
       setName();
@@ -17,13 +18,6 @@ $(() => {
     }
   });
 
-<<<<<<< HEAD
-  const setName = () => {
-    const name = authorInput.val().trim();
-    localStorage.setItem("userName", name);
-  };
-});
-=======
     const generateDefaultHandle = () => {
         var result = '';
         var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -38,5 +32,8 @@ $(() => {
     generateDefaultHandle();
     roomInput.val("1234");
 
-})
->>>>>>> dea2f2df7552fa9cd4eca313b62fee1af49cb1f1
+
+    const setName = () => {
+      localStorage.setItem('userName', authorInput.val());
+    }
+});
