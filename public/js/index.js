@@ -1,59 +1,66 @@
 $(() => {
-  // *********************************************************************************************************
-  // -------------Variable Declarations-------------
-  // *********************************************************************************************************
+    // *********************************************************************************************************
+    // -------------Variable Declarations-------------
+    // *********************************************************************************************************
 
-  // References to HTML elements
-  const jobInput = $('.jobInput');
-  const phraseInput = $('.phraseInput');
-  const chatDiv = $('.chat');
-  const submissionsDiv = $('.submissions');
-  const currentCardDiv = $('.currentCard');
-  const jobCard = $('.jobCard');
-  const cardsDiv = $('.cards');
-  const startBtn = $('.startBtn');
-  const startDiv = $(".gameStarterDiv");
-  const currentPlayerEl = $('.currentPlayer');
-  const cardArray = $(".phraseCard").toArray();
-  const displayName = $('.displayName');
+    // References to HTML elements
+    const jobInput = $('.jobInput');
+    const phraseInput = $('.phraseInput');
+    const chatDiv = $('.chat');
+    const submissionsDiv = $('.submissions');
+    const currentCardDiv = $('.currentCard');
+    const jobCard = $('.jobCard');
+    const cardsDiv = $('.cards');
+    const startBtn = $('.startBtn');
+    const startDiv = $(".gameStarterDiv");
+    const currentPlayerEl = $('.currentPlayer');
+    const cardArray = $(".phraseCard").toArray();
+    const displayName = $('.displayName');
 
-  //is the client the current interviewer
-  let isInterviewer = false;
-  let isInterviewee = false;
+    //is the client the current interviewer
+    let isInterviewer = false;
+    let isInterviewee = false;
 
-  //has this client's name already been sent
-  let isNameSent = false;
+    //has this client's name already been sent
+    let isNameSent = false;
 
-  // the room number that this client is connected to
-  let currentRoom = '';
+    // the room number that this client is connected to
+    let currentRoom = '';
 
-  // Name of the current user
-  let userName = '';
+    // Name of the current user
+    let userName = '';
 
-  // *********************************************************************************************************
-  // -------------JS event Listeners-------------
-  // *********************************************************************************************************
 
-  $(".submitBtn").on('click', event => {
-    event.preventDefault();
 
-    // event
-    if (socket) {
-      const message = $('.messageInput');
-      const author = $('.authorInput');
+    // *********************************************************************************************************
+    // -------------JS event Listeners-------------
+    // *********************************************************************************************************
 
-      if (message.val().length > 0) {
-        const msg = {
-          author: userName,
-          message: message.val(),
-          room: currentRoom
+    $(".submitBtn").on('click', event => {
+        event.preventDefault();
+
+        // event
+        if (socket) {
+            const message = $('.messageInput');
+            const author = $('.authorInput');
+
+            if (message.val().length > 0) {
+                const msg = {
+                    author: userName,
+                    message: message.val(),
+                    room: currentRoom
+                }
+
+                //send socket message from the user to the server
+                socket.emit('chat', msg);
+                message.val('');
+            }
         }
 
         //send socket message from the user to the server
         socket.emit('chat', msg);
         message.val('');
-      }
-    }
+      });
   })
 
 
@@ -78,9 +85,19 @@ $(() => {
       room: currentRoom
     }
 
-    event.target.disabled = true;
+    });
 
-    socket.emit('cardClicked', cardData);
+    // Ends Turn, changes interviewee
+    $(".endTurn").on('click', event => {
+        event.preventDefault();
+        const gameData = {
+            room: currentRoom
+        }
+        socket.emit('updateInterviewee', currentRoom);
+    })
+
+    $(".startBtn").on('click', event => {
+        event.preventDefault();
 
     socket.emit('updateInterviewee', currentRoom);
   });
@@ -138,17 +155,65 @@ $(() => {
   //When event card clicked is received, display the card data in the current card slot
   socket.on('cardClicked', cardData => {
 
-    $('.currentCardDisplay').text(cardData.text);
-  });
+        for (i = 0; i < cardPack.length; i++) {
+            cardArray[i].value = cardPack[i]
+            cardArray[i].textContent = cardPack[i]
+            cardArray[i].disabled = false;
+        }
+    });
 
-  socket.on('cardPack', cardPack => {
+    socket.on('dealJobCard', cardPack => {
+        jobCard.text(`Job Name: ${cardPack}`);
+    })
+
+
+    // *********************************************************************************************************
+    // -------------Phase event listners-------------
+    // *********************************************************************************************************
+
+    //event listener for handling the setup phase
+    socket.on('setupPhase', data => {
+        console.log('Submission phase started');
+        submissionPhase();
+    });
+
+    //event listener for handling the draw phase
+    socket.on('drawPhase', data => {
+        console.log('Deal phase started');
+        dealPhase();
+    });
+
+    //event listener for handling the interview phase
+    socket.on('interviewPhase', data => {
+        console.log('Interview phase started');
+        interviewPhase();
+    });
+
+    //event listener for handling the employment phase
+    socket.on('employmentPhase', players => {
+        console.log('Employment phase started');
+        employmentPhase(players);
+    });
+
+    // *********************************************************************************************************
+    // ---------Misc Socket Events-----------
+    // *********************************************************************************************************
+
+    socket.on('setCurrentPlayer', data => {
+        currentPlayerEl.text(data.name);
+        if (data.name == userName) {
+            isInterviewee = true;
+        } else {
+            isInterviewee = false;
+        }
+    })
 
     for (i = 0; i < cardPack.length; i++) {
       cardArray[i].value = cardPack[i]
       cardArray[i].textContent = cardPack[i]
       cardArray[i].disabled = false;
     }
-  });
+  // });
 
   socket.on('dealJobCard', cardPack => {
     jobCard.text(`Job Name: ${cardPack}`);
@@ -167,7 +232,7 @@ $(() => {
   event.target.disabled = true;
 
   socket.emit("cardClicked", cardData);
-});
+// });
 
 $(".startBtn").on("click", event => {
   event.preventDefault();
@@ -184,8 +249,34 @@ $(".startBtn").on("click", event => {
       isInterviewee = false;
     }
 
-    console.log(isInterviewee);
-  })
+
+    const employmentPhase = (players) => {
+        if (isInterviewer) {
+
+            for (i = 0; i < cardArray.length; i++) {
+
+                cardArray[i].value = '';
+                cardArray[i].textContent = '';
+                cardArray[i].disabled = true;
+
+                if (players[i + 1]) {
+                    cardArray[i].value = players[i + 1].name;
+                    cardArray[i].textContent = players[i + 1].name;
+                    cardArray[i].disabled = false;
+                }
+            }
+            submissionsDiv.hide();
+            currentCardDiv.show();
+            cardsDiv.show();
+            startDiv.hide();
+        } else {
+            submissionsDiv.hide();
+            currentCardDiv.show();
+            cardsDiv.hide();
+            startDiv.hide();
+        }
+    };
+
 
 
   socket.on('toggleInterviewer', data => {
