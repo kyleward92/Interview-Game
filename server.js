@@ -23,7 +23,9 @@ const games = [
                 hasInterviewed: false,
                 points: 0
             }
-        ]
+        ],
+        jobCards: [],
+        phraseCards: []
     }
 
 ];

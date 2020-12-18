@@ -146,7 +146,9 @@ module.exports = (io, games, cardsPerPlayer) => {
 
             games.push({
                 room: roomNum,
-                players: [newPlayer]
+                players: [newPlayer],
+                jobCards: [],
+                phraseCards: []
             });
 
         } else {
@@ -167,6 +169,7 @@ module.exports = (io, games, cardsPerPlayer) => {
     const dealPhraseCards = async (roomNum) => {
         const roomIndex = getGameIndex(roomNum.room);
         const players = games[roomIndex].players;
+
 
         let phrases = await getPhraseCards(roomNum.room);
 
