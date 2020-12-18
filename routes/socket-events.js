@@ -240,7 +240,6 @@ module.exports = (io, games, cardsPerPlayer) => {
         let newIntervieweeIndex = -1;
         newIntervieweeIndex = chooseNextInterviewee(roomNum);
 
-        console.log('INDEX: ', newIntervieweeIndex);
         if (newIntervieweeIndex != -1) {
             const newInterviewee = game.players[newIntervieweeIndex];
 
@@ -256,13 +255,12 @@ module.exports = (io, games, cardsPerPlayer) => {
     const chooseNextInterviewee = (roomNum) => {
         const game = games[getGameIndex(roomNum)];
         const availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
-        console.log(availablePlayers.length);
         if (availablePlayers.length > 0) {
             const newIntervieweeRaw = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
             // Index of the chosen player in the original game object
             return game.players.findIndex(player => player.socketId == newIntervieweeRaw.socketId);
         } else {
-            console.log('emitting employment Phase');
+            console.log('Starting employment Phase');
             io.to(roomNum).emit('employmentPhase', game.players)
             return -1;
         }
@@ -274,11 +272,9 @@ module.exports = (io, games, cardsPerPlayer) => {
     }
 
     const checkEmptyGames = (game, gameIndex) => {
-        console.log(games);
         if(game.players.length < 1) {
             games.splice(gameIndex, 1);
         }
-        console.log(games);
     };
 
 };
