@@ -13,12 +13,13 @@ module.exports = function (app) {
   });
 
   app.get('/join/:roomNumber', (req, res) => {
+    console.log('joining');
     res.sendFile(path.join(__dirname, '../public/html/index.html'));
     roomNum = req.params.roomNumber;
   });
 
   app.get('/how-to-play', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/html/howto_play.html'))
+    res.sendFile(path.join(__dirname, '../public/html/howto_play.html'));
   })
 
   // make a job card 
@@ -35,4 +36,17 @@ module.exports = function (app) {
     });
   });
 
+  // get all premadeJob cards
+  app.get("/api/premadeJobs", function (req, res) {
+    db.premadeJobs.findAll({}).then(function (dbPreJob) {
+      res.json(dbPreJob);
+    })
+  })
+
+  // get all premadePhrase cards
+  app.get("/api/premadePhrases", function (req, res) {
+    db.premadePhrases.findAll({}).then(function (dbPrePhrases) {
+      res.json(dbPrePhrases)
+    })
+  })
 };
