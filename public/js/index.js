@@ -16,10 +16,12 @@ $(() => {
     const currentPlayerEl = $('.currentPlayer');
     const cardArray = $(".phraseCard").toArray();
     const displayName = $('.displayName');
+    const scoreDisplay = $(".scoreDisp");
 
     //is the client the current interviewer
     let isInterviewer = false;
     let isInterviewee = false;
+    let isEmploymentPhase = false;
 
     //has this client's name already been sent
     let isNameSent = false;
@@ -29,6 +31,8 @@ $(() => {
 
     // Name of the current user
     let userName = '';
+
+    let score = 0;
 
 
 
@@ -85,14 +89,23 @@ $(() => {
       room: currentRoom
     }
 
+        if (isEmploymentPhase) {
+
+            const gameData = {
+                room: currentRoom,
+                winner: cardData.text
+            }
+            socket.emit('endEmploymentPhase', currentRoom);
+            socket.emit('assignPoint', gameData);
+            socket.emit('drawPhase', gameData);
+
+        }
+
     });
 
     // Ends Turn, changes interviewee
     $(".endTurn").on('click', event => {
         event.preventDefault();
-        const gameData = {
-            room: currentRoom
-        }
         socket.emit('updateInterviewee', currentRoom);
     })
 
@@ -152,8 +165,13 @@ $(() => {
   });
 
 
-  //When event card clicked is received, display the card data in the current card slot
-  socket.on('cardClicked', cardData => {
+    //When event card clicked is received, display the card data in the current card slot
+    socket.on('cardClicked', cardData => {
+
+        $('.currentCardDisplay').text(cardData.text);
+    });
+
+    socket.on('cardPack', cardPack => {
 
         for (i = 0; i < cardPack.length; i++) {
             cardArray[i].value = cardPack[i]
@@ -192,8 +210,13 @@ $(() => {
     //event listener for handling the employment phase
     socket.on('employmentPhase', players => {
         console.log('Employment phase started');
+        isEmploymentPhase = true;
         employmentPhase(players);
     });
+
+    socket.on('endEmploymentPhase', data => {
+        isEmploymentPhase = false;
+    })
 
     // *********************************************************************************************************
     // ---------Misc Socket Events-----------
@@ -208,10 +231,46 @@ $(() => {
         }
     })
 
-    for (i = 0; i < cardPack.length; i++) {
-      cardArray[i].value = cardPack[i]
-      cardArray[i].textContent = cardPack[i]
-      cardArray[i].disabled = false;
+
+    socket.on('toggleInterviewer', data => {
+        console.log('toggled interviewer status');
+        isInterviewer = !isInterviewer;
+    });
+
+    socket.on('increaseScore', () => {
+        score++;
+        scoreDisplay.text(score);
+
+    })
+
+
+    // *********************************************************************************************************
+    // ---------Submission Functions-----------
+    // *********************************************************************************************************
+
+
+    // adding jobs
+    function addJob(job) {
+        $.post("/api/jobs", job);
+        console.log(`job added to room ${currentRoom}:` + job.title)
+    }
+
+    $(".addJobBtn").on('click', event => {
+        event.preventDefault();
+        addJob({
+            title: jobInput
+                .val()
+                .trim(),
+            roomNum: currentRoom
+        });
+        jobInput.val('');
+    });
+
+
+    // adding phrases
+    function addPhrase(phrase) {
+        $.post("/api/phrases", phrase);
+        console.log(`phrase added to room ${currentRoom}:` + phrase.content)
     }
   // });
 
@@ -251,6 +310,8 @@ $(".startBtn").on("click", event => {
 
 
     const employmentPhase = (players) => {
+        const availablePlayers = players.filter(player => player.interviewer == false);
+        console.log(availablePlayers);
         if (isInterviewer) {
 
             for (i = 0; i < cardArray.length; i++) {
@@ -259,9 +320,9 @@ $(".startBtn").on("click", event => {
                 cardArray[i].textContent = '';
                 cardArray[i].disabled = true;
 
-                if (players[i + 1]) {
-                    cardArray[i].value = players[i + 1].name;
-                    cardArray[i].textContent = players[i + 1].name;
+                if (availablePlayers[i]) {
+                    cardArray[i].value = availablePlayers[i].name;
+                    cardArray[i].textContent = availablePlayers[i].name;
                     cardArray[i].disabled = false;
                 }
             }
