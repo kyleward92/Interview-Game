@@ -36,7 +36,9 @@ module.exports = (io, games, cardsPerPlayer) => {
 
         socket.on('nextPhase', data => {
             const newPhase = nextPhase(parseInt(data.phase));
-            io.to(data.room).emit('nextPhase', { newPhase: newPhase });
+            io.to(data.room).emit('nextPhase', {
+                newPhase: newPhase
+            });
         });
 
         socket.on('cardClicked', cardData => {
@@ -106,8 +108,7 @@ module.exports = (io, games, cardsPerPlayer) => {
     const updateGame = (socket) => {
 
         if (!checkIfRoomExists(roomNum)) {
-            const newPlayer =
-            {
+            const newPlayer = {
                 socketId: socket.id,
                 name: '',
                 interviewer: true,
@@ -116,16 +117,13 @@ module.exports = (io, games, cardsPerPlayer) => {
             };
             io.to(newPlayer.socketId).emit('toggleInterviewer');
 
-            games.push(
-                {
-                    room: roomNum,
-                    players: [newPlayer]
-                }
-            );
+            games.push({
+                room: roomNum,
+                players: [newPlayer]
+            });
 
         } else {
-            const newPlayer =
-            {
+            const newPlayer = {
                 socketId: socket.id,
                 name: '',
                 interviewer: false,
@@ -156,10 +154,13 @@ module.exports = (io, games, cardsPerPlayer) => {
 
 
     const getPhraseCards = async (roomNum) => {
-        const submittedPhraseCards = await db.phrases.findAll(
-            {
-                where: { roomNum: roomNum }, raw: true, attributes: [`content`]
-            });
+        const submittedPhraseCards = await db.phrases.findAll({
+            where: {
+                roomNum: roomNum
+            },
+            raw: true,
+            attributes: [`content`]
+        });
 
         const phraseCardsRaw = await db.premadePhrases.findAll({});
 
@@ -190,10 +191,13 @@ module.exports = (io, games, cardsPerPlayer) => {
     };
 
     const getJobCards = async () => {
-        const submittedJobCards = await db.jobs.findAll(
-            {
-                where: { roomNum: roomNum }, raw: true, attributes: [`title`]
-            });
+        const submittedJobCards = await db.jobs.findAll({
+            where: {
+                roomNum: roomNum
+            },
+            raw: true,
+            attributes: [`title`]
+        });
 
         const jobCardsRaw = await db.premadeJobs.findAll({});
 
