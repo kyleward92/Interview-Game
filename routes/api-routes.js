@@ -7,15 +7,9 @@ module.exports = function (app, games) {
     res.sendFile(path.join(__dirname, "../public/html/landing.html"));
   });
 
-<<<<<<< HEAD
-  app.get("/host", (req, res) => {
-    res.sendFile(path.join(__dirname, "../public/html/index.html"));
-    roomNum = Math.floor(Math.random() * 9999).toString();
-=======
   app.get('/host', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/html/index.html'));
     roomNum = generateRoomNumber(games);
->>>>>>> dea2f2df7552fa9cd4eca313b62fee1af49cb1f1
   });
 
   app.get("/join/:roomNumber", (req, res) => {
