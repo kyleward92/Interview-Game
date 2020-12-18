@@ -35,7 +35,7 @@ let roomNum = 9999;
 //default front-end folder
 app.use(express.static('public'));
 
-require('./routes/api-routes')(app);
+require('./routes/api-routes')(app, games);
 
 require('./routes/socket-events')(io, games, cardsPerPlayer);
 

@@ -55,9 +55,23 @@ module.exports = (io, games, cardsPerPlayer) => {
 
       io.to(roomNum.room).emit("drawPhase");
 
-      changeInterviewee(roomNum.room);
-      dealPhraseCards(roomNum);
-      dealJobCard(roomNum);
+
+        socket.on('disconnecting', () => {
+            console.log("User Disconnecting");
+
+            const socketRoom = Array.from(socket.rooms)[1];
+            const gameIndex = getGameIndex(socketRoom);
+            const game = games[gameIndex];
+
+            removePlayerEntry(games[getGameIndex(socketRoom)], socket.id);
+
+            checkEmptyGames(game, gameIndex);
+        });
+
+        //when socket disconnects
+        socket.on('disconnect', () => {
+            console.log("User Disconnected");
+        });
 
       io.to(roomNum.room).emit("interviewPhase");
 
@@ -231,22 +245,180 @@ module.exports = (io, games, cardsPerPlayer) => {
       player.interviewee = false;
     });
 
-    newInterviewee.interviewee = true;
-    newInterviewee.hasInterviewed = true;
-    io.to(roomNum).emit("setCurrentPlayer", newInterviewee);
-  };
+    const checkIfRoomExists = (room) => {
+        let roomExists = false;
+        games.forEach(game => {
+            if (game.room == room) {
+                roomExists = true;
+            }
+        });
+        return (roomExists);
+    };
 
-  const chooseNextInterviewee = roomNum => {
-    const game = games[getGameIndex(roomNum)];
-    const availablePlayers = game.players.filter(
-      player => !player.hasInterviewed && !player.interviewer
-    );
-    const newIntervieweeRaw =
-      availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+    const updateGame = (socket) => {
 
-    // Index of the chosen player in the original game object
-    return game.players.findIndex(
-      player => player.socketId === newIntervieweeRaw.socketId
-    );
-  };
-};
+        if (!checkIfRoomExists(roomNum)) {
+            const newPlayer =
+            {
+                socketId: socket.id,
+                name: '',
+                interviewer: true,
+                interviewee: false,
+                hasInterviewed: false
+            };
+            io.to(newPlayer.socketId).emit('toggleInterviewer');
+
+            games.push(
+                {
+                    room: roomNum,
+                    players: [newPlayer]
+                }
+            );
+
+        } else {
+            const newPlayer =
+            {
+                socketId: socket.id,
+                name: '',
+                interviewer: false,
+                interviewee: false,
+                hasInterviewed: false
+            };
+            const index = getGameIndex(roomNum);
+            games[index].players.push(newPlayer);
+        };
+
+    };
+
+    const dealPhraseCards = async (roomNum) => {
+        const roomIndex = getGameIndex(roomNum.room);
+        const players = games[roomIndex].players;
+
+        let phrases = await getPhraseCards(roomNum.room);
+
+        players.forEach(player => {
+            if (!player.interviewer) {
+                const cardPack = phrases.slice(0, cardsPerPlayer);
+                phrases = phrases.slice(cardsPerPlayer);
+                io.to(player.socketId).emit('cardPack', cardPack);
+            };
+        });
+
+    };
+
+
+    const getPhraseCards = async (roomNum) => {
+        const submittedPhraseCards = await db.phrases.findAll(
+            {
+                where: { roomNum: roomNum }, raw: true, attributes: [`content`]
+            });
+
+        const phraseCardsRaw = await db.premadePhrases.findAll({});
+
+        let phraseDeck = [];
+
+        //first populate using user submissions
+        for (i = 0; i < submittedPhraseCards.length; i++) {
+            phraseDeck.push(submittedPhraseCards[i].content);
+        };
+
+        //Then fill remaining slots (of 100) with premade content
+        for (i = phraseDeck.length; i < 100; i++) {
+            phraseDeck.push(phraseCardsRaw[i].content);
+        };
+
+        shuffle(phraseDeck);
+        return phraseDeck;
+    };
+
+    const shuffle = (a) => {
+        var j, x, i;
+        for (i = a.length - 1; i > 0; i--) {
+            j = Math.floor(Math.random() * (i + 1));
+            x = a[i];
+            a[i] = a[j];
+            a[j] = x;
+        };
+    };
+
+    const getJobCards = async () => {
+        const submittedJobCards = await db.jobs.findAll(
+            {
+                where: { roomNum: roomNum }, raw: true, attributes: [`title`]
+            });
+
+        const jobCardsRaw = await db.premadeJobs.findAll({});
+
+        let jobsDeck = [];
+
+        for (i = 0; i < submittedJobCards.length; i++) {
+            jobsDeck.push(submittedJobCards[i].title);
+        };
+
+        for (i = jobsDeck.length; i < 20; i++) {
+            jobsDeck.push(jobCardsRaw[i].title);
+        };
+
+        shuffle(jobsDeck);
+        return (jobsDeck);
+    };
+
+    const dealJobCard = async (roomNum) => {
+        let jobs = await getJobCards();
+        const cardPack = jobs[0];
+        jobs = jobs.slice(1);
+
+        io.to(roomNum.room).emit('dealJobCard', cardPack);
+    };
+
+    const getGameIndex = (roomNum) => {
+        return games.findIndex(game => game.room == roomNum);
+    };
+
+    const changeInterviewee = (roomNum) => {
+        const game = games[getGameIndex(roomNum)];
+        let newIntervieweeIndex = -1;
+        newIntervieweeIndex = chooseNextInterviewee(roomNum);
+
+        console.log('INDEX: ', newIntervieweeIndex);
+        if (newIntervieweeIndex != -1) {
+            const newInterviewee = game.players[newIntervieweeIndex];
+
+            game.players.forEach(player => {
+                player.interviewee = false;
+            });
+            newInterviewee.interviewee = true;
+            newInterviewee.hasInterviewed = true;
+            io.to(roomNum).emit('setCurrentPlayer', newInterviewee);
+            io.to(roomNum).emit('interviewPhase');
+        }
+    };
+    const chooseNextInterviewee = (roomNum) => {
+        const game = games[getGameIndex(roomNum)];
+        const availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
+        console.log(availablePlayers.length);
+        if (availablePlayers.length > 0) {
+            const newIntervieweeRaw = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+            // Index of the chosen player in the original game object
+            return game.players.findIndex(player => player.socketId == newIntervieweeRaw.socketId);
+        } else {
+            console.log('emitting employment Phase');
+            io.to(roomNum).emit('employmentPhase', game.players)
+            return -1;
+        }
+    };
+
+    const removePlayerEntry = (game, socketId) => {
+        const playerIndex = game.players.findIndex(player => { player.socketId == socketId});
+        game.players.splice(playerIndex, 1);
+    }
+
+    const checkEmptyGames = (game, gameIndex) => {
+        console.log(games);
+        if(game.players.length < 1) {
+            games.splice(gameIndex, 1);
+        }
+        console.log(games);
+    };
+
+}};

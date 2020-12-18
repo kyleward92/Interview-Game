@@ -2,6 +2,7 @@
   "development": {
     "username": "root",
     "password": "test",
+
     "database": "interview_db",
     "host": "127.0.0.1",
     "dialect": "mysql"
