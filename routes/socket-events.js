@@ -325,6 +325,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
                 if (player.points >= scoreToWin) {
                     winnerExists = true;
                     winner = player.name;
+                    // ToDo What happens when someone wins?
                     console.log(`${winner} Wins!`);
                 }
             })
