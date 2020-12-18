@@ -240,11 +240,20 @@ module.exports = (io, games, cardsPerPlayer) => {
 
     const chooseNextInterviewee = (roomNum) => {
         const game = games[getGameIndex(roomNum)];
-        const availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
-        const newIntervieweeRaw = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+        let availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
+        let chosenPlayer;
 
-        // Index of the chosen player in the original game object
-        return game.players.findIndex(player => player.socketId == newIntervieweeRaw.socketId);
+        if (availablePlayers == undefined) {
+            console.log(`Employment phase sent to room ${roomNum}`);
+            io.to(roomNum).emit('employmentPhase', games[getGameIndex(roomNum)].players);
+        } else {
+            const newIntervieweeRaw = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+
+            // Index of the chosen player in the original game object
+            chosenPlayer = game.players.findIndex(player => player.socketId == newIntervieweeRaw.socketId);
+        };
+        return chosenPlayer;
+
     };
 
 };
