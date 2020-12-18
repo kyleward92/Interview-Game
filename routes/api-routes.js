@@ -1,7 +1,7 @@
 const db = require("../models");
 const path = require("path");
 
-module.exports = function (app) {
+module.exports = function(app) {
   //serve html on / request
   app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../public/html/landing.html"));
@@ -23,29 +23,29 @@ module.exports = function (app) {
   });
 
   // make a job card
-  app.post("/api/jobs", function (req, res) {
-    db.jobs.create(req.body).then(function (dbJob) {
+  app.post("/api/jobs", (req, res) => {
+    db.jobs.create(req.body).then(dbJob => {
       res.json(dbJob);
     });
   });
 
   // make a phrase card
-  app.post("/api/phrases", function (req, res) {
-    db.phrases.create(req.body).then(function (dbPhrase) {
+  app.post("/api/phrases", (req, res) => {
+    db.phrases.create(req.body).then(dbPhrase => {
       res.json(dbPhrase);
     });
   });
 
   // get all premadeJob cards
-  app.get("/api/premadeJobs", function (req, res) {
-    db.premadeJobs.findAll({}).then(function (dbPreJob) {
+  app.get("/api/premadeJobs", (req, res) => {
+    db.premadeJobs.findAll({}).then(dbPreJob => {
       res.json(dbPreJob);
     });
   });
 
   // get all premadePhrase cards
-  app.get("/api/premadePhrases", function (req, res) {
-    db.premadePhrases.findAll({}).then(function (dbPrePhrases) {
+  app.get("/api/premadePhrases", (req, res) => {
+    db.premadePhrases.findAll({}).then(dbPrePhrases => {
       res.json(dbPrePhrases);
     });
   });
