@@ -52,6 +52,11 @@ nav a {
     border-radius: 5px;
 }
 
+.discord {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
+}
+
 .phaseDisp {
     font-weight: bolder;
 }
