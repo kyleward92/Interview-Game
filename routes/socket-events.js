@@ -234,19 +234,15 @@ module.exports = (io, games, cardsPerPlayer) => {
             game.players.forEach(player => {
                 player.interviewee = false;
             });
-
             newInterviewee.interviewee = true;
             newInterviewee.hasInterviewed = true;
             io.to(roomNum).emit('setCurrentPlayer', newInterviewee);
             io.to(roomNum).emit('interviewPhase');
         }
-
     };
-
     const chooseNextInterviewee = (roomNum) => {
         const game = games[getGameIndex(roomNum)];
         const availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
-
         console.log(availablePlayers.length);
         if (availablePlayers.length > 0) {
             const newIntervieweeRaw = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
