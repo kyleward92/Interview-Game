@@ -48,6 +48,8 @@ nav a {
     
 .card {
     opacity: 0.825;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
 }
 
 .phaseDisp {
@@ -59,3 +61,9 @@ nav a {
     height: 350px;
     overflow: auto;
   }
+
+
+.discord {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 5px;
+}
