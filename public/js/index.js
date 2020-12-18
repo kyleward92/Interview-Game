@@ -183,9 +183,9 @@ $(() => {
     });
 
     //event listener for handling the employment phase
-    socket.on('employmentPhase', data => {
+    socket.on('employmentPhase', players => {
         console.log('Employment phase started');
-        employmentPhase(data);
+        employmentPhase(players);
     });
 
     // *********************************************************************************************************
@@ -199,8 +199,6 @@ $(() => {
         } else {
             isInterviewee = false;
         }
-
-        console.log(isInterviewee);
     })
 
 
@@ -295,14 +293,8 @@ $(() => {
         }
     }
 
-    $('.employment').on('click', event => {
-        event.preventDefault();
-        socket.emit('employmentPhase', currentRoom);
-    })
-
 
     const employmentPhase = (players) => {
-        console.log(players);
         if (isInterviewer) {
 
             for (i = 0; i < cardArray.length; i++) {

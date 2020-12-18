@@ -226,9 +226,11 @@ module.exports = (io, games, cardsPerPlayer) => {
         const game = games[getGameIndex(roomNum)];
         let newIntervieweeIndex = -1;
         newIntervieweeIndex = chooseNextInterviewee(roomNum);
+
         console.log('INDEX: ', newIntervieweeIndex);
         if (newIntervieweeIndex != -1) {
             const newInterviewee = game.players[newIntervieweeIndex];
+
             game.players.forEach(player => {
                 player.interviewee = false;
             });
