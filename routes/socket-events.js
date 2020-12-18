@@ -89,7 +89,6 @@ module.exports = (io, games, cardsPerPlayer) => {
         socket.on('updateInterviewee', roomNum => {
             console.log('Updating Interviewee')
             changeInterviewee(roomNum);
-            
         });
     });
 
