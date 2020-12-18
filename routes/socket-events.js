@@ -89,7 +89,6 @@ module.exports = (io, games, cardsPerPlayer) => {
         socket.on('updateInterviewee', roomNum => {
             console.log('Updating Interviewee')
             changeInterviewee(roomNum);
-            io.to(roomNum).emit('interviewPhase');
         });
     });
 
@@ -225,26 +224,33 @@ module.exports = (io, games, cardsPerPlayer) => {
 
     const changeInterviewee = (roomNum) => {
         const game = games[getGameIndex(roomNum)];
-        const newIntervieweeIndex = chooseNextInterviewee(roomNum);
-        const newInterviewee = game.players[newIntervieweeIndex];
-
-
-        game.players.forEach(player => {
-            player.interviewee = false;
-        });
-
-        newInterviewee.interviewee = true;
-        newInterviewee.hasInterviewed = true;
-        io.to(roomNum).emit('setCurrentPlayer', newInterviewee);
+        let newIntervieweeIndex = -1;
+        newIntervieweeIndex = chooseNextInterviewee(roomNum);
+        console.log('INDEX: ', newIntervieweeIndex);
+        if (newIntervieweeIndex != -1) {
+            const newInterviewee = game.players[newIntervieweeIndex];
+            game.players.forEach(player => {
+                player.interviewee = false;
+            });
+            newInterviewee.interviewee = true;
+            newInterviewee.hasInterviewed = true;
+            io.to(roomNum).emit('setCurrentPlayer', newInterviewee);
+            io.to(roomNum).emit('interviewPhase');
+        }
     };
-
     const chooseNextInterviewee = (roomNum) => {
         const game = games[getGameIndex(roomNum)];
         const availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
-        const newIntervieweeRaw = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
-
-        // Index of the chosen player in the original game object
-        return game.players.findIndex(player => player.socketId == newIntervieweeRaw.socketId);
+        console.log(availablePlayers.length);
+        if (availablePlayers.length > 0) {
+            const newIntervieweeRaw = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+            // Index of the chosen player in the original game object
+            return game.players.findIndex(player => player.socketId == newIntervieweeRaw.socketId);
+        } else {
+            console.log('emitting employment Phase');
+            io.to(roomNum).emit('employmentPhase', game.players)
+            return -1;
+        }
     };
 
 };

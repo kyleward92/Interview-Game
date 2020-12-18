@@ -82,8 +82,16 @@ $(() => {
 
         socket.emit('cardClicked', cardData);
 
-        socket.emit('updateInterviewee', currentRoom);
     });
+
+    // Ends Turn, changes interviewee
+    $(".endTurn").on('click', event => {
+        event.preventDefault();
+        const gameData = {
+            room: currentRoom
+        }
+        socket.emit('updateInterviewee', currentRoom);
+    })
 
     $(".startBtn").on('click', event => {
         event.preventDefault();
