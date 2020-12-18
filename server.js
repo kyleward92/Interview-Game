@@ -17,7 +17,8 @@ const games = [
                 socketId: "gfds8d6fg9ddfs",
                 interviewer: true,
                 interviewee: false,
-                hasInterviewed: false
+                hasInterviewed: false,
+                points: 0
             }
         ]
     }

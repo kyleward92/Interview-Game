@@ -16,10 +16,12 @@ $(() => {
     const currentPlayerEl = $('.currentPlayer');
     const cardArray = $(".phraseCard").toArray();
     const displayName = $('.displayName');
+    const scoreDisplay = $(".scoreDisp");
 
     //is the client the current interviewer
     let isInterviewer = false;
     let isInterviewee = false;
+    let isEmploymentPhase = false;
 
     //has this client's name already been sent
     let isNameSent = false;
@@ -29,6 +31,8 @@ $(() => {
 
     // Name of the current user
     let userName = '';
+
+    let score = 0;
 
 
 
@@ -84,14 +88,23 @@ $(() => {
 
         socket.emit('cardClicked', cardData);
 
+        if (isEmploymentPhase) {
+
+            const gameData = {
+                room: currentRoom,
+                winner: cardData.text
+            }
+            socket.emit('endEmploymentPhase', currentRoom);
+            socket.emit('assignPoint', gameData);
+            socket.emit('drawPhase', gameData);
+
+        }
+
     });
 
     // Ends Turn, changes interviewee
     $(".endTurn").on('click', event => {
         event.preventDefault();
-        const gameData = {
-            room: currentRoom
-        }
         socket.emit('updateInterviewee', currentRoom);
     })
 
@@ -187,8 +200,13 @@ $(() => {
     //event listener for handling the employment phase
     socket.on('employmentPhase', players => {
         console.log('Employment phase started');
+        isEmploymentPhase = true;
         employmentPhase(players);
     });
+
+    socket.on('endEmploymentPhase', data => {
+        isEmploymentPhase = false;
+    })
 
     // *********************************************************************************************************
     // ---------Misc Socket Events-----------
@@ -208,6 +226,12 @@ $(() => {
         console.log('toggled interviewer status');
         isInterviewer = !isInterviewer;
     });
+
+    socket.on('increaseScore', () => {
+        score++;
+        scoreDisplay.text(score);
+
+    })
 
 
     // *********************************************************************************************************
@@ -297,6 +321,8 @@ $(() => {
 
 
     const employmentPhase = (players) => {
+        const availablePlayers = players.filter(player => player.interviewer == false);
+        console.log(availablePlayers);
         if (isInterviewer) {
 
             for (i = 0; i < cardArray.length; i++) {
@@ -305,9 +331,9 @@ $(() => {
                 cardArray[i].textContent = '';
                 cardArray[i].disabled = true;
 
-                if (players[i + 1]) {
-                    cardArray[i].value = players[i + 1].name;
-                    cardArray[i].textContent = players[i + 1].name;
+                if (availablePlayers[i]) {
+                    cardArray[i].value = availablePlayers[i].name;
+                    cardArray[i].textContent = availablePlayers[i].name;
                     cardArray[i].disabled = false;
                 }
             }

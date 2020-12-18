@@ -69,7 +69,7 @@ module.exports = (io, games, cardsPerPlayer) => {
             console.log(`Deal phase sent to room ${roomNum.room}`);
 
             io.to(roomNum.room).emit('drawPhase');
-
+            resetHasInterviewed(games[getGameIndex(roomNum.room)]);
             changeInterviewee(roomNum.room);
             dealPhraseCards(roomNum);
             dealJobCard(roomNum);
@@ -103,6 +103,20 @@ module.exports = (io, games, cardsPerPlayer) => {
             console.log('Updating Interviewee')
             changeInterviewee(roomNum);
         });
+
+        socket.on('endEmploymentPhase', roomNum => {
+            io.to(roomNum).emit('endEmploymentPhase');
+        });
+
+        socket.on('assignPoint', data => {
+            const game = games[getGameIndex(data.room)];
+            game.players.forEach(player => {
+                if(player.name == data.winner) {
+                    player.points++;
+                    io.to(player.socketId).emit('increaseScore');
+                };
+            });
+        });
     });
 
     const checkIfRoomExists = (room) => {
@@ -124,7 +138,8 @@ module.exports = (io, games, cardsPerPlayer) => {
                 name: '',
                 interviewer: true,
                 interviewee: false,
-                hasInterviewed: false
+                hasInterviewed: false,
+                points: 0
             };
             io.to(newPlayer.socketId).emit('toggleInterviewer');
 
@@ -142,7 +157,8 @@ module.exports = (io, games, cardsPerPlayer) => {
                 name: '',
                 interviewer: false,
                 interviewee: false,
-                hasInterviewed: false
+                hasInterviewed: false,
+                points: 0
             };
             const index = getGameIndex(roomNum);
             games[index].players.push(newPlayer);
@@ -250,31 +266,41 @@ module.exports = (io, games, cardsPerPlayer) => {
             newInterviewee.hasInterviewed = true;
             io.to(roomNum).emit('setCurrentPlayer', newInterviewee);
             io.to(roomNum).emit('interviewPhase');
-        }
+        };
     };
     const chooseNextInterviewee = (roomNum) => {
         const game = games[getGameIndex(roomNum)];
         const availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
+        console.log(availablePlayers);
+        
         if (availablePlayers.length > 0) {
             const newIntervieweeRaw = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
             // Index of the chosen player in the original game object
             return game.players.findIndex(player => player.socketId == newIntervieweeRaw.socketId);
         } else {
             console.log('Starting employment Phase');
-            io.to(roomNum).emit('employmentPhase', game.players)
+            io.to(roomNum).emit('employmentPhase', games[getGameIndex(roomNum)].players)
             return -1;
-        }
+        };
     };
 
     const removePlayerEntry = (game, socketId) => {
-        const playerIndex = game.players.findIndex(player => { player.socketId == socketId});
-        game.players.splice(playerIndex, 1);
-    }
+        if (game) {
+            console.log(`removed player from room ${game.room}`);
+            const playerIndex = game.players.findIndex(player => { player.socketId == socketId });
+            game.players.splice(playerIndex, 1);
+        };
+    };
 
     const checkEmptyGames = (game, gameIndex) => {
-        if(game.players.length < 1) {
+        if (game.players.length < 1) {
+            console.log(`Removed game ${gameIndex} from games array`);
             games.splice(gameIndex, 1);
-        }
+        };
+    };
+
+    const resetHasInterviewed = (game) => {
+        game.players.forEach(player => player.hasInterviewed = false);
     };
 
 };
