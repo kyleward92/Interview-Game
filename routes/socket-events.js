@@ -1,6 +1,6 @@
 const db = require("../models");
 
-module.exports = (io, games, cardsPerPlayer) => {
+module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
 
     io.on('connection', (socket) => {
 
@@ -113,11 +113,12 @@ module.exports = (io, games, cardsPerPlayer) => {
         socket.on('assignPoint', data => {
             const game = games[getGameIndex(data.room)];
             game.players.forEach(player => {
-                if(player.name == data.winner) {
+                if (player.name == data.winner) {
                     player.points++;
                     io.to(player.socketId).emit('increaseScore');
                 };
             });
+            checkForWinner(game);
         });
     });
 
@@ -279,7 +280,7 @@ module.exports = (io, games, cardsPerPlayer) => {
         const game = games[getGameIndex(roomNum)];
         const availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
         console.log(availablePlayers);
-        
+
         if (availablePlayers.length > 0) {
             const newIntervieweeRaw = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
             // Index of the chosen player in the original game object
@@ -300,14 +301,34 @@ module.exports = (io, games, cardsPerPlayer) => {
     };
 
     const checkEmptyGames = (game, gameIndex) => {
-        if (game.players.length < 1) {
-            console.log(`Removed game ${gameIndex} from games array`);
-            games.splice(gameIndex, 1);
-        };
+        if (game) {
+            if (game.players.length < 1) {
+                console.log(`Removed game ${gameIndex} from games array`);
+                games.splice(gameIndex, 1);
+            };
+        }
+
     };
 
     const resetHasInterviewed = (game) => {
         game.players.forEach(player => player.hasInterviewed = false);
     };
+
+    const checkForWinner = (game) => {
+        let winnerExists = false;
+        let winner = '';
+
+        if (game) {
+            game.players.forEach(player => {
+                console.log(player.points);
+                console.log(scoreToWin);
+                if (player.points >= scoreToWin) {
+                    winnerExists = true;
+                    winner = player.name;
+                    console.log(`${winner} Wins!`);
+                }
+            })
+        }
+    }
 
 };

@@ -10,6 +10,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 8080;
 
 const cardsPerPlayer = 5;
+const scoreToWin = 2;
 
 const games = [
     {
@@ -43,7 +44,7 @@ app.use(express.static('public'));
 
 require('./routes/api-routes')(app, games);
 
-require('./routes/socket-events')(io, games, cardsPerPlayer);
+require('./routes/socket-events')(io, games, cardsPerPlayer, scoreToWin);
 
 db.sequelize.sync({
   force: false
