@@ -1,8 +1,11 @@
-//Express server setup
-const { Console } = require("console");
+const {
+  Console
+} = require("console");
 const express = require("express");
 const app = express();
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({
+  extended: true
+}));
 app.use(express.json());
 const PORT = process.env.PORT || 8080;
 
@@ -40,10 +43,10 @@ require('./routes/api-routes')(app, games);
 
 require('./routes/socket-events')(io, games, cardsPerPlayer);
 
-db.sequelize.sync({ force: false }).then(function () {
-    http.listen(PORT, () => {
-        console.log("Listening on port 8080");
-    });
+db.sequelize.sync({
+  force: false
+}).then(function () {
+  http.listen(PORT, () => {
+    console.log("Listening on port 8080");
+  });
 });
-
-

@@ -1,2 +1,4 @@
 models/index.js
-node_modules
+node_modules/
+sequelize.js
+client/dist/
