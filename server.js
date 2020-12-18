@@ -10,17 +10,24 @@ app.use(express.json());
 const PORT = process.env.PORT || 8080;
 
 const cardsPerPlayer = 5;
+const scoreToWin = 2;
 
-const games = [{
-    room: '9999',
-    players: [{
-      name: 'sample',
-      socketId: "gfds8d6fg9ddfs",
-      interviewer: true,
-      interviewee: false,
-      hasInterviewed: false
-    }]
-  }
+const games = [
+    {
+        room: '9999',
+        players: [
+            {
+                name: 'sample',
+                socketId: "gfds8d6fg9ddfs",
+                interviewer: true,
+                interviewee: false,
+                hasInterviewed: false,
+                points: 0
+            }
+        ],
+        jobCards: [],
+        phraseCards: []
+    }
 
 ];
 
@@ -37,7 +44,7 @@ app.use(express.static('public'));
 
 require('./routes/api-routes')(app, games);
 
-require('./routes/socket-events')(io, games, cardsPerPlayer);
+require('./routes/socket-events')(io, games, cardsPerPlayer, scoreToWin);
 
 db.sequelize.sync({
   force: false

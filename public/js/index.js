@@ -16,10 +16,12 @@ $(() => {
     const currentPlayerEl = $('.currentPlayer');
     const cardArray = $(".phraseCard").toArray();
     const displayName = $('.displayName');
+    const scoreDisplay = $(".scoreDisp");
 
     //is the client the current interviewer
     let isInterviewer = false;
     let isInterviewee = false;
+    let isEmploymentPhase = false;
 
     //has this client's name already been sent
     let isNameSent = false;
@@ -29,6 +31,8 @@ $(() => {
 
     // Name of the current user
     let userName = '';
+
+    let score = 0;
 
 
 
@@ -56,104 +60,108 @@ $(() => {
                 message.val('');
             }
         }
-
-        //send socket message from the user to the server
-        socket.emit('chat', msg);
-        message.val('');
-      });
-  })
+    })
 
 
-  //handles emission of event when the phase button is clicked
-  $(".phaseBtn").on('click', event => {
-    event.preventDefault();
+    //handles emission of event when the phase button is clicked
+    $(".phaseBtn").on('click', event => {
+        event.preventDefault();
 
-    const data = {
-      room: currentRoom,
-      phase: currentPhase
-    }
+        const data = {
+            room: currentRoom,
+            phase: currentPhase
+        }
 
-    socket.emit('nextPhase', data);
-  });
+        socket.emit('nextPhase', data);
+    });
 
-  //Sends card data to the server when clicked
-  $(".phraseCard").on('click', event => {
-    event.preventDefault();
+    //Sends card data to the server when clicked
+    $(".phraseCard").on('click', event => {
+        event.preventDefault();
 
-    const cardData = {
-      text: event.target.value,
-      room: currentRoom
-    }
+        const cardData = {
+            text: event.target.value,
+            room: currentRoom
+        }
+
+        event.target.disabled = true;
+
+        socket.emit('cardClicked', cardData);
+
+        if (isEmploymentPhase) {
+
+            const gameData = {
+                room: currentRoom,
+                winner: cardData.text
+            }
+            socket.emit('endEmploymentPhase', currentRoom);
+            socket.emit('assignPoint', gameData);
+            socket.emit('drawPhase', gameData);
+
+        }
 
     });
 
     // Ends Turn, changes interviewee
     $(".endTurn").on('click', event => {
         event.preventDefault();
-        const gameData = {
-            room: currentRoom
-        }
         socket.emit('updateInterviewee', currentRoom);
     })
 
     $(".startBtn").on('click', event => {
         event.preventDefault();
 
-    socket.emit('updateInterviewee', currentRoom);
-  });
+        const gameData = {
+            room: currentRoom
+        }
 
-  $(".startBtn").on('click', event => {
-    event.preventDefault();
-
-    const gameData = {
-      room: currentRoom
-    }
-
-    socket.emit('drawPhase', gameData);
-  })
+        socket.emit('drawPhase', gameData);
+    })
 
 
 
-  // *********************************************************************************************************
-  // -------------Socket event setup and listners-------------
-  // *********************************************************************************************************
+    // *********************************************************************************************************
+    // -------------Socket event setup and listners-------------
+    // *********************************************************************************************************
 
-  //create socket connection from front end
-  const socket = io();
-  socket.emit('newUser');
+    //create socket connection from front end
+    const socket = io();
+    socket.emit('newUser');
 
-  //Testing reconnect fix.
-  socket.on("connect_error", () => {
-    setTimeout(() => {
-      socket.connect();
-    }, 1000).then(
-      socket.emit('reconnect')
-    );
-  });
-
-
-  //display room number when received from the server
-  socket.on('roomInfo', (roomNum) => {
-    $(".roomDisp").text(`Room Number: ${roomNum}`);
-    currentRoom = roomNum;
-    if (!isNameSent) {
-      socket.emit('nameAssignment', {
-        name: localStorage.getItem("userName"),
-        room: currentRoom
-      });
-      isNameSent = true;
-    }
-
-  });
-
-  //when a message is received from the server, print to screen
-  socket.on('chat', msg => {
-    $('.messages').append($('<li>').text(`${msg.author}: ${msg.message}`))
-  });
+    //Testing reconnect fix.
+    socket.on("connect_error", () => {
+        setTimeout(() => {
+            socket.connect();
+        }, 1000).then(
+            socket.emit('reconnect')
+        );
+    });
 
 
-  //When event card clicked is received, display the card data in the current card slot
-  socket.on('cardClicked', cardData => {
+    //display room number when received from the server
+    socket.on('roomInfo', (roomNum) => {
+        $(".roomDisp").text(`Room Number: ${roomNum}`);
+        currentRoom = roomNum;
+        if (!isNameSent) {
+            socket.emit('nameAssignment', { name: localStorage.getItem("userName"), room: currentRoom });
+            isNameSent = true;
+        }
+
+    });
+
+    //when a message is received from the server, print to screen
+    socket.on('chat', msg => {
+        $('.messages').append($('<li>').text(`${msg.author}: ${msg.message}`))
+    });
+
+
+    //When event card clicked is received, display the card data in the current card slot
+    socket.on('cardClicked', cardData => {
+
+        $('.currentCardDisplay').text(cardData.text);
+    });
+
+    socket.on('cardPack', cardPack => {
 
         for (i = 0; i < cardPack.length; i++) {
             cardArray[i].value = cardPack[i]
@@ -192,8 +200,13 @@ $(() => {
     //event listener for handling the employment phase
     socket.on('employmentPhase', players => {
         console.log('Employment phase started');
+        isEmploymentPhase = true;
         employmentPhase(players);
     });
+
+    socket.on('endEmploymentPhase', data => {
+        isEmploymentPhase = false;
+    })
 
     // *********************************************************************************************************
     // ---------Misc Socket Events-----------
@@ -208,49 +221,108 @@ $(() => {
         }
     })
 
-    for (i = 0; i < cardPack.length; i++) {
-      cardArray[i].value = cardPack[i]
-      cardArray[i].textContent = cardPack[i]
-      cardArray[i].disabled = false;
+
+    socket.on('toggleInterviewer', data => {
+        console.log('toggled interviewer status');
+        isInterviewer = !isInterviewer;
+    });
+
+    socket.on('increaseScore', () => {
+        score++;
+        scoreDisplay.text(score);
+
+    })
+
+
+    // *********************************************************************************************************
+    // ---------Submission Functions-----------
+    // *********************************************************************************************************
+
+
+    // adding jobs
+    function addJob(job) {
+        $.post("/api/jobs", job);
+        console.log(`job added to room ${currentRoom}:` + job.title)
     }
-  // });
 
-  socket.on('dealJobCard', cardPack => {
-    jobCard.text(`Job Name: ${cardPack}`);
-  })
+    $(".addJobBtn").on('click', event => {
+        event.preventDefault();
+        addJob({
+            title: jobInput
+                .val()
+                .trim(),
+            roomNum: currentRoom
+        });
+        jobInput.val('');
+    });
 
 
-  // *********************************************************************************************************
-  // -------------Phase event listners-------------
-  // *********************************************************************************************************
+    // adding phrases
+    function addPhrase(phrase) {
+        $.post("/api/phrases", phrase);
+        console.log(`phrase added to room ${currentRoom}:` + phrase.content)
+    }
+    $(".addPhraseBtn").on('click', event => {
+        event.preventDefault();
+        addPhrase({
+            content: phraseInput
+                .val()
+                .trim(),
+            roomNum: currentRoom
+        });
+        phraseInput.val('');
+    });
 
-  const cardData = {
-    text: event.target.value,
-    room: currentRoom
-  };
 
-  event.target.disabled = true;
+    // *********************************************************************************************************
+    // ---------Phase Functions-----------
+    // *********************************************************************************************************
 
-  socket.emit("cardClicked", cardData);
-// });
 
-$(".startBtn").on("click", event => {
-  event.preventDefault();
+    const submissionPhase = () => {
+        submissionsDiv.hide();
+        currentCardDiv.hide();
+        cardsDiv.hide();
+    }
 
-  // *********************************************************************************************************
-  // ---------Misc Socket Events-----------
-  // *********************************************************************************************************
+    const dealPhase = () => {
+        if (isInterviewer) {
+            submissionsDiv.hide();
+            currentCardDiv.show();
+            cardsDiv.hide();
+            startDiv.hide();
 
-  socket.on('setCurrentPlayer', data => {
-    currentPlayerEl.text(data.name);
-    if (data.name == userName) {
-      isInterviewee = true;
-    } else {
-      isInterviewee = false;
+            socket.emit('drawJobCard', currentRoom);
+        } else {
+            submissionsDiv.hide();
+            currentCardDiv.show();
+            cardsDiv.show();
+            startDiv.hide();
+        }
+
+    }
+
+    const interviewPhase = () => {
+
+        $('.currentCardDisplay').text('');
+
+        if (isInterviewer || !isInterviewee) {
+            submissionsDiv.hide();
+            currentCardDiv.show();
+            cardsDiv.hide();
+            startDiv.hide();
+        } else {
+            submissionsDiv.hide();
+            currentCardDiv.show();
+            cardsDiv.show();
+            startDiv.hide();
+        }
     }
 
 
     const employmentPhase = (players) => {
+        const availablePlayers = players.filter(player => player.interviewer == false);
+        console.log(availablePlayers);
         if (isInterviewer) {
 
             for (i = 0; i < cardArray.length; i++) {
@@ -259,9 +331,9 @@ $(".startBtn").on("click", event => {
                 cardArray[i].textContent = '';
                 cardArray[i].disabled = true;
 
-                if (players[i + 1]) {
-                    cardArray[i].value = players[i + 1].name;
-                    cardArray[i].textContent = players[i + 1].name;
+                if (availablePlayers[i]) {
+                    cardArray[i].value = availablePlayers[i].name;
+                    cardArray[i].textContent = availablePlayers[i].name;
                     cardArray[i].disabled = false;
                 }
             }
@@ -279,141 +351,19 @@ $(".startBtn").on("click", event => {
 
 
 
-  socket.on('toggleInterviewer', data => {
-    console.log('toggled interviewer status');
-    isInterviewer = !isInterviewer;
-  });
+    const setDisplayName = () => {
+        userName = localStorage.getItem('userName') || 'Anonymous';
+        displayName.text(`Display Name: ${userName}`);
+    };
 
-  socket.emit("drawPhase", gameData);
-});
-
-// *********************************************************************************************************
-// -------------Socket event setup and listners-------------
-// *********************************************************************************************************
-
-//create socket connection from front end
-const socket = io();
-
-// adding jobs
-function addJob(job) {
-  $.post("/api/jobs", job);
-  console.log(`job added to room ${currentRoom}:` + job.title)
-}
-
-$(".addJobBtn").on('click', event => {
-  event.preventDefault();
-  addJob({
-    title: jobInput
-      .val()
-      .trim(),
-    roomNum: currentRoom
-  });
-  jobInput.val('');
+    setDisplayName();
 });
 
 
-// adding phrases
-function addPhrase(phrase) {
-  $.post("/api/phrases", phrase);
-  console.log(`phrase added to room ${currentRoom}:` + phrase.content)
-}
-$(".addPhraseBtn").on('click', event => {
-  event.preventDefault();
-  addPhrase({
-    content: phraseInput
-      .val()
-      .trim(),
-    roomNum: currentRoom
-  });
-  phraseInput.val('');
-});
-
-
-// *********************************************************************************************************
-// ---------Phase Functions-----------
-// *********************************************************************************************************
-
-
-const submissionPhase = () => {
-  submissionsDiv.hide();
-  currentCardDiv.hide();
-  cardsDiv.hide();
-}
-
-const dealPhase = () => {
-  if (isInterviewer) {
-    submissionsDiv.hide();
-    currentCardDiv.show();
-    cardsDiv.hide();
-    startDiv.hide();
-
-    socket.emit('drawJobCard', currentRoom);
-  } else {
-    submissionsDiv.hide();
-    currentCardDiv.show();
-    cardsDiv.show();
-    startDiv.hide();
-  }
-
-}
-
-const interviewPhase = () => {
-
-  $('.currentCardDisplay').text('');
-
-  if (isInterviewer || !isInterviewee) {
-    submissionsDiv.hide();
-    currentCardDiv.show();
-    cardsDiv.hide();
-    startDiv.hide();
-  } else {
-    submissionsDiv.hide();
-    currentCardDiv.show();
-    cardsDiv.show();
-    startDiv.hide();
-  }
-}
-
-$('.employment').on('click', event => {
-  event.preventDefault();
-  socket.emit('employmentPhase', currentRoom);
-})
-
-
-const employmentPhase = (players) => {
-  console.log(players);
-  if (isInterviewer) {
-
-    for (i = 0; i < cardArray.length; i++) {
-
-      cardArray[i].value = '';
-      cardArray[i].textContent = '';
-      cardArray[i].disabled = true;
-
-      if (players[i + 1]) {
-        cardArray[i].value = players[i + 1].name;
-        cardArray[i].textContent = players[i + 1].name;
-        cardArray[i].disabled = false;
-      }
-    }
-    submissionsDiv.hide();
-    currentCardDiv.show();
-    cardsDiv.show();
-    startDiv.hide();
-  } else {
-    submissionsDiv.hide();
-    currentCardDiv.show();
-    cardsDiv.hide();
-    startDiv.hide();
-  }
-};
 
 
 
-const setDisplayName = () => {
-  userName = localStorage.getItem('userName') || 'Anonymous';
-  displayName.text(`Display Name: ${userName}`);
-};
 
-setDisplayName();
-});
+
+
+
