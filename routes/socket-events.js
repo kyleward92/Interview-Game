@@ -18,6 +18,19 @@ module.exports = (io, games, cardsPerPlayer) => {
             io.to(roomNum).emit('roomInfo', roomNum);
         });
 
+
+        socket.on('disconnecting', () => {
+            console.log("User Disconnecting");
+
+            const socketRoom = Array.from(socket.rooms)[1];
+            const gameIndex = getGameIndex(socketRoom);
+            const game = games[gameIndex];
+
+            removePlayerEntry(games[getGameIndex(socketRoom)], socket.id);
+
+            checkEmptyGames(game, gameIndex);
+        });
+
         //when socket disconnects
         socket.on('disconnect', () => {
             console.log("User Disconnected");
@@ -246,22 +259,6 @@ module.exports = (io, games, cardsPerPlayer) => {
     };
     const chooseNextInterviewee = (roomNum) => {
         const game = games[getGameIndex(roomNum)];
-<<<<<<< HEAD
-        let availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
-        let chosenPlayer;
-
-        if (availablePlayers == undefined) {
-            console.log(`Employment phase sent to room ${roomNum}`);
-            io.to(roomNum).emit('employmentPhase', games[getGameIndex(roomNum)].players);
-        } else {
-            const newIntervieweeRaw = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
-
-            // Index of the chosen player in the original game object
-            chosenPlayer = game.players.findIndex(player => player.socketId == newIntervieweeRaw.socketId);
-        };
-        return chosenPlayer;
-
-=======
         const availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
         console.log(availablePlayers.length);
         if (availablePlayers.length > 0) {
@@ -273,7 +270,19 @@ module.exports = (io, games, cardsPerPlayer) => {
             io.to(roomNum).emit('employmentPhase', game.players)
             return -1;
         }
->>>>>>> ca75a889e195b37078e31b8536fc676564e26373
+    };
+
+    const removePlayerEntry = (game, socketId) => {
+        const playerIndex = game.players.findIndex(player => { player.socketId == socketId});
+        game.players.splice(playerIndex, 1);
+    }
+
+    const checkEmptyGames = (game, gameIndex) => {
+        console.log(games);
+        if(game.players.length < 1) {
+            games.splice(gameIndex, 1);
+        }
+        console.log(games);
     };
 
 };
