@@ -1,7 +1,9 @@
-# Interview-Game
-compete for a new position in this exciting and enticing game
+# Unit 15: Project 2 Interview Game Designed By : Wonderful Jaguars
 
-# Unit 15: Project 2
+[Deployed-Game](https://interview--game.herokuapp.com/)
+
+
+[Github](https://github.com/kyleward92/Interview-Game.git)
 
 ## Overview
 Welcome to Project 2! This is yet another important milestone in your full-stack journey: designing and building your first full-stack web application. You and your team will design and build an app using the MVC paradigm and your own server-side API. You will also continue to add to your professional repertoire with testing, continuous integration and linting tools.
@@ -24,6 +26,12 @@ You will be employer-competitive if you are able to:
 * Design, build and deploy a full-stack web application to Heroku
 
 ## Helpful Links
+[Deployed-Game](https://interview--game.herokuapp.com/)
+
+[Github](https://github.com/kyleward92/Interview-Game.git)
+
 [Mocha JS Docs](https://mochajs.org/)
+
 [Chai JS Docs](https://www.chaijs.com/)
+
 [Agile Methodology](https://en.wikipedia.org/wiki/Agile_software_development)
