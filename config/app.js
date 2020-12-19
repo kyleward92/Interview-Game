@@ -1,15 +1,15 @@
 const gameData = {
-    phase: "setup",
-    roundNumber: 1,
-    jobDeck: [],
-    resumeDeck: [],
-}
+  phase: "setup",
+  roundNumber: 1,
+  jobDeck: [],
+  resumeDeck: []
+};
 
 class Player {
-    constructor(name, gameId,) {
-        this.name = name;
-        this.gameId = gameId;
-    }
+  constructor(name, gameId) {
+    this.name = name;
+    this.gameId = gameId;
+  }
 }
 
-module.exports = Player, gameData
+(module.exports = Player), gameData;

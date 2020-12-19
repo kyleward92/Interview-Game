@@ -1,7 +1,4 @@
 $(() => {
-
-
-    
     // *********************************************************************************************************
     // -------------Variable Declarations-------------
     // *********************************************************************************************************
@@ -12,21 +9,33 @@ $(() => {
     const chatDiv = $('.chat');
     const submissionsDiv = $('.submissions');
     const currentCardDiv = $('.currentCard');
-    const jobCardDiv = $('.jobCard');
+    const jobCard = $('.jobCard');
     const cardsDiv = $('.cards');
-    const nextJobBtn = $('.nextJob');
-    const populateButtons = $('.populateButtons');
     const startBtn = $('.startBtn');
-    const cardArray = $(".card").toArray();
+    const startDiv = $(".gameStarterDiv");
+    const currentPlayerEl = $('.currentPlayer');
+    const currentInterviewer = $('.currentInterviewer');
+    const cardArray = $(".phraseCard").toArray();
+    const displayName = $('.displayName');
+    const scoreDisplay = $(".scoreDisp");
 
     //is the client the current interviewer
     let isInterviewer = false;
+    let isInterviewee = false;
+    let isEmploymentPhase = false;
 
     //has this client's name already been sent
     let isNameSent = false;
 
     // the room number that this client is connected to
     let currentRoom = '';
+
+    // Name of the current user
+    let userName = '';
+
+    let score = 0;
+
+
 
     // *********************************************************************************************************
     // -------------JS event Listeners-------------
@@ -42,7 +51,7 @@ $(() => {
 
             if (message.val().length > 0) {
                 const msg = {
-                    author: author.val(),
+                    author: userName,
                     message: message.val(),
                     room: currentRoom
                 }
@@ -68,7 +77,7 @@ $(() => {
     });
 
     //Sends card data to the server when clicked
-    $(".card").on('click', event => {
+    $(".phraseCard").on('click', event => {
         event.preventDefault();
 
         const cardData = {
@@ -79,7 +88,26 @@ $(() => {
         event.target.disabled = true;
 
         socket.emit('cardClicked', cardData);
+
+        if (isEmploymentPhase) {
+
+            const gameData = {
+                room: currentRoom,
+                winner: cardData.text
+            }
+            socket.emit('endEmploymentPhase', currentRoom);
+            socket.emit('assignPoint', gameData);
+            socket.emit('drawPhase', gameData);
+
+        }
+
     });
+
+    // Ends Turn, changes interviewee
+    $(".endTurn").on('click', event => {
+        event.preventDefault();
+        socket.emit('updateInterviewee', currentRoom);
+    })
 
     $(".startBtn").on('click', event => {
         event.preventDefault();
@@ -99,6 +127,16 @@ $(() => {
 
     //create socket connection from front end
     const socket = io();
+    socket.emit('newUser');
+
+    //Testing reconnect fix.
+    socket.on("connect_error", () => {
+        setTimeout(() => {
+            socket.connect();
+        }, 1000).then(
+            socket.emit('reconnect')
+        );
+    });
 
 
     //display room number when received from the server
@@ -110,7 +148,6 @@ $(() => {
             isNameSent = true;
         }
 
-
     });
 
     //when a message is received from the server, print to screen
@@ -118,16 +155,11 @@ $(() => {
         $('.messages').append($('<li>').text(`${msg.author}: ${msg.message}`))
     });
 
-    //when next phase event is received, update the on screen indicator
-    socket.on('nextPhase', data => {
-        currentPhase = data.newPhase;
-        $('.phaseDisp').text(`Current Phase: ${currentPhase}`)
-    });
 
     //When event card clicked is received, display the card data in the current card slot
     socket.on('cardClicked', cardData => {
 
-        $('.currentCard').html(`<p>${cardData.text}</p>`);
+        $('.currentCardDisplay').text(cardData.text);
     });
 
     socket.on('cardPack', cardPack => {
@@ -140,8 +172,9 @@ $(() => {
     });
 
     socket.on('dealJobCard', cardPack => {
-        $(".jobDisplay").text(cardPack);
+        jobCard.text(`Job Name: ${cardPack}`);
     })
+
 
     // *********************************************************************************************************
     // -------------Phase event listners-------------
@@ -166,15 +199,44 @@ $(() => {
     });
 
     //event listener for handling the employment phase
-    socket.on('employmentPhase', data => {
+    socket.on('employmentPhase', players => {
         console.log('Employment phase started');
-        employmentPhase(data);
+        isEmploymentPhase = true;
+        employmentPhase(players);
     });
+
+    socket.on('endEmploymentPhase', data => {
+        isEmploymentPhase = false;
+    })
+
+    // *********************************************************************************************************
+    // ---------Misc Socket Events-----------
+    // *********************************************************************************************************
+
+    socket.on('setCurrentPlayer', data => {
+        currentPlayerEl.text(data.name);
+        if (data.name == userName) {
+            isInterviewee = true;
+        } else {
+            isInterviewee = false;
+        }
+    });
+
+    socket.on('setCurrentInterviewer', data => {
+        currentInterviewer.text(`Interviewer: ${data}`);
+    });
+
 
     socket.on('toggleInterviewer', data => {
         console.log('toggled interviewer status');
         isInterviewer = !isInterviewer;
-    })
+    });
+
+    socket.on('increaseScore', () => {
+        score++;
+        scoreDisplay.text(score);
+
+    });
 
 
     // *********************************************************************************************************
@@ -185,7 +247,7 @@ $(() => {
     // adding jobs
     function addJob(job) {
         $.post("/api/jobs", job);
-        console.log("job added:" + job.title)
+        console.log(`job added to room ${currentRoom}:` + job.title)
     }
 
     $(".addJobBtn").on('click', event => {
@@ -193,25 +255,28 @@ $(() => {
         addJob({
             title: jobInput
                 .val()
-                .trim()
+                .trim(),
+            roomNum: currentRoom
         });
+        jobInput.val('');
     });
+
 
     // adding phrases
     function addPhrase(phrase) {
         $.post("/api/phrases", phrase);
-        console.log("phrase added:" + phrase.content)
+        console.log(`phrase added to room ${currentRoom}:` + phrase.content)
     }
     $(".addPhraseBtn").on('click', event => {
         event.preventDefault();
         addPhrase({
             content: phraseInput
                 .val()
-                .trim()
+                .trim(),
+            roomNum: currentRoom
         });
+        phraseInput.val('');
     });
-
-
 
 
     // *********************************************************************************************************
@@ -220,57 +285,52 @@ $(() => {
 
 
     const submissionPhase = () => {
-        startBtn.hide();
-        submissionsDiv.show();
+        submissionsDiv.hide();
         currentCardDiv.hide();
-        jobCardDiv.hide();
         cardsDiv.hide();
     }
 
     const dealPhase = () => {
+        resetPhraseLabels();
         if (isInterviewer) {
-            startBtn.hide();
             submissionsDiv.hide();
             currentCardDiv.show();
-            jobCardDiv.show();
             cardsDiv.hide();
+            startDiv.hide();
 
             socket.emit('drawJobCard', currentRoom);
         } else {
-            startBtn.hide();
             submissionsDiv.hide();
-            currentCardDiv.hide();
-            jobCardDiv.show();
+            currentCardDiv.show();
             cardsDiv.show();
+            startDiv.hide();
         }
 
     }
 
     const interviewPhase = () => {
-        if (isInterviewer) {
-            startBtn.hide();
+
+        $('.currentCardDisplay').text('');
+
+        if (isInterviewer || !isInterviewee) {
             submissionsDiv.hide();
             currentCardDiv.show();
-            jobCardDiv.show();
             cardsDiv.hide();
+            startDiv.hide();
         } else {
-            startBtn.hide();
             submissionsDiv.hide();
             currentCardDiv.show();
-            jobCardDiv.show();
             cardsDiv.show();
+            startDiv.hide();
         }
     }
 
-    $('.employment').on('click', event => {
-        event.preventDefault();
-        socket.emit('employmentPhase', currentRoom);
-    })
-
 
     const employmentPhase = (players) => {
-        console.log(players);
+        const availablePlayers = players.filter(player => player.interviewer == false);
+        console.log(availablePlayers);
         if (isInterviewer) {
+            changePhraseLabels();
 
             for (i = 0; i < cardArray.length; i++) {
 
@@ -278,27 +338,47 @@ $(() => {
                 cardArray[i].textContent = '';
                 cardArray[i].disabled = true;
 
-                if (players[i + 1]) {
-                    cardArray[i].value = players[i + 1].name;
-                    cardArray[i].textContent = players[i + 1].name;
+                if (availablePlayers[i]) {
+                    cardArray[i].value = availablePlayers[i].name;
+                    cardArray[i].textContent = availablePlayers[i].name;
                     cardArray[i].disabled = false;
                 }
             }
-
-            startBtn.hide();
             submissionsDiv.hide();
             currentCardDiv.show();
-            jobCardDiv.show();
             cardsDiv.show();
+            startDiv.hide();
         } else {
-            startBtn.hide();
             submissionsDiv.hide();
             currentCardDiv.show();
-            jobCardDiv.show();
             cardsDiv.hide();
+            startDiv.hide();
         }
-    }
+    };
 
+
+    const changePhraseLabels = () => {
+        $('.phrase1').text('Player 1');
+        $('.phrase2').text('Player 2');
+        $('.phrase3').text('Player 3');
+        $('.phrase4').text('Player 4');
+        $('.phrase5').text('Player 5');
+    };
+
+    const resetPhraseLabels = () => {
+        $('.phrase1').text('Phrase 1');
+        $('.phrase2').text('Phrase 2');
+        $('.phrase3').text('Phrase 3');
+        $('.phrase4').text('Phrase 4');
+        $('.phrase5').text('Phrase 5');
+    };
+
+    const setDisplayName = () => {
+        userName = localStorage.getItem('userName') || 'Anonymous';
+        displayName.text(`Display Name: ${userName}`);
+    };
+
+    setDisplayName();
 });
 
 
