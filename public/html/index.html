@@ -2,6 +2,10 @@
 <html lang="en">
 
 <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+ 
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
@@ -9,6 +13,7 @@
 
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
+  
   <title>Interview Game</title>
 
 </head>
@@ -21,7 +26,7 @@
     <!-- <a class="nav-link" href="#">About the Game</a> -->
   </nav>
 
-<div class="roombg_image">
+<div class="roombg_image col-12">
 
     <div class="jumbotron jumbotron-fluid text-center pt-3 pb-2" style>
       <div class="container">
@@ -35,7 +40,12 @@
               <h4 class="jobCard">Job Name: </h4>
             </div>
             <div class="col-sm">
-                <h4 class="displayName">Display Name: Brian</h4>
+                <h4 class="displayName">Display Name: </h4>
+            </div>
+          </div>
+          <div class="row d-flex justify-content-center">
+            <div class="col-md-4 mt-2">
+              <h4 class="interviewer">Interviewer: </h4>
             </div>
           </div>
         </div>
@@ -45,7 +55,7 @@
 
     <div class="row d-flex justify-content-center text-center">
     
-        <div class="col-2  pt-4">
+        <div class="col-md-2 col-sm-6 pt-4">
             <div class="card mb-3">
                 <h5 class="phaseDisp card-header">Your Points</h5>
                 <div class="card-body">
@@ -55,7 +65,7 @@
             
         </div>
         
-        <div class="gameStarterDiv col-3  pt-4">
+        <div class="gameStarterDiv col-md-3 col-sm-6  pt-4">
             <div class="card mb-3">
                 <h5 class="phaseDisp card-header">Current Phase: 1</h5>
                 <div class="card-body">
@@ -66,7 +76,7 @@
     
         </div>
     
-        <div class="col-2  pt-4">
+        <div class="col-md-2 col-sm-6 pt-4">
             <div class="card mb-3">
                 <h5 class="card-header">Current Interviewee</h5>
                 <div class="card-body">
@@ -77,13 +87,13 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row d-flex justify-content-center">
       <!-- start left side of screen -->
 
-      <div class="col-5 left-side offset-1">
+      <div class="col-md-5 col-sm-8 left-side">
 
         <!-- only phase 1 -->
-        <div class="submissions col-12 hld mt-3">
+        <div class="submissions col-md-12 hld mt-3">
           <div class="row">
             <div class="col-sm-6">
               <div class="card">
@@ -109,7 +119,7 @@
         </div>
 
 
-        <div class="currentCard col-12 mt-3 mb-3 text-center">
+        <div class="currentCard col-md-12 mt-3 mb-3 text-center">
 
           <div class="card">
             <div class="card-header">
@@ -120,10 +130,10 @@
 
         </div>
 
-        <div class="cards">
-          <div class="col-12 mb-3 mt-3">
-            <div class="row">
-              <div class="col-4">
+        <!-- <div class="cards"> -->
+          <div class="cards col-md-12 mb-3 mt-3">
+            <div class="row d-flex justify-content-center">
+              <div class="col-md-4">
                 <div class="card text-center">
                   <div class="card-body">
                     <h5 class="card-title" value="Phrase 1">Phrase 1</h5>
@@ -131,7 +141,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-4">
+              <div class="col-md-4">
                 <div class="card text-center">
                   <div class="card-body">
                     <h5 class="card-title" value="Phrase 2">Phrase 2</h5>
@@ -139,7 +149,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-4">
+              <div class="col-md-4">
                 <div class="card text-center">
                   <div class="card-body">
                     <h5 class="card-title" value="Phrase 3">Phrase 3</h5>
@@ -150,7 +160,7 @@
             </div>
 
             <div class="row mt-3 d-flex justify-content-center">
-              <div class="col-4">
+              <div class="col-md-4">
                 <div class="card text-center">
                   <div class="card-body">
                     <h5 class="card-title" value="Phrase 4">Phrase 4</h5>
@@ -158,7 +168,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-4">
+              <div class="col-md-4">
                 <div class="card text-center">
                   <div class="card-body">
                     <h5 class="card-title" value="Phrase 5">Phrase 5</h5>
@@ -168,28 +178,29 @@
               </div>
             </div>
           </div>
-          <div class="col-12">
-            <div class="card text-center">
-              <div class="card-body">
-                <button href="#" class="mb-3 endTurn btn btn-primary">End Turn</button>
-              </div>
-            </div>
-          </div>
-        </div>
+          
 
-      </div>
+        <!-- <div class="row d-flex justify-content-center">
+            <div class="col-6">
+                <div class="card text-center mb-3">
+                  <div class="card-body">
+                    <button href="#" class="endTurn btn btn-primary">End Turn</button>
+                  </div>
+                </div>
+              </div>
+            </div> -->
+      </div>    
       <!-- **** end left side of screen *** -->
 
       <!-- start right side of screen -->
-      <div class="col-5 right-side">
+      <div class="col-md-5 col-sm-8 right-side">
 
         <!-- chat feature!!!! -->
-
-        
-        <div class="chat col-12 mt-3 mb-3 offset-1">
+        <div class="chat col-md-12 mt-3 mb-3 offset-1">
             
-          <iframe class="discord" src="https://discord.com/widget?id=788852665060687893&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
-            <!-- <div class="card">
+          <iframe class="discord" src="https://discord.com/widget?id=788852665060687893&theme=dark" width="450" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+            
+            <!-- OLD CHAT <div class="card">
                 <div class="card-header text-center">
                     <h3>Game Chat</h3>
                 </div>
@@ -207,12 +218,22 @@
                         
                 </div> -->
             
-            </div>
+        </div>
         
-        </div> 
+      </div> 
+        <!-- **** end right side of screen *** -->
         
     </div>
-      <!-- **** end right side of screen *** -->
+
+      <div class="row d-flex justify-content-center">
+        <div class="col-md-3 col-sm-6">
+            <div class="card text-center mb-3">
+              <div class="card-body">
+                <button href="#" class="endTurn btn btn-primary">End Turn</button>
+              </div>
+            </div>
+          </div>
+        </div>
 
 </div>
 
