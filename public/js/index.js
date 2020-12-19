@@ -14,6 +14,7 @@ $(() => {
     const startBtn = $('.startBtn');
     const startDiv = $(".gameStarterDiv");
     const currentPlayerEl = $('.currentPlayer');
+    const currentInterviewer = $('.currentInterviewer');
     const cardArray = $(".phraseCard").toArray();
     const displayName = $('.displayName');
     const scoreDisplay = $(".scoreDisp");
@@ -219,7 +220,11 @@ $(() => {
         } else {
             isInterviewee = false;
         }
-    })
+    });
+
+    socket.on('setCurrentInterviewer', data => {
+        currentInterviewer.text(`Interviewer: ${data}`);
+    });
 
 
     socket.on('toggleInterviewer', data => {
@@ -231,7 +236,7 @@ $(() => {
         score++;
         scoreDisplay.text(score);
 
-    })
+    });
 
 
     // *********************************************************************************************************

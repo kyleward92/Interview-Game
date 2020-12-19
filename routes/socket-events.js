@@ -71,6 +71,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
             console.log(`Deal phase sent to room ${roomNum.room}`);
 
             io.to(roomNum.room).emit('drawPhase');
+            setInterviewerDisplay(roomNum.room);
             resetHasInterviewed(games[getGameIndex(roomNum.room)]);
             changeInterviewee(roomNum.room);
             dealPhraseCards(roomNum);
@@ -98,7 +99,9 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
         socket.on('nameAssignment', data => {
             const gameIndex = getGameIndex(data.room);
             const playerIndex = games[gameIndex].players.findIndex(player => player.socketId == socket.id);
-            games[gameIndex].players[playerIndex].name = data.name;
+            const player = games[gameIndex].players[playerIndex];
+            player.name = data.name;
+
         });
 
         socket.on('updateInterviewee', roomNum => {
@@ -327,9 +330,25 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
                     winner = player.name;
                     // ToDo What happens when someone wins?
                     console.log(`${winner} Wins!`);
-                }
-            })
-        }
+                };
+            });
+        };
+    };
+
+    const setInterviewerDisplay = (roomNum) => {
+        const game = games[getGameIndex(roomNum)];
+        let interviewerName = '';
+        game.players.forEach(player => {
+            if(player.interviewer) {
+                interviewerName = player.name;
+            }
+
+            console.log('Interviewer: ', interviewerName);
+
+            if(interviewerName != '') {
+                io.emit('setCurrentInterviewer', interviewerName);
+            }
+        })
     }
 
 };
