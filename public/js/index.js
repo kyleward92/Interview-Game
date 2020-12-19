@@ -291,6 +291,7 @@ $(() => {
     }
 
     const dealPhase = () => {
+        resetPhraseLabels();
         if (isInterviewer) {
             submissionsDiv.hide();
             currentCardDiv.show();
@@ -329,6 +330,7 @@ $(() => {
         const availablePlayers = players.filter(player => player.interviewer == false);
         console.log(availablePlayers);
         if (isInterviewer) {
+            changePhraseLabels();
 
             for (i = 0; i < cardArray.length; i++) {
 
@@ -355,6 +357,21 @@ $(() => {
     };
 
 
+    const changePhraseLabels = () => {
+        $('.phrase1').text('Player 1');
+        $('.phrase2').text('Player 2');
+        $('.phrase3').text('Player 3');
+        $('.phrase4').text('Player 4');
+        $('.phrase5').text('Player 5');
+    };
+
+    const resetPhraseLabels = () => {
+        $('.phrase1').text('Phrase 1');
+        $('.phrase2').text('Phrase 2');
+        $('.phrase3').text('Phrase 3');
+        $('.phrase4').text('Phrase 4');
+        $('.phrase5').text('Phrase 5');
+    };
 
     const setDisplayName = () => {
         userName = localStorage.getItem('userName') || 'Anonymous';
