@@ -8,6 +8,9 @@
 
 [Github Link](https://github.com/kyleward92/Interview-Game.git)
 
+
+[Power point presentation](https://docs.google.com/presentation/d/1EfPYVYYEsGVVi8umttKtvHQs8lFXhruzD6Z9dRIyhdA/edit#slide=id.gb22b3bd916_7_0)
+
 The Interview Game is a website that allows group of users to play amongst each other as an Interviewer or a Interviewee. The website offers players to host or join a current lobby alongside with a discord widget that allows for players to jump into channels to simulate a better experience. The game works with one player being the Interviewer for one round while the other players are Interviewees which all have 5 cards that they must use to win over the Interviewer for the current job card.
 
 ## Installing/Running
@@ -103,6 +106,8 @@ You will be employer-competitive if you are able to:
 * Design, build and deploy a full-stack web application to Heroku
 
 ## Helpful Links
+[Power point presentation](https://docs.google.com/presentation/d/1EfPYVYYEsGVVi8umttKtvHQs8lFXhruzD6Z9dRIyhdA/edit#slide=id.gb22b3bd916_7_0)
+
 [Deployed-Game](https://interview--game.herokuapp.com/)
 
 [Github](https://github.com/kyleward92/Interview-Game.git)
