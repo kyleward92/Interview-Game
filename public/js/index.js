@@ -388,8 +388,8 @@ $(() => {
         $.each(players, function () {
             if (this.name === employee) {
                 this.interviewer = true;
-                console.log("Name:" + this.name)
-                console.log("interviewer:" + this.interviewer)
+                console.log("Name:" + this.name);
+                console.log("interviewer:" + this.interviewer);
                 const gameData = {
                     room: currentRoom,
                     winner: cardData.text
