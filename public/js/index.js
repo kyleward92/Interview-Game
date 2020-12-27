@@ -90,17 +90,17 @@ $(() => {
 
         socket.emit('cardClicked', cardData);
 
-        if (isEmploymentPhase) {
+        // if (isEmploymentPhase) {
 
-            const gameData = {
-                room: currentRoom,
-                winner: cardData.text
-            }
-            socket.emit('endEmploymentPhase', currentRoom);
-            socket.emit('assignPoint', gameData);
-            socket.emit('drawPhase', gameData);
+        //     const gameData = {
+        //         room: currentRoom,
+        //         winner: cardData.text
+        //     }
+        //     socket.emit('endEmploymentPhase', currentRoom);
+        //     socket.emit('assignPoint', gameData);
+        //     socket.emit('drawPhase', gameData);
 
-        }
+        // }
 
     });
 
@@ -330,76 +330,79 @@ $(() => {
         console.log(players)
         $.each(players, function () {
             if (!this.interviewer) {
-                var playerCard = '<div class = "col-4"><div class="card text-center"><div class="card-body"><button href="#" class="phraseCard hire btn btn-primary">' + this.name + '</button></div></div>'
+                var playerCard = `<div class = "col-4"><div class="card text-center"><div class="card-body"><button href="#" class="phraseCard hire btn btn-primary" value="${this.name}">${this.name}</button></div></div>`
                 hiringList.append(playerCard);
                 console.log(this.name)
             } else {
                 console.log("changing interviewer to false for " + this.name)
                 this.interviewer = false;
             }
-        })
+        });
+
+
+        $(".hire").on('click', function (event) {
+            console.log($(this).val());
+            var employee = (this.innerHTML);
+            // $.each(players, function () {
+            //     if (this.name === employee) {
+            //         this.interviewer = true;
+            //         console.log("Name:" + this.name);
+            //         console.log("interviewer:" + this.interviewer);
+            const gameData = {
+                room: currentRoom,
+                winner: event.currentTarget.value
+            }
+            socket.emit('endEmploymentPhase', currentRoom);
+            socket.emit('assignPoint', gameData);
+            socket.emit('drawPhase', gameData);
+            //     }
+            // })
+        });
     }
 
     const employmentPhase = (players) => {
         // const availablePlayers = players.filter(player => player.interviewer == false);
         // console.log(availablePlayers);
         if (isInterviewer) {
-            
-        //     changePhraseLabels();
 
-        //     for (i = 0; i < cardArray.length; i++) {
+            //     changePhraseLabels();
 
-        //         cardArray[i].value = '';
-        //         cardArray[i].textContent = '';
-        //         cardArray[i].disabled = true;
+            //     for (i = 0; i < cardArray.length; i++) {
 
-        //         if (availablePlayers[i]) {
-        //             cardArray[i].value = availablePlayers[i].name;
-        //             cardArray[i].textContent = availablePlayers[i].name;
-        //             cardArray[i].disabled = false;
-        //         }
-        //     }
+            //         cardArray[i].value = '';
+            //         cardArray[i].textContent = '';
+            //         cardArray[i].disabled = true;
 
-        //     submissionsDiv.hide();
-        //     currentCardDiv.show();
-        //     cardsDiv.show();
-        //     startDiv.hide();
-        // } else {
-        //     submissionsDiv.hide();
-        //     currentCardDiv.show();
-        //     cardsDiv.hide();
-        //     startDiv.hide();
-        // }
-        submissionsDiv.hide();
-        currentCardDiv.hide();
-        cardsDiv.hide();
-        startDiv.hide();
-        populateHiringList(players);
+            //         if (availablePlayers[i]) {
+            //             cardArray[i].value = availablePlayers[i].name;
+            //             cardArray[i].textContent = availablePlayers[i].name;
+            //             cardArray[i].disabled = false;
+            //         }
+            //     }
+
+            //     submissionsDiv.hide();
+            //     currentCardDiv.show();
+            //     cardsDiv.show();
+            //     startDiv.hide();
+            // } else {
+            //     submissionsDiv.hide();
+            //     currentCardDiv.show();
+            //     cardsDiv.hide();
+            //     startDiv.hide();
+            // }
+            submissionsDiv.hide();
+            currentCardDiv.hide();
+            cardsDiv.hide();
+            startDiv.hide();
+            populateHiringList(players);
         } else {
             submissionsDiv.hide();
-        currentCardDiv.show();
-        cardsDiv.hide();
-        startDiv.hide();
+            currentCardDiv.show();
+            cardsDiv.hide();
+            startDiv.hide();
         }
     };
-    
-    $(".hire").on('click', function (event) {
-        var employee = (this.innerHTML)
-        $.each(players, function () {
-            if (this.name === employee) {
-                this.interviewer = true;
-                console.log("Name:" + this.name);
-                console.log("interviewer:" + this.interviewer);
-                const gameData = {
-                    room: currentRoom,
-                    winner: cardData.text
-                }
-                socket.emit('endEmploymentPhase', currentRoom);
-                socket.emit('assignPoint', gameData);
-                socket.emit('drawPhase', gameData);
-            }
-        })
-    })
+
 
 
     const changePhraseLabels = () => {
