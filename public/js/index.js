@@ -355,6 +355,7 @@ $(() => {
             socket.emit('endEmploymentPhase', currentRoom);
             socket.emit('assignPoint', gameData);
             socket.emit('drawPhase', gameData);
+            hiringList.hide();
             //     }
             // })
         });
