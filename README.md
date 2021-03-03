@@ -104,3 +104,13 @@ You will be employer-competitive if you are able to:
 
 ## Helpful Links
 [Deployed-Game](https://interview--game.herokuapp.com/)
+
+[Github](https://github.com/kyleward92/Interview-Game.git)
+
+[Mocha JS Docs](https://mochajs.org/)
+
+[Chai JS Docs](https://www.chaijs.com/)
+
+[Agile Methodology](https://en.wikipedia.org/wiki/Agile_software_development)
+
+[Git Branching](https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows)
