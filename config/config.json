@@ -22,7 +22,7 @@
 =======
   "development": {
     "username": "root",
-    "password": "@Pplesauce97",
+    "password": "",
 
     "database": "interview_db",
     "host": "127.0.0.1",
