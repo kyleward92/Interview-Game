@@ -1,8 +1,7 @@
 {
   "development": {
     "username": "root",
-    "password": "@Pplesauce97",
-
+    "password": "root",
     "database": "interview_db",
     "host": "127.0.0.1",
     "dialect": "mysql"
