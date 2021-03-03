@@ -1,4 +1,13 @@
+<<<<<<< HEAD
+# Unit 15: Project 2 Interview Game Designed By : Wonderful Jaguars
+
+[Deployed-Game](https://interview--game.herokuapp.com/)
+
+
+[Github](https://github.com/kyleward92/Interview-Game.git)
+=======
 # Interview Game Designed By : Wonderful Jaguars 
+>>>>>>> 1d254f6830183b12dac62f69496354ea28c89df8
 
 [Interview--game Heroku Link](https://interview--game.herokuapp.com/)
 
