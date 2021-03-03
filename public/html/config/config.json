@@ -1,12 +1,7 @@
 {
   "development": {
     "username": "root",
-<<<<<<< HEAD
-    "password": "root",
-=======
     "password": "",
-
->>>>>>> 7c6209e9a5d812516df298ab9c50e34098d9931c
     "database": "interview_db",
     "host": "127.0.0.1",
     "dialect": "mysql"
@@ -19,7 +14,10 @@
     "dialect": "mysql"
   },
   "production": {
-    "use_env_variable": "JAWSDB_URL",
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
     "dialect": "mysql"
   }
 }
