@@ -29,8 +29,8 @@ $(() => {
     }
 
     //Setting input form defaults to ease testing//
-    generateDefaultHandle();
-    roomInput.val("1234");
+    // generateDefaultHandle();
+    // roomInput.val("1234");
 
 
     const setName = () => {

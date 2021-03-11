@@ -35,7 +35,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: "casual racism",
+          content: "Creamed Corn",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -100,7 +100,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: " eugenics",
+          content: "Stolen dogs",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -115,7 +115,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: " I was way too high to remember",
+          content: "I was way too high to remember",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -155,12 +155,12 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: " sorry I was watching cops",
+          content: "sorry, I was watching cops",
           createdAt: new Date(),
           updatedAt: new Date()
         },
         {
-          content: "where can i store my ",
+          content: "where can i store my",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -175,7 +175,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: " tectonic plates",
+          content: "tectonic plates",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -190,17 +190,17 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: " high school prom",
+          content: "high school prom",
           createdAt: new Date(),
           updatedAt: new Date()
         },
         {
-          content: " the olsen twins",
+          content: "the olsen twins",
           createdAt: new Date(),
           updatedAt: new Date()
         },
         {
-          content: " deli meats",
+          content: "deli meats",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -255,7 +255,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: "chinese people",
+          content: "Jolly Green Giant",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -300,7 +300,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: "mikes hard lemonade",
+          content: "mike's hard lemonade",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -370,7 +370,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: "18 naked cowboys",
+          content: "4 foot parrot",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -390,7 +390,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: " heresy",
+          content: "heresy",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -400,7 +400,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: " that’s why god gave me two",
+          content: "that’s why god gave me two",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -420,7 +420,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: " hangout at the nursing home",
+          content: "hangout at the nursing home",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -455,7 +455,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: " shrimp lo mein",
+          content: "shrimp lo mein",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -480,7 +480,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
-          content: " war crimes",
+          content: "war crimes",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -509,11 +509,5 @@ module.exports = {
     );
   },
   down: async (queryInterface, Sequelize) => {
-    /**
-     * Add commands to revert seed here.
-     *
-     * Example:
-     * await queryInterface.bulkDelete('People', null, {});
-     */
   }
 };

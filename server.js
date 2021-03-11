@@ -1,8 +1,10 @@
-const {
-  Console
-} = require("console");
+const {Console} = require("console");
 const express = require("express");
+const compression = require("compression");
+
+
 const app = express();
+app.use(compression());
 app.use(express.urlencoded({
   extended: true
 }));
@@ -13,21 +15,21 @@ const cardsPerPlayer = 5;
 const scoreToWin = 2;
 
 const games = [
-    {
-        room: '9999',
-        players: [
-            {
-                name: 'sample',
-                socketId: "gfds8d6fg9ddfs",
-                interviewer: true,
-                interviewee: false,
-                hasInterviewed: false,
-                points: 0
-            }
-        ],
-        jobCards: [],
-        phraseCards: []
-    }
+  {
+    room: '9999',
+    players: [
+      {
+        name: 'sample',
+        socketId: "gfds8d6fg9ddfs",
+        interviewer: true,
+        interviewee: false,
+        hasInterviewed: false,
+        points: 0
+      }
+    ],
+    jobCards: [],
+    phraseCards: []
+  }
 
 ];
 
