@@ -1,6 +1,8 @@
 body {
     font-family: 'JetBrains Mono', monospace;
     background-color: rgb(71, 133, 226);
+    box-sizing: border-box;
+
 }
     
 .bg_image {
@@ -74,5 +76,6 @@ nav a {
 }
 
 .sticky-footer {
-    flex-shrink: none;
+    margin-bottom: 0;
+    position: absolute;
 }
