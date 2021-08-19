@@ -6,12 +6,12 @@ $(() => {
     // References to HTML elements
     const jobInput = $('.jobInput');
     const phraseInput = $('.phraseInput');
-    const chatDiv = $('.chat');
+    // const chatDiv = $('.chat');
     const submissionsDiv = $('.submissions');
     const currentCardDiv = $('.currentCard');
     const jobCard = $('.jobCard');
     const cardsDiv = $('.cards');
-    const startBtn = $('.startBtn');
+    // const startBtn = $('.startBtn');
     const startDiv = $(".gameStarterDiv");
     const currentPlayerEl = $('.currentPlayer');
     const currentInterviewer = $('.currentInterviewer');
@@ -19,11 +19,12 @@ $(() => {
     const displayName = $('.displayName');
     const scoreDisplay = $(".scoreDisp");
     const hiringList = $(".hiringList")
+    const endTurn = $(".endTurnDiv");
 
     //is the client the current interviewer
     let isInterviewer = false;
     let isInterviewee = false;
-    let isEmploymentPhase = false;
+    // let isEmploymentPhase = false;
 
     //has this client's name already been sent
     let isNameSent = false;
@@ -289,22 +290,14 @@ $(() => {
         submissionsDiv.hide();
         currentCardDiv.hide();
         cardsDiv.hide();
+        endTurn.hide();
     }
 
     const dealPhase = () => {
         resetPhraseLabels();
-        if (isInterviewer) {
-            submissionsDiv.hide();
-            currentCardDiv.show();
-            cardsDiv.hide();
-            startDiv.hide();
 
+        if (isInterviewer) {
             socket.emit('drawJobCard', currentRoom);
-        } else {
-            submissionsDiv.hide();
-            currentCardDiv.show();
-            cardsDiv.show();
-            startDiv.hide();
         }
 
     }
@@ -314,16 +307,16 @@ $(() => {
         $('.currentCardDisplay').text('');
 
         if (isInterviewer || !isInterviewee) {
-            submissionsDiv.hide();
-            currentCardDiv.show();
+
             cardsDiv.hide();
-            startDiv.hide();
         } else {
-            submissionsDiv.hide();
-            currentCardDiv.show();
             cardsDiv.show();
-            startDiv.hide();
         }
+
+        submissionsDiv.hide();
+        currentCardDiv.show();
+        startDiv.hide();
+        endTurn.hide();
     }
 
     function populateHiringList(players) {
@@ -362,46 +355,21 @@ $(() => {
     }
 
     const employmentPhase = (players) => {
-        // const availablePlayers = players.filter(player => player.interviewer == false);
-        // console.log(availablePlayers);
+
         if (isInterviewer) {
 
-            //     changePhraseLabels();
-
-            //     for (i = 0; i < cardArray.length; i++) {
-
-            //         cardArray[i].value = '';
-            //         cardArray[i].textContent = '';
-            //         cardArray[i].disabled = true;
-
-            //         if (availablePlayers[i]) {
-            //             cardArray[i].value = availablePlayers[i].name;
-            //             cardArray[i].textContent = availablePlayers[i].name;
-            //             cardArray[i].disabled = false;
-            //         }
-            //     }
-
-            //     submissionsDiv.hide();
-            //     currentCardDiv.show();
-            //     cardsDiv.show();
-            //     startDiv.hide();
-            // } else {
-            //     submissionsDiv.hide();
-            //     currentCardDiv.show();
-            //     cardsDiv.hide();
-            //     startDiv.hide();
-            // }
-            submissionsDiv.hide();
             currentCardDiv.hide();
-            cardsDiv.hide();
-            startDiv.hide();
             populateHiringList(players);
+
         } else {
-            submissionsDiv.hide();
+
             currentCardDiv.show();
-            cardsDiv.hide();
-            startDiv.hide();
         }
+
+        submissionsDiv.hide();
+        cardsDiv.hide();
+        startDiv.hide();
+        endTurn.hide();
     };
 
 

@@ -318,8 +318,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
 
         if (game) {
             game.players.forEach(player => {
-                console.log(player.points);
-                console.log(scoreToWin);
+                console.log(player.name, ": ", player.points);
                 if (player.points >= scoreToWin) {
                     winnerExists = true;
                     winner = player.name;
@@ -338,12 +337,11 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
                 interviewerName = player.name;
             }
 
-            console.log('Interviewer: ', interviewerName);
-
             if(interviewerName != '') {
                 io.emit('setCurrentInterviewer', interviewerName);
             }
         })
+        console.log('Interviewer: ', interviewerName);
     }
 
 };
