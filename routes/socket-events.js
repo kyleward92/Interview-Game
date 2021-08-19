@@ -9,15 +9,12 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
         //When user hits index.html
         socket.on('newUser', () => {
             socket.join(roomNum);
-
             updateGame(socket);
-
 
             console.log(`a user connected to room ${roomNum}`);
 
             io.to(roomNum).emit('roomInfo', roomNum);
         });
-
 
         socket.on('disconnecting', () => {
             console.log("User Disconnecting");
@@ -68,7 +65,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
 
         //event listener for handling the draw phase
         socket.on('drawPhase', roomNum => {
-            console.log(`Deal phase sent to room ${roomNum.room}`);
+            console.log(`Draw phase sent to room ${roomNum.room}`);
 
             io.to(roomNum.room).emit('drawPhase');
             setInterviewerDisplay(roomNum.room);
@@ -184,9 +181,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
                 io.to(player.socketId).emit('cardPack', cardPack);
             };
         });
-
     };
-
 
     const getPhraseCards = async (roomNum) => {
         const submittedPhraseCards = await db.phrases.findAll({
@@ -279,6 +274,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
             io.to(roomNum).emit('interviewPhase');
         };
     };
+
     const chooseNextInterviewee = (roomNum) => {
         const game = games[getGameIndex(roomNum)];
         const availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
@@ -297,9 +293,9 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
 
     const removePlayerEntry = (game, socketId) => {
         if (game) {
-            console.log(`removed player from room ${game.room}`);
             const playerIndex = game.players.findIndex(player => { player.socketId == socketId });
             game.players.splice(playerIndex, 1);
+            console.log(`removed player from room ${game.room}`);
         };
     };
 
@@ -309,8 +305,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
                 console.log(`Removed game ${gameIndex} from games array`);
                 games.splice(gameIndex, 1);
             };
-        }
-
+        };
     };
 
     const resetHasInterviewed = (game) => {

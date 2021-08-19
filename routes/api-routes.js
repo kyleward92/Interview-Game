@@ -69,7 +69,5 @@ const checkRoomNum = (roomNum, games) => {
       isRoomGood =  false;
     };
   });
-
   return isRoomGood;
-
 }; 
