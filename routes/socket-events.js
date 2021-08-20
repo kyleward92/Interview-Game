@@ -278,6 +278,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
     const chooseNextInterviewee = (roomNum) => {
         const game = games[getGameIndex(roomNum)];
         const availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
+        console.log(game.players);
         console.log(availablePlayers);
 
         if (availablePlayers.length > 0) {

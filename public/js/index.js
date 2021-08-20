@@ -311,12 +311,12 @@ $(() => {
             cardsDiv.hide();
         } else {
             cardsDiv.show();
+            endTurn.show();
         }
 
         submissionsDiv.hide();
         currentCardDiv.show();
         startDiv.hide();
-        endTurn.hide();
     }
 
     function populateHiringList(players) {
