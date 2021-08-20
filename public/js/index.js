@@ -6,12 +6,10 @@ $(() => {
     // References to HTML elements
     const jobInput = $('.jobInput');
     const phraseInput = $('.phraseInput');
-    // const chatDiv = $('.chat');
     const submissionsDiv = $('.submissions');
     const currentCardDiv = $('.currentCard');
     const jobCard = $('.jobCard');
     const cardsDiv = $('.cards');
-    // const startBtn = $('.startBtn');
     const startDiv = $(".gameStarterDiv");
     const currentPlayerEl = $('.currentPlayer');
     const currentInterviewer = $('.currentInterviewer');
@@ -19,12 +17,11 @@ $(() => {
     const displayName = $('.displayName');
     const scoreDisplay = $(".scoreDisp");
     const hiringList = $(".hiringList")
-    const endTurn = $(".endTurnDiv");
+    const endTurnDiv = $(".endTurnDiv");
 
     //is the client the current interviewer
     let isInterviewer = false;
     let isInterviewee = false;
-    // let isEmploymentPhase = false;
 
     //has this client's name already been sent
     let isNameSent = false;
@@ -32,10 +29,11 @@ $(() => {
     // the room number that this client is connected to
     let currentRoom = '';
 
-    // Name of the current user
+    // User Info
     let userName = '';
-
     let score = 0;
+    let phraseSubmissions = 0;
+
 
 
 
@@ -88,26 +86,17 @@ $(() => {
         }
 
         event.target.disabled = true;
+        phraseSubmissions += 1;
+        checkPhraseSubmissions();
 
         socket.emit('cardClicked', cardData);
-
-        // if (isEmploymentPhase) {
-
-        //     const gameData = {
-        //         room: currentRoom,
-        //         winner: cardData.text
-        //     }
-        //     socket.emit('endEmploymentPhase', currentRoom);
-        //     socket.emit('assignPoint', gameData);
-        //     socket.emit('drawPhase', gameData);
-
-        // }
-
     });
 
-    // Ends Turn, changes interviewee
+    // Ends Turn, resets phrase submission count, changes interviewee
     $(".endTurn").on('click', event => {
         event.preventDefault();
+        endTurnDiv.hide();
+        phraseSubmissions = 0
         socket.emit('updateInterviewee', currentRoom);
     })
 
@@ -230,8 +219,8 @@ $(() => {
 
 
     socket.on('toggleInterviewer', data => {
-        console.log('toggled interviewer status');
         isInterviewer = !isInterviewer;
+        console.log('toggled interviewer status to ', isInterviewer);
     });
 
     socket.on('increaseScore', () => {
@@ -290,34 +279,36 @@ $(() => {
         submissionsDiv.hide();
         currentCardDiv.hide();
         cardsDiv.hide();
-        endTurn.hide();
-    }
+        endTurnDiv.hide();
+        hiringList.hide();
+    };
 
     const dealPhase = () => {
         resetPhraseLabels();
 
         if (isInterviewer) {
             socket.emit('drawJobCard', currentRoom);
-        }
-
-    }
+        };
+    };
 
     const interviewPhase = () => {
 
         $('.currentCardDisplay').text('');
+        $('.endTurn').prop('disabled',true);
 
         if (isInterviewer || !isInterviewee) {
 
             cardsDiv.hide();
         } else {
             cardsDiv.show();
-            endTurn.show();
-        }
+            endTurnDiv.show();
+        };
 
+        hiringList.hide();
         submissionsDiv.hide();
         currentCardDiv.show();
         startDiv.hide();
-    }
+    };
 
     function populateHiringList(players) {
         console.log(players)
@@ -327,20 +318,16 @@ $(() => {
                 hiringList.append(playerCard);
                 console.log(this.name)
             } else {
-                console.log("changing interviewer to false for " + this.name)
-                this.interviewer = false;
-            }
+                // console.log("changing interviewer to false for " + this.name)
+                // this.interviewer = false;
+            };
         });
 
 
         $(".hire").on('click', function (event) {
             console.log($(this).val());
             var employee = (this.innerHTML);
-            // $.each(players, function () {
-            //     if (this.name === employee) {
-            //         this.interviewer = true;
-            //         console.log("Name:" + this.name);
-            //         console.log("interviewer:" + this.interviewer);
+
             const gameData = {
                 room: currentRoom,
                 winner: event.currentTarget.value
@@ -348,11 +335,9 @@ $(() => {
             socket.emit('endEmploymentPhase', currentRoom);
             socket.emit('assignPoint', gameData);
             socket.emit('drawPhase', gameData);
-            hiringList.hide();
-            //     }
-            // })
+            hiringList.empty();
         });
-    }
+    };
 
     const employmentPhase = (players) => {
 
@@ -360,17 +345,26 @@ $(() => {
 
             currentCardDiv.hide();
             populateHiringList(players);
+            hiringList.show()
 
         } else {
 
             currentCardDiv.show();
-        }
+            hiringList.hide();
+        };
 
         submissionsDiv.hide();
         cardsDiv.hide();
         startDiv.hide();
-        endTurn.hide();
+        endTurnDiv.hide();
     };
+
+    // check to see if all 5 phrase cards have been submitted, and if so, allow the player to end their turn
+    const checkPhraseSubmissions = () => {
+        if (phraseSubmissions == 5) {
+            $('.endTurn').prop('disabled', false);
+        }
+    }
 
 
 

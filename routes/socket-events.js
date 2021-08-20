@@ -108,6 +108,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
 
         socket.on('endEmploymentPhase', roomNum => {
             io.to(roomNum).emit('endEmploymentPhase');
+            NextInterviewer(roomNum);
         });
 
         socket.on('assignPoint', data => {
@@ -148,6 +149,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
             games.push({
                 room: roomNum,
                 players: [newPlayer],
+                interviewerIndex: 0,
                 jobCards: [],
                 phraseCards: []
             });
@@ -278,8 +280,6 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
     const chooseNextInterviewee = (roomNum) => {
         const game = games[getGameIndex(roomNum)];
         const availablePlayers = game.players.filter(player => !player.hasInterviewed && !player.interviewer);
-        console.log(game.players);
-        console.log(availablePlayers);
 
         if (availablePlayers.length > 0) {
             const newIntervieweeRaw = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
@@ -290,6 +290,25 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
             io.to(roomNum).emit('employmentPhase', games[getGameIndex(roomNum)].players)
             return -1;
         };
+    };
+
+    const NextInterviewer = (roomNum) => {
+        const game = games[getGameIndex(roomNum)];
+        // Toggle interviewerStatus of the current interviewer (to false) on both client and server
+        io.to(game.players[game.interviewerIndex].socketId).emit('toggleInterviewer');
+        game.players[game.interviewerIndex].interviewer = false;
+
+        game.interviewerIndex += 1
+
+        if(game.interviewerIndex >= game.players.length) {
+            game.interviewerIndex = 0;
+        };
+
+        // Toggle interviewerStatus of the new interviewer (to true) on both client and server
+        io.to(game.players[game.interviewerIndex].socketId).emit('toggleInterviewer');
+        game.players[game.interviewerIndex].interviewer = true;
+
+        io.to(roomNum).emit('setCurrentInterviewer', game.players[game.interviewerIndex].name);
     };
 
     const removePlayerEntry = (game, socketId) => {
