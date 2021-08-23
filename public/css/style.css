@@ -80,3 +80,11 @@ nav a {
     bottom: 0;
     width: 100%;
 }
+
+.fa-user-times {
+    color: rgb(248, 73, 29)
+}
+
+.fa-user-check {
+    color: rgb(64, 240, 20)
+}
