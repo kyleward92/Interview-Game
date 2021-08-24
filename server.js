@@ -23,6 +23,7 @@ const games = [
         interviewer: true,
         interviewee: false,
         hasInterviewed: false,
+        ready: false,
         points: 0
       }
     ],

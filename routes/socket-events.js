@@ -142,6 +142,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
                 interviewer: true,
                 interviewee: false,
                 hasInterviewed: false,
+                ready: false,
                 points: 0
             };
             io.to(newPlayer.socketId).emit('toggleInterviewer');
@@ -161,6 +162,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
                 interviewer: false,
                 interviewee: false,
                 hasInterviewed: false,
+                ready: false,
                 points: 0
             };
             const index = getGameIndex(roomNum);
