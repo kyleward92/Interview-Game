@@ -66,12 +66,12 @@
       </div>
 
       <div class="gameStarterDiv col-md-3 col-sm-6 pt-4">
-        <div class="card mb-3">
+        <div class="card mb-3 text-center">
           <h5 class="phaseDisp card-header">Current Phase: 1</h5>
           <div class="card-body">
             <h5 class=" card-title"></h5>
-            <a href="#" class="readyBtn btn btn-primary d-flex justify-content-center mb-3">Ready</a>
-            <a href="#" class="startBtn btn btn-primary d-flex justify-content-center">Start Game</a>
+            <button href="#" class="readyBtn btn btn-primary d-flex justify-content-center mb-3">Ready</a>
+            <button href="#"class="startBtn btn btn-primary d-flex justify-content-center" disabled>Start Game</a>
           </div>
         </div>
       </div>
@@ -86,28 +86,6 @@
 
       </div>
     </div>
-
-    <div class="row d-flex justify-content-center text-center">
-      <div class="playerList col-6">
-        <div class="card mb-3">
-          <h5 class="phaseDisp card-header">Players:</h5>
-          <div class="card-body">
-            <div class="row">
-              <span style="font-size: 2rem;">
-                Hey
-                <i class="fas fa-user-times"></i>
-              </span>
-            </div>
-            <div class="row">
-              <span style="font-size: 2rem;">
-                You
-                <i class="fas fa-user-check"></i>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <div class="row d-flex justify-content-center">
@@ -115,6 +93,25 @@
 
     <div class="col-md-5 col-sm-8 left-side">
 
+      <div class="col-md-12 mt-3 mb-3 text-center playerListCard">
+        <div class="card mb-3">
+          <h5 class="phaseDisp card-header">Players:</h5>
+          <div class="card-body playerList">
+            <div class="row">
+              <span style="font-size: 2rem;">
+                Hey
+                <i class="fas fa-user-times"></i>
+              </span>
+            </div>
+            <!-- <div class="row">
+              <span style="font-size: 2rem;">
+                You
+                <i class="fas fa-user-check"></i>
+              </span>
+            </div> -->
+          </div>
+        </div>
+      </div>
       <!-- only phase 1 -->
       <div class="submissions col-md-12 hld mt-3">
         <div class="row">

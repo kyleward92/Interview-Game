@@ -10,14 +10,18 @@ $(() => {
     const currentCardDiv = $('.currentCard');
     const jobCard = $('.jobCard');
     const cardsDiv = $('.cards');
-    const startDiv = $(".gameStarterDiv");
+    const startDiv = $('.gameStarterDiv');
     const currentPlayerEl = $('.currentPlayer');
     const currentInterviewer = $('.currentInterviewer');
-    const cardArray = $(".phraseCard").toArray();
+    const cardArray = $('.phraseCard').toArray();
     const displayName = $('.displayName');
-    const scoreDisplay = $(".scoreDisp");
-    const hiringList = $(".hiringList")
-    const endTurnDiv = $(".endTurnDiv");
+    const scoreDisplay = $('.scoreDisp');
+    const hiringList = $('.hiringList')
+    const endTurnDiv = $('.endTurnDiv');
+    const playerListCard = $(".playerListCard");
+    const playerList = $(".playerList");
+    const readyBtn = $(".readyBtn");
+    const startBtn = $(".startBtn");
 
     //is the client the current interviewer
     let isInterviewer = false;
@@ -33,7 +37,7 @@ $(() => {
     let userName = '';
     let score = 0;
     let phraseSubmissions = 0;
-
+    let canStart = false;
 
 
 
@@ -54,15 +58,14 @@ $(() => {
                     author: userName,
                     message: message.val(),
                     room: currentRoom
-                }
+                };
 
                 //send socket message from the user to the server
                 socket.emit('chat', msg);
                 message.val('');
-            }
-        }
-    })
-
+            };
+        };
+    });
 
     //handles emission of event when the phase button is clicked
     $(".phaseBtn").on('click', event => {
@@ -71,7 +74,7 @@ $(() => {
         const data = {
             room: currentRoom,
             phase: currentPhase
-        }
+        };
 
         socket.emit('nextPhase', data);
     });
@@ -83,7 +86,7 @@ $(() => {
         const cardData = {
             text: event.target.value,
             room: currentRoom
-        }
+        };
 
         event.target.disabled = true;
         phraseSubmissions += 1;
@@ -98,17 +101,17 @@ $(() => {
         endTurnDiv.hide();
         phraseSubmissions = 0
         socket.emit('updateInterviewee', currentRoom);
-    })
+    });
 
     $(".startBtn").on('click', event => {
         event.preventDefault();
 
         const gameData = {
             room: currentRoom
-        }
+        };
 
         socket.emit('drawPhase', gameData);
-    })
+    });
 
 
 
@@ -137,7 +140,7 @@ $(() => {
         if (!isNameSent) {
             socket.emit('nameAssignment', { name: localStorage.getItem("userName"), room: currentRoom });
             isNameSent = true;
-        }
+        };
 
     });
 
@@ -226,9 +229,18 @@ $(() => {
     socket.on('increaseScore', () => {
         score++;
         scoreDisplay.text(score);
-
     });
 
+    socket.on('toggleReady', ({userName}) => {
+        console.log('toggling ready on client');
+        toggleReadyIcon(userName);
+    });
+
+    socket.on('toggleAllowStart', () => {
+        console.log('Swapping Start');
+        canStart = !canStart;
+        startBtn.prop("disabled", !canStart);
+    });
 
     // *********************************************************************************************************
     // ---------Submission Functions-----------
@@ -281,6 +293,7 @@ $(() => {
         cardsDiv.hide();
         endTurnDiv.hide();
         hiringList.hide();
+        playerListCard.show();
     };
 
     const dealPhase = () => {
@@ -294,7 +307,7 @@ $(() => {
     const interviewPhase = () => {
 
         $('.currentCardDisplay').text('');
-        $('.endTurn').prop('disabled',true);
+        $('.endTurn').prop('disabled', true);
 
         if (isInterviewer || !isInterviewee) {
 
@@ -308,6 +321,7 @@ $(() => {
         submissionsDiv.hide();
         currentCardDiv.show();
         startDiv.hide();
+        playerListCard.hide();
     };
 
     function populateHiringList(players) {
@@ -357,6 +371,7 @@ $(() => {
         cardsDiv.hide();
         startDiv.hide();
         endTurnDiv.hide();
+        playerListCard.hide();
     };
 
     // check to see if all 5 phrase cards have been submitted, and if so, allow the player to end their turn
@@ -364,9 +379,7 @@ $(() => {
         if (phraseSubmissions == 5) {
             $('.endTurn').prop('disabled', false);
         }
-    }
-
-
+    };
 
     const changePhraseLabels = () => {
         $('.phrase1').text('Player 1');
@@ -387,9 +400,31 @@ $(() => {
     const setDisplayName = () => {
         userName = localStorage.getItem('userName') || 'Anonymous';
         displayName.text(`Display Name: ${userName}`);
+
+        //Append the Player entry to the playerlist
+        const samplePlayer = `<div class="row"> <span style="font-size: 2rem;"> ${userName} <i class="fas fa-user-times" id="${userName}"></i> </span> </div>`
+        playerList.append(samplePlayer);
+
+        //init click event for ready button after username has been established
+        readyBtn.on("click", event => {
+            const data = {
+                room: currentRoom,
+                userName: userName
+            };
+
+            socket.emit("toggleReady", data);
+        });
+    };
+
+    const toggleReadyIcon = (userName) => {
+        const icon = document.getElementById(userName);
+        icon.classList.toggle('fa-user-check');
+        icon.classList.toggle('fa-user-times');
     };
 
     setDisplayName();
+
+    console.log($("div"));
 });
 
 

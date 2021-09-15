@@ -101,6 +101,11 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
 
         });
 
+        socket.on('toggleReady', (data) => {
+            io.to(roomNum).emit('toggleReady', data);
+            toggleReady(data)
+        });
+
         socket.on('updateInterviewee', roomNum => {
             console.log('Updating Interviewee')
             changeInterviewee(roomNum);
@@ -122,6 +127,30 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
             checkForWinner(game);
         });
     });
+
+    const toggleReady = ({room, userName}) => {
+        const gameIndex = getGameIndex(room);
+        const playerIndex = games[gameIndex].players.findIndex(player => player.name == userName);
+
+        games[gameIndex].players[playerIndex].ready = !games[gameIndex].players[playerIndex].ready;
+
+        const readyPlayers = games[gameIndex].players.filter(player => player.ready == true);
+        
+        console.log(readyPlayers.length, games[gameIndex].players.length);
+        console.log(games[gameIndex].canStart);
+
+        if(readyPlayers.length == games[gameIndex].players.length && games[gameIndex].canStart == false) {
+            console.log("Allowing Start");
+            games[gameIndex].canStart = true;
+            io.to(roomNum).emit('toggleAllowStart');
+        };
+
+        if(readyPlayers.length < games[gameIndex].players.length && games[gameIndex].canStart == true) {
+            console.log("Disabling Start");
+            games[gameIndex].canStart = false;
+            io.to(roomNum).emit('toggleAllowStart');
+        };
+    };
 
     const checkIfRoomExists = (room) => {
         let roomExists = false;
@@ -152,7 +181,8 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
                 players: [newPlayer],
                 interviewerIndex: 0,
                 jobCards: [],
-                phraseCards: []
+                phraseCards: [],
+                canStart: false
             });
 
         } else {
@@ -357,13 +387,12 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
         game.players.forEach(player => {
             if(player.interviewer) {
                 interviewerName = player.name;
-            }
+            };
 
             if(interviewerName != '') {
                 io.emit('setCurrentInterviewer', interviewerName);
-            }
-        })
+            };
+        });
         console.log('Interviewer: ', interviewerName);
-    }
-
+    };
 };

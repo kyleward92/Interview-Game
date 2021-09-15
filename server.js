@@ -28,9 +28,9 @@ const games = [
       }
     ],
     jobCards: [],
-    phraseCards: []
+    phraseCards: [],
+    canStart: false
   }
-
 ];
 
 //socket.io setup
