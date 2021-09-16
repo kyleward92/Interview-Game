@@ -26,14 +26,13 @@ $(() => {
             result += characters.charAt(Math.floor(Math.random() * charactersLength));
         };
         authorInput.val(result);
-    }
+    };
 
     //Setting input form defaults to ease testing//
     // generateDefaultHandle();
     // roomInput.val("1234");
 
-
     const setName = () => {
       localStorage.setItem('userName', authorInput.val());
-    }
+    };
 });

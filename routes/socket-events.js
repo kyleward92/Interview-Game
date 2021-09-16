@@ -99,10 +99,10 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
             const player = games[gameIndex].players[playerIndex];
             player.name = data.name;
 
+            io.to(data.room).emit("UpdatePlayerList", games[gameIndex].players);
         });
 
         socket.on('toggleReady', (data) => {
-            io.to(roomNum).emit('toggleReady', data);
             toggleReady(data)
         });
 
@@ -135,21 +135,23 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
         games[gameIndex].players[playerIndex].ready = !games[gameIndex].players[playerIndex].ready;
 
         const readyPlayers = games[gameIndex].players.filter(player => player.ready == true);
-        
-        console.log(readyPlayers.length, games[gameIndex].players.length);
-        console.log(games[gameIndex].canStart);
 
-        if(readyPlayers.length == games[gameIndex].players.length && games[gameIndex].canStart == false) {
-            console.log("Allowing Start");
+        if(readyPlayers.length == games[gameIndex].players.length && games[gameIndex].canStart == false && games[gameIndex].players.length > 1) {
             games[gameIndex].canStart = true;
             io.to(roomNum).emit('toggleAllowStart');
         };
 
         if(readyPlayers.length < games[gameIndex].players.length && games[gameIndex].canStart == true) {
-            console.log("Disabling Start");
             games[gameIndex].canStart = false;
             io.to(roomNum).emit('toggleAllowStart');
         };
+
+        updatePlayerList(room);
+    };
+
+    const updatePlayerList = (roomNum) => {
+        const game = games[getGameIndex(roomNum)];
+        io.to(roomNum).emit('UpdatePlayerList', game.players);
     };
 
     const checkIfRoomExists = (room) => {
@@ -163,7 +165,6 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
     };
 
     const updateGame = (socket) => {
-
         if (!checkIfRoomExists(roomNum)) {
             const newPlayer = {
                 socketId: socket.id,
@@ -318,7 +319,6 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
             // Index of the chosen player in the original game object
             return game.players.findIndex(player => player.socketId == newIntervieweeRaw.socketId);
         } else {
-            console.log('Starting employment Phase');
             io.to(roomNum).emit('employmentPhase', games[getGameIndex(roomNum)].players)
             return -1;
         };
@@ -370,7 +370,6 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
 
         if (game) {
             game.players.forEach(player => {
-                console.log(player.name, ": ", player.points);
                 if (player.points >= scoreToWin) {
                     winnerExists = true;
                     winner = player.name;
@@ -393,6 +392,5 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
                 io.emit('setCurrentInterviewer', interviewerName);
             };
         });
-        console.log('Interviewer: ', interviewerName);
     };
 };

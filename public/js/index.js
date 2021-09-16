@@ -176,32 +176,28 @@ $(() => {
 
     //event listener for handling the setup phase
     socket.on('setupPhase', data => {
-        console.log('Submission phase started');
         submissionPhase();
     });
 
     //event listener for handling the draw phase
     socket.on('drawPhase', data => {
-        console.log('Deal phase started');
         dealPhase();
     });
 
     //event listener for handling the interview phase
     socket.on('interviewPhase', data => {
-        console.log('Interview phase started');
         interviewPhase();
     });
 
     //event listener for handling the employment phase
     socket.on('employmentPhase', players => {
-        console.log('Employment phase started');
         isEmploymentPhase = true;
         employmentPhase(players);
     });
 
     socket.on('endEmploymentPhase', data => {
         isEmploymentPhase = false;
-    })
+    });
 
     // *********************************************************************************************************
     // ---------Misc Socket Events-----------
@@ -223,7 +219,6 @@ $(() => {
 
     socket.on('toggleInterviewer', data => {
         isInterviewer = !isInterviewer;
-        console.log('toggled interviewer status to ', isInterviewer);
     });
 
     socket.on('increaseScore', () => {
@@ -231,15 +226,13 @@ $(() => {
         scoreDisplay.text(score);
     });
 
-    socket.on('toggleReady', ({userName}) => {
-        console.log('toggling ready on client');
-        toggleReadyIcon(userName);
-    });
-
     socket.on('toggleAllowStart', () => {
-        console.log('Swapping Start');
         canStart = !canStart;
         startBtn.prop("disabled", !canStart);
+    });
+
+    socket.on('UpdatePlayerList', (data) => {
+        updatePlayerList(data);
     });
 
     // *********************************************************************************************************
@@ -250,7 +243,6 @@ $(() => {
     // adding jobs
     function addJob(job) {
         $.post("/api/jobs", job);
-        console.log(`job added to room ${currentRoom}:` + job.title)
     }
 
     $(".addJobBtn").on('click', event => {
@@ -268,7 +260,6 @@ $(() => {
     // adding phrases
     function addPhrase(phrase) {
         $.post("/api/phrases", phrase);
-        console.log(`phrase added to room ${currentRoom}:` + phrase.content)
     }
     $(".addPhraseBtn").on('click', event => {
         event.preventDefault();
@@ -325,21 +316,15 @@ $(() => {
     };
 
     function populateHiringList(players) {
-        console.log(players)
         $.each(players, function () {
             if (!this.interviewer) {
                 var playerCard = `<div class = "col-4"><div class="card text-center"><div class="card-body"><button href="#" class="phraseCard hire btn btn-primary" value="${this.name}">${this.name}</button></div></div>`
                 hiringList.append(playerCard);
-                console.log(this.name)
-            } else {
-                // console.log("changing interviewer to false for " + this.name)
-                // this.interviewer = false;
             };
         });
 
 
         $(".hire").on('click', function (event) {
-            console.log($(this).val());
             var employee = (this.innerHTML);
 
             const gameData = {
@@ -354,9 +339,7 @@ $(() => {
     };
 
     const employmentPhase = (players) => {
-
         if (isInterviewer) {
-
             currentCardDiv.hide();
             populateHiringList(players);
             hiringList.show()
@@ -401,9 +384,9 @@ $(() => {
         userName = localStorage.getItem('userName') || 'Anonymous';
         displayName.text(`Display Name: ${userName}`);
 
-        //Append the Player entry to the playerlist
-        const samplePlayer = `<div class="row"> <span style="font-size: 2rem;"> ${userName} <i class="fas fa-user-times" id="${userName}"></i> </span> </div>`
-        playerList.append(samplePlayer);
+        // //Append the Player entry to the playerlist
+        // const samplePlayer = `<div class="row"> <span style="font-size: 2rem;"> ${userName} <i class="fas fa-user-times" id="${userName}"></i> </span> </div>`;
+        // playerList.append(samplePlayer);
 
         //init click event for ready button after username has been established
         readyBtn.on("click", event => {
@@ -416,15 +399,24 @@ $(() => {
         });
     };
 
-    const toggleReadyIcon = (userName) => {
-        const icon = document.getElementById(userName);
-        icon.classList.toggle('fa-user-check');
-        icon.classList.toggle('fa-user-times');
+    const updatePlayerList = (data) => {
+        playerList.empty();
+
+        data.forEach(player => {
+
+            let playerHTML;
+
+            if(player.ready) {
+                playerHTML = `<div class="row"> <span style="font-size: 2rem;"> ${player.name} <i class="fas fa-user-check" id="${player.name}"></i> </span> </div>`;
+            } else {
+                playerHTML = `<div class="row"> <span style="font-size: 2rem;"> ${player.name} <i class="fas fa-user-times" id="${player.name}"></i> </span> </div>`;
+            };
+
+            playerList.append(playerHTML);
+        });
     };
 
     setDisplayName();
-
-    console.log($("div"));
 });
 
 

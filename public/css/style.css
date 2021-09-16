@@ -88,3 +88,9 @@ nav a {
 .fa-user-check {
     color: rgb(64, 240, 20)
 }
+
+.controlPanel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
