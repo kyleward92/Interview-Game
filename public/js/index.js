@@ -4,8 +4,6 @@ $(() => {
     // *********************************************************************************************************
 
     // References to HTML elements
-    const jobInput = $('.jobInput');
-    const phraseInput = $('.phraseInput');
     const submissionsDiv = $('.submissions');
     const currentCardDiv = $('.currentCard');
     const jobCard = $('.jobCard');
@@ -48,10 +46,8 @@ $(() => {
     $(".submitBtn").on('click', event => {
         event.preventDefault();
 
-        // event
         if (socket) {
             const message = $('.messageInput');
-            const author = $('.authorInput');
 
             if (message.val().length > 0) {
                 const msg = {
@@ -67,17 +63,6 @@ $(() => {
         };
     });
 
-    //handles emission of event when the phase button is clicked
-    $(".phaseBtn").on('click', event => {
-        event.preventDefault();
-
-        const data = {
-            room: currentRoom,
-            phase: currentPhase
-        };
-
-        socket.emit('nextPhase', data);
-    });
 
     //Sends card data to the server when clicked
     $(".phraseCard").on('click', event => {
@@ -123,7 +108,6 @@ $(() => {
     const socket = io();
     socket.emit('newUser');
 
-    //Testing reconnect fix.
     socket.on("connect_error", () => {
         setTimeout(() => {
             socket.connect();
@@ -175,17 +159,17 @@ $(() => {
     // *********************************************************************************************************
 
     //event listener for handling the setup phase
-    socket.on('setupPhase', data => {
+    socket.on('setupPhase', () => {
         submissionPhase();
     });
 
     //event listener for handling the draw phase
-    socket.on('drawPhase', data => {
+    socket.on('drawPhase', () => {
         dealPhase();
     });
 
     //event listener for handling the interview phase
-    socket.on('interviewPhase', data => {
+    socket.on('interviewPhase', () => {
         interviewPhase();
     });
 
@@ -195,7 +179,7 @@ $(() => {
         employmentPhase(players);
     });
 
-    socket.on('endEmploymentPhase', data => {
+    socket.on('endEmploymentPhase', () => {
         isEmploymentPhase = false;
     });
 
@@ -217,7 +201,7 @@ $(() => {
     });
 
 
-    socket.on('toggleInterviewer', data => {
+    socket.on('toggleInterviewer', () => {
         isInterviewer = !isInterviewer;
     });
 
@@ -233,43 +217,6 @@ $(() => {
 
     socket.on('UpdatePlayerList', (data) => {
         updatePlayerList(data);
-    });
-
-    // *********************************************************************************************************
-    // ---------Submission Functions-----------
-    // *********************************************************************************************************
-
-
-    // adding jobs
-    function addJob(job) {
-        $.post("/api/jobs", job);
-    }
-
-    $(".addJobBtn").on('click', event => {
-        event.preventDefault();
-        addJob({
-            title: jobInput
-                .val()
-                .trim(),
-            roomNum: currentRoom
-        });
-        jobInput.val('');
-    });
-
-
-    // adding phrases
-    function addPhrase(phrase) {
-        $.post("/api/phrases", phrase);
-    }
-    $(".addPhraseBtn").on('click', event => {
-        event.preventDefault();
-        addPhrase({
-            content: phraseInput
-                .val()
-                .trim(),
-            roomNum: currentRoom
-        });
-        phraseInput.val('');
     });
 
 
@@ -325,8 +272,6 @@ $(() => {
 
 
         $(".hire").on('click', function (event) {
-            var employee = (this.innerHTML);
-
             const gameData = {
                 room: currentRoom,
                 winner: event.currentTarget.value
@@ -343,9 +288,7 @@ $(() => {
             currentCardDiv.hide();
             populateHiringList(players);
             hiringList.show()
-
         } else {
-
             currentCardDiv.show();
             hiringList.hide();
         };
@@ -364,14 +307,6 @@ $(() => {
         }
     };
 
-    const changePhraseLabels = () => {
-        $('.phrase1').text('Player 1');
-        $('.phrase2').text('Player 2');
-        $('.phrase3').text('Player 3');
-        $('.phrase4').text('Player 4');
-        $('.phrase5').text('Player 5');
-    };
-
     const resetPhraseLabels = () => {
         $('.phrase1').text('Phrase 1');
         $('.phrase2').text('Phrase 2');
@@ -384,17 +319,12 @@ $(() => {
         userName = localStorage.getItem('userName') || 'Anonymous';
         displayName.text(`Display Name: ${userName}`);
 
-        // //Append the Player entry to the playerlist
-        // const samplePlayer = `<div class="row"> <span style="font-size: 2rem;"> ${userName} <i class="fas fa-user-times" id="${userName}"></i> </span> </div>`;
-        // playerList.append(samplePlayer);
-
         //init click event for ready button after username has been established
         readyBtn.on("click", event => {
             const data = {
                 room: currentRoom,
                 userName: userName
             };
-
             socket.emit("toggleReady", data);
         });
     };
@@ -418,12 +348,3 @@ $(() => {
 
     setDisplayName();
 });
-
-
-
-
-
-
-
-
-
