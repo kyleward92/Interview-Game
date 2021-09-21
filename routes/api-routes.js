@@ -1,7 +1,8 @@
 const db = require("../models");
 const path = require("path");
+const rooms = require("../Utils/rooms");
 
-module.exports = function (app, games) {
+module.exports = (app, games) => {
   //serve html on / request
   app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../public/html/landing.html"));
@@ -9,7 +10,7 @@ module.exports = function (app, games) {
 
   app.get('/host', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/html/index.html'));
-    roomNum = generateRoomNumber(games);
+    roomNum = rooms.generateRoomNum(games);
   });
 
   app.get("/join/:roomNumber", (req, res) => {
@@ -50,24 +51,3 @@ module.exports = function (app, games) {
     });
   });
 };
-
-
-const generateRoomNumber = (games) => {
-  roomNumber = Math.floor(Math.random() * 9999).toString();
-  if(checkRoomNum(roomNumber, games)) {
-    return roomNumber;
-  } else {
-    generateRoomNumber(games);
-  }
-};
-
-const checkRoomNum = (roomNum, games) => {
-  let isRoomGood = true;
-
-  games.forEach(game => {
-    if(game.room == roomNum) {
-      isRoomGood =  false;
-    };
-  });
-  return isRoomGood;
-}; 
