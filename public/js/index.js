@@ -20,6 +20,8 @@ $(() => {
     const playerList = $(".playerList");
     const readyBtn = $(".readyBtn");
     const startBtn = $(".startBtn");
+    const jobInput = $('.jobInput');
+    const phraseInput = $('.phraseInput');
 
     //is the client the current interviewer
     let isInterviewer = false;
@@ -37,6 +39,11 @@ $(() => {
     let phraseSubmissions = 0;
     let canStart = false;
 
+    const jobTarget = 3;
+    const phraseTarget = 5;
+
+    let jobCount = 0;
+    let phraseCount = 0;
 
 
     // *********************************************************************************************************
@@ -96,6 +103,16 @@ $(() => {
         };
 
         socket.emit('drawPhase', gameData);
+    });
+
+    $(".addJobBtn").on('click', event => {
+        event.preventDefault();
+        addJob(jobInput.val());
+    });
+
+    $(".addPhraseBtn").on('click', event => {
+        event.preventDefault();
+        addPhrase(phraseInput.val());
     });
 
 
@@ -226,12 +243,16 @@ $(() => {
 
 
     const submissionPhase = () => {
-        submissionsDiv.hide();
+        localStorage.setItem('jobList', JSON.stringify([]));
+        localStorage.setItem('phraseList', JSON.stringify([]));
+
+        submissionsDiv.show();
         currentCardDiv.hide();
         cardsDiv.hide();
         endTurnDiv.hide();
         hiringList.hide();
         playerListCard.show();
+
     };
 
     const dealPhase = () => {
@@ -336,7 +357,7 @@ $(() => {
 
             let playerHTML;
 
-            if(player.ready) {
+            if (player.ready) {
                 playerHTML = `<div class="row"> <span style="font-size: 2rem;"> ${player.name} <i class="fas fa-user-check" id="${player.name}"></i> </span> </div>`;
             } else {
                 playerHTML = `<div class="row"> <span style="font-size: 2rem;"> ${player.name} <i class="fas fa-user-times" id="${player.name}"></i> </span> </div>`;
@@ -344,6 +365,54 @@ $(() => {
 
             playerList.append(playerHTML);
         });
+    };
+
+    /**
+     Determine if either job or phrase submission target has been met, and if both are met simultaneously
+    **/
+    const checkSubmissions = () => {
+        if (jobCount == jobTarget) {
+            //disable job submission
+        };
+
+        if (phraseCount == phraseTarget) {
+            //disable phrase submission
+        };
+
+        if (jobCount = jobTarget && phraseCount == phraseTarget) {
+            const data = {
+                jobs: JSON.parse(localStorage.getItem('jobList')),
+                phrases: JSON.parse(localStorage.getItem('phraseList')),
+                roomNum: currentRoom
+            };
+
+            console.log('submitting User Data');
+            socket.emit('submitUserSubmissions', data);
+        };
+    };
+
+    /**
+    Send the specified job string to local storage
+    **/
+    const addJob = (newJob) => {
+        let jobArr = JSON.parse(localStorage.getItem('jobList'));
+        jobArr.push(newJob);
+        localStorage.setItem('jobList', JSON.stringify(jobArr));
+
+        jobCount += 1;
+        checkSubmissions();
+    };
+
+    /**
+    Send the specified phrase string to local storage
+    **/
+    const addPhrase = (newPhrase) => {
+        let phraseArr = JSON.parse(localStorage.getItem('phraseList'));
+        phraseArr.push(newPhrase);
+        localStorage.setItem('phraseList', JSON.stringify(phraseArr));
+
+        phraseCount += 1;
+        checkSubmissions();
     };
 
     setDisplayName();

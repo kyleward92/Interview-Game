@@ -1,5 +1,4 @@
 const Game = (io, games, utils, cardsPerPlayer, scoreToWin) => {
-    
 
     const Game = {
         updatePlayerList: roomNum => {

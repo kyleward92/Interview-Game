@@ -128,5 +128,13 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
             });
             Game.checkForWinner(game);
         });
+
+        socket.on('submitUserSubmissions', ({ jobs, phrases, roomNum }) => {
+            const gameIndex = utils.getGameIndex(roomNum);
+            games[gameIndex].jobCards = [...games[gameIndex].jobCards, ...jobs];
+            games[gameIndex].phraseCards = [...games[gameIndex].phraseCards, ...phrases];
+
+            console.log([games[gameIndex].jobCards, games[gameIndex].phraseCards]);
+        });
     });
 };
