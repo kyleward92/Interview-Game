@@ -129,7 +129,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
             Game.checkForWinner(game);
         });
 
-        socket.on('submitUserSubmissions', ({ jobs, phrases, roomNum }) => {
+        socket.on('submitUserSubmissions', ({ jobs, phrases, roomNum, userName }) => {
             const gameIndex = utils.getGameIndex(roomNum);
             games[gameIndex].jobCards = [...games[gameIndex].jobCards, ...jobs];
             games[gameIndex].phraseCards = [...games[gameIndex].phraseCards, ...phrases];

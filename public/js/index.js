@@ -107,11 +107,19 @@ $(() => {
 
     $(".addJobBtn").on('click', event => {
         event.preventDefault();
-        addJob(jobInput.val());
+
+        if (jobInput.val() != "") {
+            addJob(jobInput.val());
+            jobInput.val() = "";
+        };
     });
 
     $(".addPhraseBtn").on('click', event => {
         event.preventDefault();
+        if (phraseInput.val() != "") {
+            addPhrase(phraseInput.val());
+            phraseInput.val() = "";
+        };
         addPhrase(phraseInput.val());
     });
 
@@ -241,6 +249,15 @@ $(() => {
     // ---------Phase Functions-----------
     // *********************************************************************************************************
 
+
+    const setupPhase = () => {
+        submissionsDiv.hide();
+        currentCardDiv.hide();
+        cardsDiv.hide();
+        endTurnDiv.hide();
+        hiringList.hide();
+        playerListCard.show();
+    };
 
     const submissionPhase = () => {
         localStorage.setItem('jobList', JSON.stringify([]));
@@ -379,14 +396,14 @@ $(() => {
             //disable phrase submission
         };
 
-        if (jobCount = jobTarget && phraseCount == phraseTarget) {
+        if (jobCount == jobTarget && phraseCount == phraseTarget) {
             const data = {
                 jobs: JSON.parse(localStorage.getItem('jobList')),
                 phrases: JSON.parse(localStorage.getItem('phraseList')),
-                roomNum: currentRoom
+                roomNum: currentRoom,
+                userName: userName
             };
 
-            console.log('submitting User Data');
             socket.emit('submitUserSubmissions', data);
         };
     };
