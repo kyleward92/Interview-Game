@@ -128,6 +128,11 @@ const utils = (io, games, db) => {
                     games.splice(gameIndex, 1);
                 };
             };
+        },
+
+        resetPlayerReady: room => {
+            const gameIndex = utils.getGameIndex(room);
+            games[gameIndex].players.forEach(player => player.ready = false);
         }
     };
 

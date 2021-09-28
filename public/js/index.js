@@ -102,7 +102,8 @@ $(() => {
             room: currentRoom
         };
 
-        socket.emit('drawPhase', gameData);
+        socket.emit('submissionPhase', gameData);
+        // socket.emit('drawPhase', gameData);
     });
 
     $(".addJobBtn").on('click', event => {
@@ -110,17 +111,17 @@ $(() => {
 
         if (jobInput.val() != "") {
             addJob(jobInput.val());
-            jobInput.val() = "";
+            jobInput.val("");
         };
     });
 
     $(".addPhraseBtn").on('click', event => {
         event.preventDefault();
+
         if (phraseInput.val() != "") {
             addPhrase(phraseInput.val());
-            phraseInput.val() = "";
+            phraseInput.val("");
         };
-        addPhrase(phraseInput.val());
     });
 
 
@@ -185,8 +186,20 @@ $(() => {
 
     //event listener for handling the setup phase
     socket.on('setupPhase', () => {
+        setupPhase();
+    });
+
+    //event listener for handling the submission phase
+    socket.on('submissionPhase', () => {
         submissionPhase();
     });
+
+    socket.on('endSubmissionPhase', () => {
+        const gameData = {
+            room: currentRoom
+        };
+        socket.emit('drawPhase', gameData);
+    })
 
     //event listener for handling the draw phase
     socket.on('drawPhase', () => {
@@ -260,6 +273,9 @@ $(() => {
     };
 
     const submissionPhase = () => {
+        jobInput.attr("disabled", false);
+        phraseInput.attr("disabled", false);
+
         localStorage.setItem('jobList', JSON.stringify([]));
         localStorage.setItem('phraseList', JSON.stringify([]));
 
@@ -268,8 +284,7 @@ $(() => {
         cardsDiv.hide();
         endTurnDiv.hide();
         hiringList.hide();
-        playerListCard.show();
-
+        playerListCard.hide();
     };
 
     const dealPhase = () => {
@@ -389,11 +404,11 @@ $(() => {
     **/
     const checkSubmissions = () => {
         if (jobCount == jobTarget) {
-            //disable job submission
+            jobInput.attr("disabled", true);
         };
 
         if (phraseCount == phraseTarget) {
-            //disable phrase submission
+            phraseInput.attr("disabled", true);
         };
 
         if (jobCount == jobTarget && phraseCount == phraseTarget) {

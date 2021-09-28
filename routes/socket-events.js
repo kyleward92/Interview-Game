@@ -60,9 +60,15 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
 
         //event listener for handling the setup phase
         socket.on('setupPhase', roomNum => {
-            console.log(`Submission phase sent to room ${roomNum.room}`);
+            console.log(`setup phase sent to room ${roomNum.room}`);
             io.to(roomNum.room).emit('setupPhase');
+        });
 
+        //event listener for handling the submission phase
+        socket.on('submissionPhase', ({ room }) => {
+            console.log(`Submission phase sent to room ${room}`);
+            utils.resetPlayerReady(room);
+            io.to(room).emit('submissionPhase');
         });
 
         //event listener for handling the draw phase
@@ -131,10 +137,18 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
 
         socket.on('submitUserSubmissions', ({ jobs, phrases, roomNum, userName }) => {
             const gameIndex = utils.getGameIndex(roomNum);
+            const playerIndex = games[gameIndex].players.findIndex(player => player.name == userName);
+            
             games[gameIndex].jobCards = [...games[gameIndex].jobCards, ...jobs];
             games[gameIndex].phraseCards = [...games[gameIndex].phraseCards, ...phrases];
 
-            console.log([games[gameIndex].jobCards, games[gameIndex].phraseCards]);
+            games[gameIndex].players[playerIndex].ready = true;
+
+            const readyPlayers = games[gameIndex].players.filter(player => player.ready == true);
+
+            if (readyPlayers.length >= games[gameIndex].players.length) {
+                io.to(roomNum).emit("endSubmissionPhase");
+            };
         });
     });
 };
