@@ -27,26 +27,24 @@ const Game = (io, games, utils, cardsPerPlayer, scoreToWin) => {
             Game.updatePlayerList(room);
         },
 
-        dealPhraseCards: async (roomNum) => {
-            const roomIndex = utils.getGameIndex(roomNum.room);
-            const players = games[roomIndex].players;
-
-
-            let phrases = await utils.getPhraseCards(roomNum.room);
+        dealPhraseCards: (roomNum) => {
+            const gameIndex = utils.getGameIndex(roomNum);
+            const players = games[gameIndex].players;
 
             players.forEach(player => {
                 if (!player.interviewer) {
-                    const cardPack = phrases.slice(0, cardsPerPlayer);
-                    phrases = phrases.slice(cardsPerPlayer);
+                    const cardPack = games[gameIndex].phraseCards.slice(0, cardsPerPlayer);
+                    games[gameIndex].phraseCards = games[gameIndex].phraseCards.slice(cardsPerPlayer);
                     io.to(player.socketId).emit('cardPack', cardPack);
                 };
             });
         },
 
-        dealJobCard: async (roomNum) => {
-            let jobs = await utils.getJobCards();
-            const cardPack = jobs[0];
-            jobs = jobs.slice(1);
+        dealJobCard: (roomNum) => {
+            const gameIndex = utils.getGameIndex(roomNum);
+
+            const cardPack = games[gameIndex].jobCards[0];
+            games[gameIndex].jobCards = games[gameIndex].jobCards.slice(1);
 
             io.to(roomNum.room).emit('dealJobCard', cardPack);
         },

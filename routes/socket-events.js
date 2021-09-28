@@ -72,15 +72,15 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
         });
 
         //event listener for handling the draw phase
-        socket.on('drawPhase', roomNum => {
-            console.log(`Draw phase sent to room ${roomNum.room}`);
+        socket.on('drawPhase', ({ room }) => {
+            console.log(`Draw phase sent to room ${room}`);
 
             io.to(roomNum.room).emit('drawPhase');
-            Game.setInterviewerDisplay(roomNum.room);
-            Game.resetHasInterviewed(games[utils.getGameIndex(roomNum.room)]);
-            Game.changeInterviewee(roomNum.room);
-            Game.dealPhraseCards(roomNum);
-            Game.dealJobCard(roomNum);
+            Game.setInterviewerDisplay(room);
+            Game.resetHasInterviewed(games[utils.getGameIndex(room)]);
+            Game.changeInterviewee(room);
+            Game.dealPhraseCards(room);
+            Game.dealJobCard(room);
 
             io.to(roomNum.room).emit('interviewPhase');
 
@@ -135,7 +135,7 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
             Game.checkForWinner(game);
         });
 
-        socket.on('submitUserSubmissions', ({ jobs, phrases, roomNum, userName }) => {
+        socket.on('submitUserSubmissions', async ({ jobs, phrases, roomNum, userName }) => {
             const gameIndex = utils.getGameIndex(roomNum);
             const playerIndex = games[gameIndex].players.findIndex(player => player.name == userName);
             
@@ -147,6 +147,8 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
             const readyPlayers = games[gameIndex].players.filter(player => player.ready == true);
 
             if (readyPlayers.length >= games[gameIndex].players.length) {
+                await utils.getJobCards(roomNum);
+                await utils.getPhraseCards(roomNum);
                 io.to(roomNum).emit("endSubmissionPhase");
             };
         });
