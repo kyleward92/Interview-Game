@@ -39,8 +39,8 @@ $(() => {
     let phraseSubmissions = 0;
     let canStart = false;
 
-    const jobTarget = 3;
-    const phraseTarget = 5;
+    let jobTarget;
+    let phraseTarget;
 
     let jobCount = 0;
     let phraseCount = 0;
@@ -190,7 +190,10 @@ $(() => {
     });
 
     //event listener for handling the submission phase
-    socket.on('submissionPhase', () => {
+    socket.on('submissionPhase', ({ players }) => {
+        phraseTarget = 5 * players.length;
+        jobTarget = 2 * players.length;
+
         submissionPhase();
     });
 

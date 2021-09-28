@@ -66,9 +66,16 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
 
         //event listener for handling the submission phase
         socket.on('submissionPhase', ({ room }) => {
+            const gameIndex = utils.getGameIndex(room);
+
             console.log(`Submission phase sent to room ${room}`);
             utils.resetPlayerReady(room);
-            io.to(room).emit('submissionPhase');
+
+            const data = {
+                players: games[gameIndex].players
+            };
+
+            io.to(room).emit('submissionPhase', data);
         });
 
         //event listener for handling the draw phase
