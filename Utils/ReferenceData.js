@@ -14,7 +14,9 @@ const games = [
         }
       ],
       jobCards: [],
+      jobCardsOrig: [],
       phraseCards: [],
+      phraseCardsOrig: [],
       canStart: false
     }
   ];

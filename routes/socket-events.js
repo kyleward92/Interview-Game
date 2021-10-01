@@ -60,43 +60,23 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
 
         //event listener for handling the setup phase
         socket.on('setupPhase', roomNum => {
-            console.log(`setup phase sent to room ${roomNum.room}`);
+            console.log(`setup phase sent to room ${roomNum}`);
             io.to(roomNum.room).emit('setupPhase');
         });
 
         //event listener for handling the submission phase
         socket.on('submissionPhase', ({ room }) => {
-            const gameIndex = utils.getGameIndex(room);
-
-            console.log(`Submission phase sent to room ${room}`);
-            utils.resetPlayerReady(room);
-
-            const data = {
-                players: games[gameIndex].players
-            };
-
-            io.to(room).emit('submissionPhase', data);
+            Game.submissionPhaseSetup(room);
         });
 
         //event listener for handling the draw phase
         socket.on('drawPhase', ({ room }) => {
-            console.log(`Draw phase sent to room ${room}`);
-
-            io.to(roomNum.room).emit('drawPhase');
-            Game.setInterviewerDisplay(room);
-            Game.resetHasInterviewed(games[utils.getGameIndex(room)]);
-            Game.changeInterviewee(room);
-            Game.dealPhraseCards(room);
-            Game.dealJobCard(room);
-
-            io.to(roomNum.room).emit('interviewPhase');
-
-            console.log(`Interview phase sent to room ${roomNum.room}`);
+            Game.nextRound(room);
         });
 
         //event listener for handling the interview phase
         socket.on('interviewPhase', roomNum => {
-            console.log(`Interview phase sent to room ${roomNum.room}`);
+            console.log(`Interview phase sent to room ${roomNum}`);
             io.to(roomNum.room).emit('interviewPhase');
         });
 
@@ -139,7 +119,15 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
                     io.to(player.socketId).emit('increaseScore');
                 };
             });
-            Game.checkForWinner(game);
+
+            const winner = Game.checkForWinner(game);
+
+            if(winner) {
+                io.to(data.room).emit('winner', winner);
+            } else 
+            {   
+                Game.nextRound(data.room);
+            }
         });
 
         socket.on('submitUserSubmissions', async ({ jobs, phrases, roomNum, userName }) => {
@@ -158,6 +146,11 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
                 await utils.getPhraseCards(roomNum);
                 io.to(roomNum).emit("endSubmissionPhase");
             };
+        });
+
+        socket.on('replay', data => {
+            io.to(data.room).emit('resetGame');
+            Game.resetGame(data);
         });
     });
 };

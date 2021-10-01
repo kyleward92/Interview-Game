@@ -22,16 +22,18 @@ const utils = (io, games, db) => {
                     points: 0
                 };
                 io.to(newPlayer.socketId).emit('toggleInterviewer');
-    
+
                 games.push({
                     room: roomNum,
                     players: [newPlayer],
                     interviewerIndex: 0,
                     jobCards: [],
+                    jobCardsOrig: [],
                     phraseCards: [],
+                    phraseCardsOrig: [],
                     canStart: false
                 });
-    
+
             } else {
                 const newPlayer = {
                     socketId: socket.id,
@@ -53,9 +55,12 @@ const utils = (io, games, db) => {
             const phraseCards = phraseCardsRaw.map(card => card.content);
 
             let phraseDeck = [...games[gameIndex].phraseCards, ...phraseCards];
-    
+
             utils.shuffle(phraseDeck);
             games[gameIndex].phraseCards = phraseDeck;
+            games[gameIndex].phraseCardsOrig = phraseDeck;
+
+            console.log(games[gameIndex].phraseCardsOrig);
         },
 
         shuffle: (a) => {
@@ -74,9 +79,12 @@ const utils = (io, games, db) => {
             const jobCards = jobCardsRaw.map(card => card.title);
 
             let jobDeck = [...games[gameIndex].jobCards, ...jobCards];
-    
+
             utils.shuffle(jobDeck);
             games[gameIndex].jobCards = jobDeck;
+            games[gameIndex].jobCardsOrig = jobDeck;
+
+            console.log(games[gameIndex].jobCardsOrig);
         },
 
         getGameIndex: (roomNum) => {

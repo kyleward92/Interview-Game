@@ -43,10 +43,11 @@ const Game = (io, games, utils, cardsPerPlayer, scoreToWin) => {
         dealJobCard: (roomNum) => {
             const gameIndex = utils.getGameIndex(roomNum);
 
-            const cardPack = games[gameIndex].jobCards[0];
+            const card = games[gameIndex].jobCards[0];
             games[gameIndex].jobCards = games[gameIndex].jobCards.slice(1);
 
-            io.to(roomNum.room).emit('dealJobCard', cardPack);
+            console.log(card);
+            io.to(roomNum).emit('dealJobCard', card);
         },
 
         chooseNextInterviewee: (roomNum) => {
@@ -103,34 +104,82 @@ const Game = (io, games, utils, cardsPerPlayer, scoreToWin) => {
             game.players.forEach(player => player.hasInterviewed = false);
         },
 
+        resetPoints: game => {
+            game.players.forEach(player => player.points = 0);
+        },
+
         checkForWinner: (game) => {
-            let winnerExists = false;
-            let winner = '';
-    
-            if (game) {
-                game.players.forEach(player => {
-                    if (player.points >= scoreToWin) {
-                        winnerExists = true;
-                        winner = player.name;
-                        // ToDo What happens when someone wins?
-                        console.log(`${winner} Wins!`);
-                    };
-                });
-            };
+            let winner;
+            game.players.forEach(player => {
+                if (player.points >= scoreToWin) {
+                    winner = player.name;
+                    console.log(`${winner} Wins!`);
+                };
+            });
+            return winner;
         },
 
         setInterviewerDisplay: (roomNum) => {
             const game = games[utils.getGameIndex(roomNum)];
             let interviewerName = '';
             game.players.forEach(player => {
-                if(player.interviewer) {
+                if (player.interviewer) {
                     interviewerName = player.name;
                 };
-    
-                if(interviewerName != '') {
+
+                if (interviewerName != '') {
                     io.emit('setCurrentInterviewer', interviewerName);
                 };
             });
+        },
+
+        nextRound: (room) => {
+            console.log(`Draw phase sent to room ${room}`);
+
+            io.to(room).emit('drawPhase');
+            Game.setInterviewerDisplay(room);
+            Game.resetHasInterviewed(games[utils.getGameIndex(room)]);
+            Game.changeInterviewee(room);
+            Game.dealPhraseCards(room);
+            Game.dealJobCard(room);
+
+            console.log(`Interview phase sent to room ${room}`);
+            io.to(room).emit('interviewPhase');
+        },
+
+        submissionPhaseSetup: room => {
+            const gameIndex = utils.getGameIndex(room);
+
+            console.log(`Submission phase sent to room ${room}`);
+            utils.resetPlayerReady(room);
+
+            const data = {
+                players: games[gameIndex].players
+            };
+
+            io.to(room).emit('submissionPhase', data);
+        },
+
+        resetGame: ({ room, newCards }) => {
+            const gameIndex = utils.getGameIndex(room);
+            const game = games[gameIndex];
+
+            Game.resetPoints(game);
+
+            if (newCards) {
+                game.jobCards = [];
+                game.phraseCards = [];
+
+                game.jobCardsOrig = [];
+                game.phraseCardsOrig = [];
+
+                Game.submissionPhaseSetup(room);
+            } else {
+                game.jobCards = game.jobCardsOrig;
+                game.phraseCards = game.phraseCardsOrig;
+
+                io.to(roomNum).emit("endSubmissionPhase");
+            }
         }
     };
 

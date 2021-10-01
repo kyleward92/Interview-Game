@@ -22,6 +22,8 @@ $(() => {
     const startBtn = $(".startBtn");
     const jobInput = $('.jobInput');
     const phraseInput = $('.phraseInput');
+    const winnerCard = $('.winnerCard');
+    const winnerNameText = $('.winnerNameText');
 
     //is the client the current interviewer
     let isInterviewer = false;
@@ -103,7 +105,6 @@ $(() => {
         };
 
         socket.emit('submissionPhase', gameData);
-        // socket.emit('drawPhase', gameData);
     });
 
     $(".addJobBtn").on('click', event => {
@@ -122,6 +123,28 @@ $(() => {
             addPhrase(phraseInput.val());
             phraseInput.val("");
         };
+    });
+
+    $(".replaySameCardsBtn").on('click', event => {
+        event.preventDefault();
+
+        const data = {
+            room: currentRoom,
+            newCards: false
+        };
+
+        socket.emit('replay', data);
+    });
+
+    $(".replayReuseCardsBtn").on('click', event => {
+        event.preventDefault();
+
+        const data = {
+            room: currentRoom,
+            newCards: true
+        };
+
+        socket.emit('replay', data);
     });
 
 
@@ -147,6 +170,7 @@ $(() => {
     socket.on('roomInfo', (roomNum) => {
         $(".roomDisp").text(`Room Number: ${roomNum}`);
         currentRoom = roomNum;
+        console.log(currentRoom);
         if (!isNameSent) {
             socket.emit('nameAssignment', { name: localStorage.getItem("userName"), room: currentRoom });
             isNameSent = true;
@@ -175,8 +199,8 @@ $(() => {
         }
     });
 
-    socket.on('dealJobCard', cardPack => {
-        jobCard.text(`Job Name: ${cardPack}`);
+    socket.on('dealJobCard', card => {
+        jobCard.text(`Job Name: ${card}`);
     })
 
 
@@ -191,8 +215,10 @@ $(() => {
 
     //event listener for handling the submission phase
     socket.on('submissionPhase', ({ players }) => {
-        phraseTarget = 5 * players.length;
-        jobTarget = 2 * players.length;
+        // phraseTarget = 5 * players.length;
+        phraseTarget = 1;
+        // jobTarget = 2 * players.length;
+        jobTarget = 1;
 
         submissionPhase();
     });
@@ -222,6 +248,10 @@ $(() => {
 
     socket.on('endEmploymentPhase', () => {
         isEmploymentPhase = false;
+    });
+
+    socket.on('winner', (winnerName) => {
+        winnerPhase(winnerName);
     });
 
     // *********************************************************************************************************
@@ -260,6 +290,15 @@ $(() => {
         updatePlayerList(data);
     });
 
+    socket.on('resetGame', () => {
+        localStorage.setItem('jobList', JSON.stringify([]));
+        localStorage.setItem('phraseList', JSON.stringify([]));
+        
+        score = 0;
+        jobCount = 0;
+        phraseCount = 0;
+    });
+
 
     // *********************************************************************************************************
     // ---------Phase Functions-----------
@@ -273,6 +312,7 @@ $(() => {
         endTurnDiv.hide();
         hiringList.hide();
         playerListCard.show();
+        winnerCard.hide();
     };
 
     const submissionPhase = () => {
@@ -288,6 +328,7 @@ $(() => {
         endTurnDiv.hide();
         hiringList.hide();
         playerListCard.hide();
+        winnerCard.hide();
     };
 
     const dealPhase = () => {
@@ -316,6 +357,7 @@ $(() => {
         currentCardDiv.show();
         startDiv.hide();
         playerListCard.hide();
+        winnerCard.hide();
     };
 
     function populateHiringList(players) {
@@ -334,7 +376,6 @@ $(() => {
             }
             socket.emit('endEmploymentPhase', currentRoom);
             socket.emit('assignPoint', gameData);
-            socket.emit('drawPhase', gameData);
             hiringList.empty();
         });
     };
@@ -354,6 +395,20 @@ $(() => {
         startDiv.hide();
         endTurnDiv.hide();
         playerListCard.hide();
+        winnerCard.hide();
+    };
+
+    const winnerPhase = (winnerName) => {
+        submissionsDiv.hide();
+        currentCardDiv.hide();
+        cardsDiv.hide();
+        endTurnDiv.hide();
+        hiringList.hide();
+        playerListCard.hide();
+
+        winnerNameText.text(winnerName);
+
+        winnerCard.show();
     };
 
     // check to see if all 5 phrase cards have been submitted, and if so, allow the player to end their turn
