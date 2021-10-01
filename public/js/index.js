@@ -215,10 +215,10 @@ $(() => {
 
     //event listener for handling the submission phase
     socket.on('submissionPhase', ({ players }) => {
-        // phraseTarget = 5 * players.length;
-        phraseTarget = 1;
-        // jobTarget = 2 * players.length;
-        jobTarget = 1;
+        phraseTarget = 5 * players.length;
+        // phraseTarget = 1;
+        jobTarget = 2 * players.length;
+        // jobTarget = 1;
 
         submissionPhase();
     });
