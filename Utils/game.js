@@ -1,5 +1,4 @@
 const Game = (io, games, utils, cardsPerPlayer, scoreToWin) => {
-    
 
     const Game = {
         updatePlayerList: roomNum => {
@@ -28,28 +27,27 @@ const Game = (io, games, utils, cardsPerPlayer, scoreToWin) => {
             Game.updatePlayerList(room);
         },
 
-        dealPhraseCards: async (roomNum) => {
-            const roomIndex = utils.getGameIndex(roomNum.room);
-            const players = games[roomIndex].players;
-
-
-            let phrases = await utils.getPhraseCards(roomNum.room);
+        dealPhraseCards: (roomNum) => {
+            const gameIndex = utils.getGameIndex(roomNum);
+            const players = games[gameIndex].players;
 
             players.forEach(player => {
                 if (!player.interviewer) {
-                    const cardPack = phrases.slice(0, cardsPerPlayer);
-                    phrases = phrases.slice(cardsPerPlayer);
+                    const cardPack = games[gameIndex].phraseCards.slice(0, cardsPerPlayer);
+                    games[gameIndex].phraseCards = games[gameIndex].phraseCards.slice(cardsPerPlayer);
                     io.to(player.socketId).emit('cardPack', cardPack);
                 };
             });
         },
 
-        dealJobCard: async (roomNum) => {
-            let jobs = await utils.getJobCards();
-            const cardPack = jobs[0];
-            jobs = jobs.slice(1);
+        dealJobCard: (roomNum) => {
+            const gameIndex = utils.getGameIndex(roomNum);
 
-            io.to(roomNum.room).emit('dealJobCard', cardPack);
+            const card = games[gameIndex].jobCards[0];
+            games[gameIndex].jobCards = games[gameIndex].jobCards.slice(1);
+
+            console.log(card);
+            io.to(roomNum).emit('dealJobCard', card);
         },
 
         chooseNextInterviewee: (roomNum) => {
@@ -106,34 +104,82 @@ const Game = (io, games, utils, cardsPerPlayer, scoreToWin) => {
             game.players.forEach(player => player.hasInterviewed = false);
         },
 
+        resetPoints: game => {
+            game.players.forEach(player => player.points = 0);
+        },
+
         checkForWinner: (game) => {
-            let winnerExists = false;
-            let winner = '';
-    
-            if (game) {
-                game.players.forEach(player => {
-                    if (player.points >= scoreToWin) {
-                        winnerExists = true;
-                        winner = player.name;
-                        // ToDo What happens when someone wins?
-                        console.log(`${winner} Wins!`);
-                    };
-                });
-            };
+            let winner;
+            game.players.forEach(player => {
+                if (player.points >= scoreToWin) {
+                    winner = player.name;
+                    console.log(`${winner} Wins!`);
+                };
+            });
+            return winner;
         },
 
         setInterviewerDisplay: (roomNum) => {
             const game = games[utils.getGameIndex(roomNum)];
             let interviewerName = '';
             game.players.forEach(player => {
-                if(player.interviewer) {
+                if (player.interviewer) {
                     interviewerName = player.name;
                 };
-    
-                if(interviewerName != '') {
+
+                if (interviewerName != '') {
                     io.emit('setCurrentInterviewer', interviewerName);
                 };
             });
+        },
+
+        nextRound: (room) => {
+            console.log(`Draw phase sent to room ${room}`);
+
+            io.to(room).emit('drawPhase');
+            Game.setInterviewerDisplay(room);
+            Game.resetHasInterviewed(games[utils.getGameIndex(room)]);
+            Game.changeInterviewee(room);
+            Game.dealPhraseCards(room);
+            Game.dealJobCard(room);
+
+            console.log(`Interview phase sent to room ${room}`);
+            io.to(room).emit('interviewPhase');
+        },
+
+        submissionPhaseSetup: room => {
+            const gameIndex = utils.getGameIndex(room);
+
+            console.log(`Submission phase sent to room ${room}`);
+            utils.resetPlayerReady(room);
+
+            const data = {
+                players: games[gameIndex].players
+            };
+
+            io.to(room).emit('submissionPhase', data);
+        },
+
+        resetGame: ({ room, newCards }) => {
+            const gameIndex = utils.getGameIndex(room);
+            const game = games[gameIndex];
+
+            Game.resetPoints(game);
+
+            if (newCards) {
+                game.jobCards = [];
+                game.phraseCards = [];
+
+                game.jobCardsOrig = [];
+                game.phraseCardsOrig = [];
+
+                Game.submissionPhaseSetup(room);
+            } else {
+                game.jobCards = game.jobCardsOrig;
+                game.phraseCards = game.phraseCardsOrig;
+
+                io.to(roomNum).emit("endSubmissionPhase");
+            }
         }
     };
 

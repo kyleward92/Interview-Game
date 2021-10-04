@@ -60,30 +60,23 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
 
         //event listener for handling the setup phase
         socket.on('setupPhase', roomNum => {
-            console.log(`Submission phase sent to room ${roomNum.room}`);
+            console.log(`setup phase sent to room ${roomNum}`);
             io.to(roomNum.room).emit('setupPhase');
+        });
 
+        //event listener for handling the submission phase
+        socket.on('submissionPhase', ({ room }) => {
+            Game.submissionPhaseSetup(room);
         });
 
         //event listener for handling the draw phase
-        socket.on('drawPhase', roomNum => {
-            console.log(`Draw phase sent to room ${roomNum.room}`);
-
-            io.to(roomNum.room).emit('drawPhase');
-            Game.setInterviewerDisplay(roomNum.room);
-            Game.resetHasInterviewed(games[utils.getGameIndex(roomNum.room)]);
-            Game.changeInterviewee(roomNum.room);
-            Game.dealPhraseCards(roomNum);
-            Game.dealJobCard(roomNum);
-
-            io.to(roomNum.room).emit('interviewPhase');
-
-            console.log(`Interview phase sent to room ${roomNum.room}`);
+        socket.on('drawPhase', ({ room }) => {
+            Game.nextRound(room);
         });
 
         //event listener for handling the interview phase
         socket.on('interviewPhase', roomNum => {
-            console.log(`Interview phase sent to room ${roomNum.room}`);
+            console.log(`Interview phase sent to room ${roomNum}`);
             io.to(roomNum.room).emit('interviewPhase');
         });
 
@@ -126,7 +119,38 @@ module.exports = (io, games, cardsPerPlayer, scoreToWin) => {
                     io.to(player.socketId).emit('increaseScore');
                 };
             });
-            Game.checkForWinner(game);
+
+            const winner = Game.checkForWinner(game);
+
+            if(winner) {
+                io.to(data.room).emit('winner', winner);
+            } else 
+            {   
+                Game.nextRound(data.room);
+            }
+        });
+
+        socket.on('submitUserSubmissions', async ({ jobs, phrases, roomNum, userName }) => {
+            const gameIndex = utils.getGameIndex(roomNum);
+            const playerIndex = games[gameIndex].players.findIndex(player => player.name == userName);
+            
+            games[gameIndex].jobCards = [...games[gameIndex].jobCards, ...jobs];
+            games[gameIndex].phraseCards = [...games[gameIndex].phraseCards, ...phrases];
+
+            games[gameIndex].players[playerIndex].ready = true;
+
+            const readyPlayers = games[gameIndex].players.filter(player => player.ready == true);
+
+            if (readyPlayers.length >= games[gameIndex].players.length) {
+                await utils.getJobCards(roomNum);
+                await utils.getPhraseCards(roomNum);
+                io.to(roomNum).emit("endSubmissionPhase");
+            };
+        });
+
+        socket.on('replay', data => {
+            io.to(data.room).emit('resetGame');
+            Game.resetGame(data);
         });
     });
 };

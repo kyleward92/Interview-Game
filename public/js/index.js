@@ -20,6 +20,10 @@ $(() => {
     const playerList = $(".playerList");
     const readyBtn = $(".readyBtn");
     const startBtn = $(".startBtn");
+    const jobInput = $('.jobInput');
+    const phraseInput = $('.phraseInput');
+    const winnerCard = $('.winnerCard');
+    const winnerNameText = $('.winnerNameText');
 
     //is the client the current interviewer
     let isInterviewer = false;
@@ -37,6 +41,11 @@ $(() => {
     let phraseSubmissions = 0;
     let canStart = false;
 
+    let jobTarget;
+    let phraseTarget;
+
+    let jobCount = 0;
+    let phraseCount = 0;
 
 
     // *********************************************************************************************************
@@ -95,7 +104,47 @@ $(() => {
             room: currentRoom
         };
 
-        socket.emit('drawPhase', gameData);
+        socket.emit('submissionPhase', gameData);
+    });
+
+    $(".addJobBtn").on('click', event => {
+        event.preventDefault();
+
+        if (jobInput.val() != "") {
+            addJob(jobInput.val());
+            jobInput.val("");
+        };
+    });
+
+    $(".addPhraseBtn").on('click', event => {
+        event.preventDefault();
+
+        if (phraseInput.val() != "") {
+            addPhrase(phraseInput.val());
+            phraseInput.val("");
+        };
+    });
+
+    $(".replaySameCardsBtn").on('click', event => {
+        event.preventDefault();
+
+        const data = {
+            room: currentRoom,
+            newCards: false
+        };
+
+        socket.emit('replay', data);
+    });
+
+    $(".replayReuseCardsBtn").on('click', event => {
+        event.preventDefault();
+
+        const data = {
+            room: currentRoom,
+            newCards: true
+        };
+
+        socket.emit('replay', data);
     });
 
 
@@ -121,6 +170,7 @@ $(() => {
     socket.on('roomInfo', (roomNum) => {
         $(".roomDisp").text(`Room Number: ${roomNum}`);
         currentRoom = roomNum;
+        console.log(currentRoom);
         if (!isNameSent) {
             socket.emit('nameAssignment', { name: localStorage.getItem("userName"), room: currentRoom });
             isNameSent = true;
@@ -149,8 +199,8 @@ $(() => {
         }
     });
 
-    socket.on('dealJobCard', cardPack => {
-        jobCard.text(`Job Name: ${cardPack}`);
+    socket.on('dealJobCard', card => {
+        jobCard.text(`Job Name: ${card}`);
     })
 
 
@@ -160,8 +210,25 @@ $(() => {
 
     //event listener for handling the setup phase
     socket.on('setupPhase', () => {
+        setupPhase();
+    });
+
+    //event listener for handling the submission phase
+    socket.on('submissionPhase', ({ players }) => {
+        phraseTarget = 5 * players.length;
+        // phraseTarget = 1;
+        jobTarget = 2 * players.length;
+        // jobTarget = 1;
+
         submissionPhase();
     });
+
+    socket.on('endSubmissionPhase', () => {
+        const gameData = {
+            room: currentRoom
+        };
+        socket.emit('drawPhase', gameData);
+    })
 
     //event listener for handling the draw phase
     socket.on('drawPhase', () => {
@@ -181,6 +248,10 @@ $(() => {
 
     socket.on('endEmploymentPhase', () => {
         isEmploymentPhase = false;
+    });
+
+    socket.on('winner', (winnerName) => {
+        winnerPhase(winnerName);
     });
 
     // *********************************************************************************************************
@@ -219,19 +290,45 @@ $(() => {
         updatePlayerList(data);
     });
 
+    socket.on('resetGame', () => {
+        localStorage.setItem('jobList', JSON.stringify([]));
+        localStorage.setItem('phraseList', JSON.stringify([]));
+        
+        score = 0;
+        jobCount = 0;
+        phraseCount = 0;
+    });
+
 
     // *********************************************************************************************************
     // ---------Phase Functions-----------
     // *********************************************************************************************************
 
 
-    const submissionPhase = () => {
+    const setupPhase = () => {
         submissionsDiv.hide();
         currentCardDiv.hide();
         cardsDiv.hide();
         endTurnDiv.hide();
         hiringList.hide();
         playerListCard.show();
+        winnerCard.hide();
+    };
+
+    const submissionPhase = () => {
+        jobInput.attr("disabled", false);
+        phraseInput.attr("disabled", false);
+
+        localStorage.setItem('jobList', JSON.stringify([]));
+        localStorage.setItem('phraseList', JSON.stringify([]));
+
+        submissionsDiv.show();
+        currentCardDiv.hide();
+        cardsDiv.hide();
+        endTurnDiv.hide();
+        hiringList.hide();
+        playerListCard.hide();
+        winnerCard.hide();
     };
 
     const dealPhase = () => {
@@ -260,6 +357,7 @@ $(() => {
         currentCardDiv.show();
         startDiv.hide();
         playerListCard.hide();
+        winnerCard.hide();
     };
 
     function populateHiringList(players) {
@@ -278,7 +376,6 @@ $(() => {
             }
             socket.emit('endEmploymentPhase', currentRoom);
             socket.emit('assignPoint', gameData);
-            socket.emit('drawPhase', gameData);
             hiringList.empty();
         });
     };
@@ -298,6 +395,20 @@ $(() => {
         startDiv.hide();
         endTurnDiv.hide();
         playerListCard.hide();
+        winnerCard.hide();
+    };
+
+    const winnerPhase = (winnerName) => {
+        submissionsDiv.hide();
+        currentCardDiv.hide();
+        cardsDiv.hide();
+        endTurnDiv.hide();
+        hiringList.hide();
+        playerListCard.hide();
+
+        winnerNameText.text(winnerName);
+
+        winnerCard.show();
     };
 
     // check to see if all 5 phrase cards have been submitted, and if so, allow the player to end their turn
@@ -336,7 +447,7 @@ $(() => {
 
             let playerHTML;
 
-            if(player.ready) {
+            if (player.ready) {
                 playerHTML = `<div class="row"> <span style="font-size: 2rem;"> ${player.name} <i class="fas fa-user-check" id="${player.name}"></i> </span> </div>`;
             } else {
                 playerHTML = `<div class="row"> <span style="font-size: 2rem;"> ${player.name} <i class="fas fa-user-times" id="${player.name}"></i> </span> </div>`;
@@ -344,6 +455,54 @@ $(() => {
 
             playerList.append(playerHTML);
         });
+    };
+
+    /**
+     Determine if either job or phrase submission target has been met, and if both are met simultaneously
+    **/
+    const checkSubmissions = () => {
+        if (jobCount == jobTarget) {
+            jobInput.attr("disabled", true);
+        };
+
+        if (phraseCount == phraseTarget) {
+            phraseInput.attr("disabled", true);
+        };
+
+        if (jobCount == jobTarget && phraseCount == phraseTarget) {
+            const data = {
+                jobs: JSON.parse(localStorage.getItem('jobList')),
+                phrases: JSON.parse(localStorage.getItem('phraseList')),
+                roomNum: currentRoom,
+                userName: userName
+            };
+
+            socket.emit('submitUserSubmissions', data);
+        };
+    };
+
+    /**
+    Send the specified job string to local storage
+    **/
+    const addJob = (newJob) => {
+        let jobArr = JSON.parse(localStorage.getItem('jobList'));
+        jobArr.push(newJob);
+        localStorage.setItem('jobList', JSON.stringify(jobArr));
+
+        jobCount += 1;
+        checkSubmissions();
+    };
+
+    /**
+    Send the specified phrase string to local storage
+    **/
+    const addPhrase = (newPhrase) => {
+        let phraseArr = JSON.parse(localStorage.getItem('phraseList'));
+        phraseArr.push(newPhrase);
+        localStorage.setItem('phraseList', JSON.stringify(phraseArr));
+
+        phraseCount += 1;
+        checkSubmissions();
     };
 
     setDisplayName();

@@ -22,16 +22,18 @@ const utils = (io, games, db) => {
                     points: 0
                 };
                 io.to(newPlayer.socketId).emit('toggleInterviewer');
-    
+
                 games.push({
                     room: roomNum,
                     players: [newPlayer],
                     interviewerIndex: 0,
                     jobCards: [],
+                    jobCardsOrig: [],
                     phraseCards: [],
+                    phraseCardsOrig: [],
                     canStart: false
                 });
-    
+
             } else {
                 const newPlayer = {
                     socketId: socket.id,
@@ -48,30 +50,17 @@ const utils = (io, games, db) => {
         },
 
         getPhraseCards: async (roomNum) => {
-            const submittedPhraseCards = await db.phrases.findAll({
-                where: {
-                    roomNum: roomNum
-                },
-                raw: true,
-                attributes: [`content`]
-            });
-    
+            const gameIndex = utils.getGameIndex(roomNum);
             const phraseCardsRaw = await db.premadePhrases.findAll({});
-    
-            let phraseDeck = [];
-    
-            //first populate using user submissions
-            for (i = 0; i < submittedPhraseCards.length; i++) {
-                phraseDeck.push(submittedPhraseCards[i].content);
-            };
-    
-            //Then fill remaining slots (of 100) with premade content
-            for (i = phraseDeck.length; i < 100; i++) {
-                phraseDeck.push(phraseCardsRaw[i].content);
-            };
-    
+            const phraseCards = phraseCardsRaw.map(card => card.content);
+
+            let phraseDeck = [...games[gameIndex].phraseCards, ...phraseCards];
+
             utils.shuffle(phraseDeck);
-            return phraseDeck;
+            games[gameIndex].phraseCards = phraseDeck;
+            games[gameIndex].phraseCardsOrig = phraseDeck;
+
+            console.log(games[gameIndex].phraseCardsOrig);
         },
 
         shuffle: (a) => {
@@ -84,29 +73,18 @@ const utils = (io, games, db) => {
             };
         },
 
-        getJobCards: async () => {
-            const submittedJobCards = await db.jobs.findAll({
-                where: {
-                    roomNum: roomNum
-                },
-                raw: true,
-                attributes: [`title`]
-            });
-    
+        getJobCards: async (roomNum) => {
+            const gameIndex = utils.getGameIndex(roomNum);
             const jobCardsRaw = await db.premadeJobs.findAll({});
-    
-            let jobsDeck = [];
-    
-            for (i = 0; i < submittedJobCards.length; i++) {
-                jobsDeck.push(submittedJobCards[i].title);
-            };
-    
-            for (i = jobsDeck.length; i < 20; i++) {
-                jobsDeck.push(jobCardsRaw[i].title);
-            };
-    
-            utils.shuffle(jobsDeck);
-            return (jobsDeck);
+            const jobCards = jobCardsRaw.map(card => card.title);
+
+            let jobDeck = [...games[gameIndex].jobCards, ...jobCards];
+
+            utils.shuffle(jobDeck);
+            games[gameIndex].jobCards = jobDeck;
+            games[gameIndex].jobCardsOrig = jobDeck;
+
+            console.log(games[gameIndex].jobCardsOrig);
         },
 
         getGameIndex: (roomNum) => {
@@ -128,6 +106,11 @@ const utils = (io, games, db) => {
                     games.splice(gameIndex, 1);
                 };
             };
+        },
+
+        resetPlayerReady: room => {
+            const gameIndex = utils.getGameIndex(room);
+            games[gameIndex].players.forEach(player => player.ready = false);
         }
     };
 
